@@ -12,6 +12,7 @@ import java.awt.Color;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
@@ -128,7 +129,7 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
 
         if (txt != null && !txt.equals("")) {
             final LabelAPI txtLbl = Global.getSettings().createLabel(
-                txt, "graphics/fonts/insignia21LTaa.fnt"
+                txt, Fonts.INSIGNIA_LARGE
             );
             innerPanel.addComponent((UIComponentAPI)txtLbl);
             txtLbl.setColor(btnTxtColor);
@@ -146,7 +147,7 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
                 if (BtnTxt == null) continue;
     
                 final Button btn = new Button(innerPanel, BUTTON_W, BUTTON_H, BtnTxt,
-                    "graphics/fonts/orbitron20aa.fnt", this
+                    Fonts.ORBITRON_20AA, this
                 );
                 btn.setAlignment(Alignment.MID);
                 btn.setCutStyle(CutStyle.TL_BR);
