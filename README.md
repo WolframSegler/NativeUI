@@ -19,6 +19,7 @@ Feel free to create forks or contribute. Bug reports are also appreciated.
 - [`SpritePanel`](src/wfg/wrap_ui/ui/panels/SpritePanel.java) with optional tooltip; essentially a `SpriteAPI` wrapper.
 - [`ScrollPanel`](src/wfg/wrap_ui/ui/panels/ScrollPanel.java) for vertical and horizontal scroll.
 - [`DialogPanel`](src/wfg/wrap_ui/ui/dialogs/DialogPanel.java) is the vanilla Folding Dialog Panel but without the annoying vanilla API.
+- [`DockPanel`](src/wfg/wrap_ui/ui/panels/DockPanel.java) docks to the specified side of the screen.
 
 # Usage
 - All panels that wish to use Plugins or Systems must extend [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java).
