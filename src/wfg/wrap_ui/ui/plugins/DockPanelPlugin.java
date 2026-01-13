@@ -11,7 +11,7 @@ public class DockPanelPlugin extends CustomPanelPlugin<DockPanel, DockPanelPlugi
 
     @Override
     public void renderBelow(float alphaMult) {
-        super.render(alphaMult);
         getPanel().renderImpl(alphaMult);
+        super.render(alphaMult);
     }
 }

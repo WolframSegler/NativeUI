@@ -9,10 +9,11 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.wrap_ui.internal.util.BorderRenderer;
+import wfg.wrap_ui.internal.util.BorderRenderer.BorderSide;
 import wfg.wrap_ui.ui.Attachments;
 import wfg.wrap_ui.ui.plugins.DockPanelPlugin;
 
-public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, UIPanelAPI>{
+public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, UIPanelAPI> {
     
     public static enum DockDirection {
         LEFT, RIGHT, TOP, BOTTOM
@@ -35,8 +36,9 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, 
     public DockPanel(final int width, final int height, final DockDirection dir) {
         super(Attachments.getScreenPanel(), width, height, new DockPanelPlugin());
         getPlugin().init(this);
+        Attachments.getScreenPanel().addComponent(m_panel);
 
-        border = new BorderRenderer(borderPrefix, width, height);
+        border = new BorderRenderer(borderPrefix, width, height, BorderSide.LEFT);
         targetPos = calculateTargetPos(); 
     }
     public void createPanel() {}
@@ -49,16 +51,25 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, 
     public void changeDirection(final DockDirection dir) {
         dockDir = dir;
         targetPos = calculateTargetPos();
+        border.hiddenSides.clear();
+
+        switch (dir) {
+        case LEFT: border.hiddenSides.add(BorderSide.LEFT); break;
+        case RIGHT: border.hiddenSides.add(BorderSide.RIGHT); break;
+        case TOP: border.hiddenSides.add(BorderSide.TOP); break;
+        case BOTTOM: border.hiddenSides.add(BorderSide.BOTTOM); break;
+        }
     }
 
     public void setBorder(String prefix) {
         borderPrefix = prefix;
+        border = new BorderRenderer(prefix);
         setSize(getPos().getWidth(), getPos().getHeight());
     }
 
     public PositionAPI setSize(final float w, final float h) {
         getPos().setSize(w, h);
-        border = new BorderRenderer(borderPrefix, w + pad*2, h + pad*2);
+        border.setSize(w + pad*2, h + pad*2);
         return getPos();
     }
 
@@ -78,10 +89,18 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, 
 
     public void renderImpl(final float alpha) {
         final PositionAPI pos = getPos();
-        
-        if (border != null) {
-            border.render(pos.getX() - pad, pos.getY() - pad, alpha);
+
+        float bx = pos.getX() - pad;
+        float by = pos.getY() - pad;
+
+        switch (dockDir) {
+            case TOP -> by += pad + 2;
+            case LEFT -> bx -= pad + 2;
+            case RIGHT -> bx += pad + 2;
+            case BOTTOM -> by -= pad + 2;
         }
+
+        if (border != null) border.render(bx, by, alpha);
     }
 
     protected void updatePosition() {
