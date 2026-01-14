@@ -13,6 +13,7 @@ public class BorderRenderer {
     }
 
     public boolean renderCenter = true;
+    public boolean compensateForHiddenSides = true;
     public final EnumSet<BorderSide> hiddenSides = EnumSet.noneOf(BorderSide.class);
 
     private final SpriteAPI bottom_left;
@@ -118,7 +119,20 @@ public class BorderRenderer {
 
         if (renderCenter) {
             center.setAlphaMult(alpha);
-            center.renderRegion(x + corner_width, y + corner_width, 0f, 0f, tilesWide, tilesHigh);
+
+            float cx = x + corner_width;
+            float cy = y + corner_width;
+            float cw = tilesWide;
+            float ch = tilesHigh;
+
+            if (compensateForHiddenSides) {
+                if (hiddenSides.contains(BorderSide.LEFT))   { cx -= corner_width; cw += 1f; }
+                if (hiddenSides.contains(BorderSide.RIGHT))  { cw += 1f; }
+                if (hiddenSides.contains(BorderSide.BOTTOM)) { cy -= corner_width; ch += 1f; }
+                if (hiddenSides.contains(BorderSide.TOP))    { ch += 1f; }
+            }
+
+            center.renderRegion(cx, cy, 0f, 0f, cw, ch);
         }
     }
 }

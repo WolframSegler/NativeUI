@@ -24,8 +24,7 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, 
     public float durOut = 0.3f;
 
     protected DockDirection dockDir = DockDirection.LEFT;
-    protected float offsetX = 0f;
-    protected float offsetY = 0f;
+    protected float offsetX, offsetY = 0f;
     
     protected Vector2f targetPos;
     protected float progress = 0f;
@@ -39,7 +38,7 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, 
         Attachments.getScreenPanel().addComponent(m_panel);
 
         border = new BorderRenderer(borderPrefix, width, height, BorderSide.LEFT);
-        targetPos = calculateTargetPos(); 
+        targetPos = calculateTargetPos();
     }
     public void createPanel() {}
 
@@ -90,17 +89,9 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, 
     public void renderImpl(final float alpha) {
         final PositionAPI pos = getPos();
 
-        float bx = pos.getX() - pad;
-        float by = pos.getY() - pad;
-
-        switch (dockDir) {
-            case TOP -> by += pad + 2;
-            case LEFT -> bx -= pad + 2;
-            case RIGHT -> bx += pad + 2;
-            case BOTTOM -> by -= pad + 2;
+        if (border != null) {
+            border.render(pos.getX() - pad, pos.getY() - pad, alpha);
         }
-
-        if (border != null) border.render(bx, by, alpha);
     }
 
     protected void updatePosition() {
