@@ -7,7 +7,6 @@ Feel free to create forks or contribute. Bug reports are also appreciated.
 - Extensive use of generics for early error prevention
 - Global UI attachment points via [`Attachments`](src/wfg/wrap_ui/ui/Attachments.java)
 - Barebones UI state tracking using [`UIState`](src/wfg/wrap_ui/ui/UIState.java)
-- Simple [dialog wrapper](src/wfg/wrap_ui/ui/dialogs/WrapDialogDelegate.java) for accessing the dialog panel instance
 - [Systems](src/wfg/wrap_ui/ui/systems/BaseSystem.java) for tooltips and fader management to reduce boilerplate, with a more composition-oriented approach
 - Basic [number formatter](src/wfg/wrap_ui/util/NumFormat.java) for large numbers
 
@@ -19,10 +18,10 @@ Feel free to create forks or contribute. Bug reports are also appreciated.
 - [`SpritePanel`](src/wfg/wrap_ui/ui/panels/SpritePanel.java) with optional tooltip; essentially a `SpriteAPI` wrapper.
 - [`ScrollPanel`](src/wfg/wrap_ui/ui/panels/ScrollPanel.java) for vertical and horizontal scroll.
 - [`DialogPanel`](src/wfg/wrap_ui/ui/dialogs/DialogPanel.java) is the vanilla Folding Dialog Panel but without the annoying vanilla API.
-- [`DockPanel`](src/wfg/wrap_ui/ui/panels/DockPanel.java) docks to the specified side of the screen.
+- [`DockPanel`](src/wfg/wrap_ui/ui/panels/DockPanel.java) docks to the specified side of the screen and can move in and out of the viewport.
 
 # Usage
-- All panels that wish to use Plugins or Systems must extend [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java).
+- All panels that wish to use Plugins or Systems must extend [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java) with few exceptions.
 - To access the actual `CustomPanelAPI` instance, the getPanel() method can be used.
 - Do not forget to call getPlugin().init() inside the panel constructor.
 
