@@ -1,5 +1,6 @@
 v0.2.1-beta
 - Misc. bug fixes
+- Made SpritePanel and SpritePanelWithTp a lot leaner in termns of composition
 
 v0.2.0-beta
 - Created a carbon copy of DialogPanel because the API for vanilla version was too restrictive

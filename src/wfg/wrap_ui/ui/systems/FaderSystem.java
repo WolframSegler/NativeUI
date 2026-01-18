@@ -63,7 +63,7 @@ public final class FaderSystem<
 
         if (getPanel().getGlowType() == Glow.ADDITIVE) {
             final float glowAmount = getPanel().getAdditiveBrightness() * fader.getBrightness() * alphaMult;
-            getPanel().getSprite().ifPresentOrElse(
+            getPanel().getAdditiveSprite().ifPresentOrElse(
                 sprite -> RenderUtils.drawAdditiveGlow(
                     sprite,
                     getPanel().getPos().getX(),

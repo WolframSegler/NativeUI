@@ -1,7 +1,9 @@
 package wfg.wrap_ui.ui.panels;
 
 import java.awt.Color;
+import java.util.Optional;
 
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -10,7 +12,6 @@ import com.fs.starfarer.api.util.FaderUtil;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasAudioFeedback;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasFader;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
-import wfg.wrap_ui.ui.plugins.SpritePanelPlugin;
 
 /**
  * A generic sprite panel with tooltip and fading support.
@@ -47,26 +48,20 @@ import wfg.wrap_ui.ui.plugins.SpritePanelPlugin;
 public class SpritePanelWithTp extends SpritePanel<SpritePanelWithTp>
     implements HasTooltip, HasFader, HasAudioFeedback
 {
-    public FaderUtil fader = new FaderUtil(0, 0, 0.2f, true, true);
+    public final FaderUtil fader = new FaderUtil(0, 0, 0.2f, true, true);
 
-    public SpritePanelWithTp(UIPanelAPI parent, int width, int height,
-        SpritePanelPlugin<SpritePanelWithTp> plugin, String spriteID, Color color, Color fillColor, boolean drawBorder) {
-        super(parent, width, height, plugin, spriteID, color, fillColor, drawBorder);
+    public SpritePanelWithTp(UIPanelAPI parent, int width, int height, String spriteID,
+        Color color, Color fillColor
+    ) {
+        super(parent, width, height, spriteID, color, fillColor);
     }
 
-    public Color getGlowColor() {
-        return Color.WHITE;
+    @Override
+    public Optional<SpriteAPI> getAdditiveSprite() {
+        return Optional.of(m_sprite);
     }
 
-    public CustomPanelAPI getTpParent() {
-        return null;
-    }
-
-    public TooltipMakerAPI createAndAttachTp() {
-        return null;
-    }
-
-    public FaderUtil getFader() {
-        return fader;
-    }
+    public CustomPanelAPI getTpParent() { return null; }
+    public TooltipMakerAPI createAndAttachTp() { return null; }
+    public FaderUtil getFader() { return fader; }
 }

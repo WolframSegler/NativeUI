@@ -276,8 +276,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
                     HEADER_HEIGHT - 2, HEADER_HEIGHT,
                     sortIconPath,
                     getFaction().getBaseUIColor(),
-                    null,
-                    false
+                    null
                 );
     
                 add(sortIcon).inBR(1, 0);
@@ -349,7 +348,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             final TooltipMakerAPI tooltip;
 
             if (column.getTooltipType() == String.class) {
-                tooltip = getParent().createUIElement(headerTooltipWidth, 0, false);
+                tooltip = getTpParent().createUIElement(headerTooltipWidth, 0, false);
     
                 tooltip.addPara((String) column.tooltip, pad);
 
@@ -362,7 +361,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
                 );
             }
 
-            getParent().addUIElement(tooltip);
+            getTpParent().addUIElement(tooltip);
             WrapUiUtils.anchorPanelWithBounds(tooltip, getPanel(), AnchorType.TopLeft, 0);
 
             return tooltip;
@@ -621,23 +620,19 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             outlineColor = color;
         }
 
+        @Override
+        public boolean isTooltipEnabled() {
+            return m_tooltip != null;
+        }
+
         public CustomPanelAPI getTpParent() {
-            if (m_tooltip == null) {
-                return getParent();
-            } else {
-                return m_tooltip.parentSupplier.get();
-            }
+            return m_tooltip.parentSupplier.get();
         }
         
         public TooltipMakerAPI createAndAttachTp() {
-            if (m_tooltip == null) {
-                // Invisible header
-                return getParent().createUIElement(0, 0, false);
-            }
-
             TooltipMakerAPI tooltip = m_tooltip.factory.get();
 
-            (SortableTable.this.getPanel()).addUIElement(tooltip);
+            getTpParent().addUIElement(tooltip);
             WrapUiUtils.mouseCornerPos(tooltip, opad);
 
             if (codexID != null) {

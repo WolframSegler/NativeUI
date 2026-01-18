@@ -309,7 +309,7 @@ public abstract class CustomPanel<
          * <ul>
          *     <li>{@link Glow#OVERLAY} or {@link Glow#UNDERLAY}: supports polygon-shaped glow.</li>
          *     <li>{@link Glow#ADDITIVE}: works with convex/polygon shapes too; a sprite texture is optional.
-         *         If a sprite is provided via {@link #getSprite()}, it will be used for rendering,
+         *         If a sprite is provided via {@link #getAdditiveSprite()}, it will be used for rendering,
          *         otherwise a colored quad/polygon will be drawn.</li>
          *     <li>{@link Glow#NONE}: no glow.</li>
          * </ul>
@@ -340,7 +340,7 @@ public abstract class CustomPanel<
          * <p>Providing a sprite will render the glow using the texture, otherwise the system will
          * draw a colored polygon/quad according to {@link #getFaderMaskVertices()} (if applicable). 
          */
-        default Optional<SpriteAPI> getSprite() {
+        default Optional<SpriteAPI> getAdditiveSprite() {
             return Optional.empty();
         }
 
