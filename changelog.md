@@ -1,3 +1,6 @@
+v0.2.1-beta
+- Misc. bug fixes
+
 v0.2.0-beta
 - Created a carbon copy of DialogPanel because the API for vanilla version was too restrictive
 - Create new Attachments for UI injection

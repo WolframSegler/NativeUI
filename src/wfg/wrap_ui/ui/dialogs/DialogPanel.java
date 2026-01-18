@@ -94,10 +94,10 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
     protected final Map<Button, Integer> optionsMap = new HashMap<>();
 
     public DialogPanel(UIPanelAPI parent, int w, int h, RunnableWithCode runnable) {
-        super(parent, w, h + BUTTON_H + pad, runnable);
+        super(parent, w, h + BUTTON_H + pad + opad, runnable);
         getPlugin().init(this);
 
-        holo = new FoldingPanel(m_panel, w, h + BUTTON_H + pad,
+        holo = new FoldingPanel(m_panel, w, h + BUTTON_H + pad + opad,
             "ui_border1", 7
         );
         add(holo);

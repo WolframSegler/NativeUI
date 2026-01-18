@@ -92,8 +92,8 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
     public boolean sortingEnabled = true;
 
     private final List<ColumnManager> m_columns = new ArrayList<>();
-    private final List<RowManager> m_rows = new ArrayList<>();
-    private RowManager pendingRow = null;
+    private final List<RowPanel> m_rows = new ArrayList<>();
+    private RowPanel pendingRow = null;
 
     private final int HEADER_HEIGHT;
     private final int ROW_HEIGHT;
@@ -102,11 +102,11 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
     private int selectedSortColumnIndex = -1;
     private boolean ascending = true;
 
-    private RowManager m_selectedRow;
+    private RowPanel m_selectedRow;
     private CustomPanelAPI m_headerContainer = null;
     private CustomPanelAPI m_rowContainer = null;
 
-    public RowManager getPendingRow() {
+    public RowPanel getPendingRow() {
         return pendingRow;
     }
 
@@ -114,11 +114,11 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         return m_columns;
     }
 
-    public List<RowManager> getRows() {
+    public List<RowPanel> getRows() {
         return m_rows;
     }
 
-    public RowManager getSelectedRow() {
+    public RowPanel getSelectedRow() {
         return m_selectedRow;
     }
 
@@ -218,14 +218,14 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             null
         );
 
-        TooltipMakerAPI tp = m_rowContainer.createUIElement(
+        final TooltipMakerAPI tp = m_rowContainer.createUIElement(
             getPos().getWidth() + pad,
             getPos().getHeight() - (HEADER_HEIGHT + pad),
             true
         );
 
         int cumulativeYOffset = pad;
-        for (RowManager row : m_rows) {
+        for (RowPanel row : m_rows) {
             tp.addComponent(row.getPanel()).inTL(pad, cumulativeYOffset);
 
             cumulativeYOffset += pad + ROW_HEIGHT;
@@ -433,12 +433,12 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         }
     }
 
-    public class RowManager extends CustomPanel<BasePanelPlugin<RowManager>, RowManager, CustomPanelAPI> 
+    public class RowPanel extends CustomPanel<BasePanelPlugin<RowPanel>, RowPanel, CustomPanelAPI> 
         implements HasTooltip, HasFader, HasOutline, HasAudioFeedback, HasActionListener, AcceptsActionListener
     {
         public Color textColor = base;
         public PendingTooltip<? extends UIPanelAPI> m_tooltip = null;
-        public CallbackRunnable<RowManager> onRowClicked = null;
+        public CallbackRunnable<RowPanel> onRowClicked = null;
         public Object customData = null;
         
         protected final List<Object> m_cellData = new ArrayList<>();
@@ -453,7 +453,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         private Outline outline = Outline.NONE;
         private Color outlineColor = dark;
 
-        public RowManager(UIPanelAPI parent, int width, int height) {
+        public RowPanel(UIPanelAPI parent, int width, int height) {
             super(parent, width, height, new BasePanelPlugin<>());
 
             getPlugin().init(this);
@@ -462,7 +462,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
 
         public void createPanel() {
 
-            CustomPanelAPI rowPanel = SortableTable.RowManager.this.getPanel();
+            CustomPanelAPI rowPanel = SortableTable.RowPanel.this.getPanel();
             int cumulativeXOffset = 0;
 
             for (int i = 0; i < m_cellData.size(); i++) {
@@ -722,7 +722,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
      */
     public void addCell(Object cell, cellAlg alg, Object sortValue, Color textColor) {
         if (pendingRow == null) {
-            pendingRow = new RowManager(
+            pendingRow = new RowPanel(
                 getParent(),
                 (int) getPos().getWidth() - 2,
                 ROW_HEIGHT
@@ -743,7 +743,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
      * @param onRowClicked gets called when the row is clicked.
      */
     public <TpType extends CustomPanelAPI> void pushRow(String codexID, Object customData, Color textColor,
-        Color highlight, PendingTooltip<TpType> tp, CallbackRunnable<RowManager> onRowClicked
+        Color highlight, PendingTooltip<TpType> tp, CallbackRunnable<RowPanel> onRowClicked
     ) {
         if (pendingRow == null || pendingRow.m_cellData.isEmpty()) {
             throw new IllegalStateException("Cannot push row: no cells have been added yet. "
@@ -801,7 +801,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         createPanel(); // Refresh the table
     }
 
-    private Comparator<RowManager> stringComparator = (a, b) -> {
+    private Comparator<RowPanel> stringComparator = (a, b) -> {
         String valA = (String) a.getSortValue(selectedSortColumnIndex);
         String valB = (String) b.getSortValue(selectedSortColumnIndex);
 
@@ -809,7 +809,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         return ascending ? cmp : -cmp;
     };
 
-    private Comparator<RowManager> numberComparator = (a, b) -> {
+    private Comparator<RowPanel> numberComparator = (a, b) -> {
         Number valA = (Number) a.getSortValue(selectedSortColumnIndex);
         Number valB = (Number) b.getSortValue(selectedSortColumnIndex);
 
@@ -817,9 +817,9 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         return ascending ? cmp : -cmp;
     };
 
-    public RowManager selectLastRow() {
-        RowManager target = null;
-        for (RowManager row : m_rows) {
+    public RowPanel selectLastRow() {
+        RowPanel target = null;
+        for (RowPanel row : m_rows) {
             boolean result = row == m_rows.get(m_rows.size() - 1);
             row.setPersistentGlow(result);
 
@@ -831,8 +831,8 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         return target;
     }
 
-    public void selectRow(RowManager selectedRow) {
-        for (RowManager row : m_rows) {
+    public void selectRow(RowPanel selectedRow) {
+        for (RowPanel row : m_rows) {
             row.setPersistentGlow(row == selectedRow);
         }
     }
