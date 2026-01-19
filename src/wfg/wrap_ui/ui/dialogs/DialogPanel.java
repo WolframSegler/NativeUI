@@ -104,7 +104,7 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
         holo.getPos().inMid();
         holo.forceFoldIn();
 
-        innerPanel = holo.getPanel().createCustomPanel(0f, 0f, null);
+        innerPanel = Global.getSettings().createCustom(0f, 0f, null); 
 
         holo.transitionEnabled = false;
         holo.setNext(innerPanel);

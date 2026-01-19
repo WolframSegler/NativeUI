@@ -120,9 +120,6 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
         fader.fadeOut();
     }
 
-    /**
-     * The component must be created as a child of {@link FoldingPanel}
-     */
     public void setNext(UIComponentAPI comp) {
         if (comp == null) return;
         noiseRenderer.fadeIn(0.2f, 0.2f);
