@@ -187,7 +187,7 @@ public class ComponentFactory {
         if (tooltip instanceof StandardTooltipV2Expandable tp) {
             StandardTooltipV2Expandable.updateSizeAsUIElement(tp);
             if (withScroller) {
-                final Object scrollPanel = RolfLectionUtil.instantiateClass(scrollPanelConstr);
+                final var scrollPanel = (ScrollPanelAPI) RolfLectionUtil.instantiateClass(scrollPanelConstr);
                 RolfLectionUtil.invokeMethodDirectly(setContentSizeMethod, scrollPanel,
                     tp.getWidth(), tp.getHeight()
                 );
@@ -200,8 +200,9 @@ public class ComponentFactory {
                 RolfLectionUtil.invokeMethodDirectly(setUseSimpleShadowsMethod, scrollPanel,
                     true
                 );
-                tooltip.setExternalScroller((ScrollPanelAPI) scrollPanel);
-                return parent.addComponent(tp);
+                scrollPanel.addComponent(tp).inTL(0f, 0f);
+                tooltip.setExternalScroller(scrollPanel);
+                return parent.addComponent(scrollPanel);
             } else {
                 tp.setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
                 return parent.addComponent(tp);
