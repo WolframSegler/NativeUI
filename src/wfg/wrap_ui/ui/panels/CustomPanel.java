@@ -12,7 +12,6 @@ import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -22,6 +21,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
 import rolflectionlib.util.RolfLectionUtil;
+import wfg.wrap_ui.ui.ComponentFactory;
 import wfg.wrap_ui.ui.plugins.CustomPanelPlugin;
 import wfg.wrap_ui.ui.systems.ActionListenerSystem;
 import wfg.wrap_ui.ui.systems.FaderSystem.Glow;
@@ -44,7 +44,7 @@ import wfg.wrap_ui.ui.systems.TooltipSystem;
  * <p>Example usage:</p>
  * <pre>
  * // Panel implementing {@link HasBackground}
- * public class MyPanel extends CustomPanel< MyPanelPlugin<MyPanel>, MyPanel, CustomPanelAPI> implements HasBackground {
+ * public class MyPanel extends CustomPanel< MyPanelPlugin<MyPanel>, MyPanel> implements HasBackground {
  *     private final Color bgColor;
  *
  *     public Color getBgColor() { return bgColor; }
@@ -65,7 +65,7 @@ public abstract class CustomPanel<
     private static final Object pluginField;
 
     static {
-        final CustomPanelAPI panelIns = Global.getSettings().createCustom(0, 0, null);
+        final UIPanelAPI panelIns = Global.getSettings().createCustom(0, 0, null);
         final Class<?> panelClazz = panelIns.getClass();
         final Class<?> posClazz = panelIns.getPosition().getClass();
 
@@ -85,7 +85,7 @@ public abstract class CustomPanel<
     }
 
     protected final UIPanelAPI m_parent;
-    protected final CustomPanelAPI m_panel;
+    protected final UIPanelAPI m_panel;
     protected final PluginType m_plugin;
 
     /**
@@ -107,7 +107,7 @@ public abstract class CustomPanel<
         m_panel = Global.getSettings().createCustom(width, height, plugin);
     }
 
-    public final CustomPanelAPI getPanel() {
+    public final UIPanelAPI getPanel() {
         return m_panel;
     }
 
@@ -115,16 +115,6 @@ public abstract class CustomPanel<
         return m_panel.getPosition();
     }
 
-    /**
-     * Returns the parent panel cast to the expected type.
-     * <p>
-     * This cast is unchecked and does not guarantee type safety at compile time.
-     * It is provided for convenience based on the assumption that the parent
-     * is of the expected type (usually {@code CustomPanelAPI}).
-     * <p>
-     * Use with caution: if the actual parent type differs, a {@code ClassCastException}
-     * may occur at runtime.
-     */
     public final UIPanelAPI getParent() {
         return m_parent;
     }
@@ -142,7 +132,7 @@ public abstract class CustomPanel<
     }
 
     public final PositionAPI add(TooltipMakerAPI a) {
-        return m_panel.addUIElement(a);
+        return ComponentFactory.addTooltip(a, 0f, false, m_panel);
     }
 
     public final PositionAPI add(UIComponentAPI a) {

@@ -4,6 +4,7 @@ v0.2.1-beta
 - Added createTooltip and addTooltip to ComponentFactory for CustomPanelAPI independent Tooltips.
 - Added addCaptionValueBlock to ComponentFactory to have values with titles.
 - Removed ParentType from CustomPanel, as it does not need to be a CustomPanelAPI instance anymore.
+- Removed CustomPanelAPI dependency fully. Ready to switch to a custom UIPanelAPI Impl. for the future.
 
 v0.2.0-beta
 - Created a carbon copy of DialogPanel because the API for vanilla version was too restrictive

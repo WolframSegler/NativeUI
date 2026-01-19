@@ -9,7 +9,6 @@ import org.lwjgl.input.Keyboard;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
@@ -32,7 +31,7 @@ public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel>
     public Color bgColor = new Color(100, 100, 100);
     public float bgAlpha = UIConstants.bgAlpha;
 
-    protected final CustomPanelAPI contentPanel;
+    protected final UIPanelAPI contentPanel;
 
     protected int contentWidth, contentHeight;
     protected float scrollOffsetX, scrollOffsetY;
@@ -68,7 +67,7 @@ public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel>
         return bgAlpha;
     }
 
-    public CustomPanelAPI getContentPanel() {
+    public UIPanelAPI getContentPanel() {
         return contentPanel;
     }
     public void addToContent(UIComponentAPI comp) {

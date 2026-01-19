@@ -25,7 +25,7 @@ import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
  * SpritePanelWithTp panel = new SpritePanelWithTp(parent, width, height, plugin,
  *                                               "iconPath", color, fillColor, drawBorder) {
  *      @Override
- *      public CustomPanelAPI getTpParent() {
+ *      public UIPanelAPI getTpParent() {
  *          return getPanel();
  *      }
  * }</pre>

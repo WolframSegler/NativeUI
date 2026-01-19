@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -104,8 +103,8 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
     private boolean ascending = true;
 
     private RowPanel m_selectedRow;
-    private CustomPanelAPI m_headerContainer = null;
-    private CustomPanelAPI m_rowContainer = null;
+    private UIPanelAPI m_headerContainer = null;
+    private UIPanelAPI m_rowContainer = null;
 
     public RowPanel getPendingRow() {
         return pendingRow;
@@ -461,7 +460,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
 
         public void createPanel() {
 
-            CustomPanelAPI rowPanel = SortableTable.RowPanel.this.getPanel();
+            UIPanelAPI rowPanel = SortableTable.RowPanel.this.getPanel();
             int cumulativeXOffset = 0;
 
             for (int i = 0; i < m_cellData.size(); i++) {
@@ -713,7 +712,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
     /**
      * The call order of addCell must match the order of Columns.
      * Supports the following types:
-     * String, LabelAPI, LtvSpritePanel, UIPanelAPI, CustomPanelAPI
+     * String, LabelAPI, LtvSpritePanel, ? extends UIPanelAPI
      */
     public void addCell(Object cell, cellAlg alg, Object sortValue, Color textColor) {
         if (pendingRow == null) {
