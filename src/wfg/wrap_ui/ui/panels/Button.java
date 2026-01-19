@@ -9,7 +9,6 @@ import org.lwjgl.input.Keyboard;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.ui.Alignment;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
@@ -28,7 +27,7 @@ import wfg.wrap_ui.util.RenderUtils;
 
 import static wfg.wrap_ui.util.UIConstants.*;
 
-public class Button extends CustomPanel<ButtonPlugin, Button, UIPanelAPI> implements 
+public class Button extends CustomPanel<ButtonPlugin, Button> implements 
     HasFader, HasActionListener, AcceptsActionListener, HasTooltip
 {
     public float highlightBrightness = 0.2f;
@@ -63,7 +62,7 @@ public class Button extends CustomPanel<ButtonPlugin, Button, UIPanelAPI> implem
     protected int overrideCut = 0;
     protected Color labelColor = btnTxtColor;
     protected final FaderUtil fader = new FaderUtil(0, 0, 0.2f, true, true);
-    protected final PendingTooltip<CustomPanelAPI> tooltip = new PendingTooltip<>();
+    protected final PendingTooltip<UIPanelAPI> tooltip = new PendingTooltip<>();
     
     /**
      * @param onClick if null, clicking toggles the checked state; otherwise, the Runnable handles it.
@@ -110,13 +109,13 @@ public class Button extends CustomPanel<ButtonPlugin, Button, UIPanelAPI> implem
         else onClicked(this, true);
     }
 
-    public void onClicked(CustomPanel<?, ?, ?> source, boolean isLeftClick) {
+    public void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {
         if ((!isLeftClick && !rightClicksOkWhenDisabled) || !clickable) return;
 
         onShortcutPressed(source);
     }
 
-    public void onHoverStarted(CustomPanel<?, ?, ?> source) {
+    public void onHoverStarted(CustomPanel<?, ?> source) {
         Global.getSoundPlayer().playUISound(mouseOverSound, 1, 1);
     }
 
@@ -124,7 +123,7 @@ public class Button extends CustomPanel<ButtonPlugin, Button, UIPanelAPI> implem
         onClick = r;
     }
 
-    public void onShortcutPressed(CustomPanel<?, ?, ?> source) {
+    public void onShortcutPressed(CustomPanel<?, ?> source) {
         if (getPanel().getOpacity() <= 0f && !disabledWhileInvisible) return;
         fader.forceIn();
 
@@ -158,7 +157,7 @@ public class Button extends CustomPanel<ButtonPlugin, Button, UIPanelAPI> implem
         return fader;
     }
 
-    public CustomPanelAPI getTpParent() {
+    public UIPanelAPI getTpParent() {
         return tooltip.parentSupplier.get();
     }
 
@@ -246,7 +245,7 @@ public class Button extends CustomPanel<ButtonPlugin, Button, UIPanelAPI> implem
         if (tooltip.parentSupplier != null) tooltipEnabled = true;
     }
 
-    public void setParentSupplier(Supplier<CustomPanelAPI> parentSupplier) {
+    public void setParentSupplier(Supplier<UIPanelAPI> parentSupplier) {
         tooltip.parentSupplier = parentSupplier;
         if (tooltip.factory != null) tooltipEnabled = true;
     }

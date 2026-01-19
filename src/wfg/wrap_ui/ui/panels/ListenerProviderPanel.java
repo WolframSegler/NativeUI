@@ -9,7 +9,7 @@ import wfg.wrap_ui.ui.plugins.BasePanelPlugin;
  * Wrapper panel for providing a listener in overlays.
  */
 public class ListenerProviderPanel extends CustomPanel<
-    BasePanelPlugin<ListenerProviderPanel>, ListenerProviderPanel, UIPanelAPI
+    BasePanelPlugin<ListenerProviderPanel>, ListenerProviderPanel
 > implements AcceptsActionListener {
     public ListenerProviderPanel(UIPanelAPI parent, int width, int height) {
         super(parent, width, height, new BasePanelPlugin<>());

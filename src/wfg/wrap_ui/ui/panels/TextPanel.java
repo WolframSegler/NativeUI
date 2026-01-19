@@ -1,7 +1,6 @@
 package wfg.wrap_ui.ui.panels;
 
 import com.fs.starfarer.api.ui.ButtonAPI;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -36,7 +35,7 @@ import wfg.wrap_ui.ui.plugins.BasePanelPlugin;
  * <pre>
  * 
  *      @Override
- *      public CustomPanelAPI getTpParent() {
+ *      public UIPanelAPI getTpParent() {
  *          return null; // return tooltip parent
  *      }
  * </pre>
@@ -57,7 +56,7 @@ import wfg.wrap_ui.ui.plugins.BasePanelPlugin;
  * These values are intentionally exposed as part of the public API to enable 
  * direct querying and manipulation of panel state from outside the class.
  */
-public class TextPanel extends CustomPanel<BasePanelPlugin<TextPanel>, TextPanel, CustomPanelAPI>
+public class TextPanel extends CustomPanel<BasePanelPlugin<TextPanel>, TextPanel>
     implements HasTooltip, HasAudioFeedback {
 
     // Shared state for anonymous subclasses to modify.
@@ -97,7 +96,7 @@ public class TextPanel extends CustomPanel<BasePanelPlugin<TextPanel>, TextPanel
 
     public void createPanel() {}
 
-    public CustomPanelAPI getTpParent() {
+    public UIPanelAPI getTpParent() {
         return null;
     }
 

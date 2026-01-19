@@ -13,7 +13,7 @@ import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
 
 public final class AudioFeedbackSystem<
     PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType, ?> & HasAudioFeedback
+    PanelType extends CustomPanel<PluginType, PanelType> & HasAudioFeedback
 > extends BaseSystem<PluginType, PanelType> {
 
     /**

@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-public class Slider extends CustomPanel<SliderPlugin, Slider, UIPanelAPI> {
+public class Slider extends CustomPanel<SliderPlugin, Slider> {
 
     public float minRange = 0f;
     public float maxRange = 1f;

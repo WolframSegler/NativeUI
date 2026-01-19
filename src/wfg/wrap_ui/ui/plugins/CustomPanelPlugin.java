@@ -9,7 +9,6 @@ import org.lwjgl.input.Mouse;
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.wrap_ui.ui.UIState;
 import wfg.wrap_ui.ui.UIState.State;
@@ -54,8 +53,8 @@ import wfg.wrap_ui.ui.systems.TooltipSystem;
  * </pre>
  */
 public abstract class CustomPanelPlugin<
-    PanelType extends CustomPanel<? extends CustomPanelPlugin<?, ? extends PluginType>, PanelType, ? extends UIPanelAPI>,
-    PluginType extends CustomPanelPlugin<? extends CustomPanel<?, ?, ? extends UIPanelAPI>, ? extends CustomPanelPlugin<?, ? extends PluginType>>
+    PanelType extends CustomPanel<? extends CustomPanelPlugin<?, ? extends PluginType>, PanelType>,
+    PluginType extends CustomPanelPlugin<? extends CustomPanel<?, ?>, ? extends CustomPanelPlugin<?, ? extends PluginType>>
 > implements CustomUIPanelPlugin {
 
     public static class InputSnapshot {

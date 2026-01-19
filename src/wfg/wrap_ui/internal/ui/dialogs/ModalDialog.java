@@ -21,7 +21,7 @@ import wfg.wrap_ui.ui.Attachments;
 import wfg.wrap_ui.ui.panels.CustomPanel;
 import wfg.wrap_ui.util.RunnableWithCode;
 
-public class ModalDialog extends CustomPanel<ModalDialogPlugin, ModalDialog, UIPanelAPI> {
+public class ModalDialog extends CustomPanel<ModalDialogPlugin, ModalDialog> {
     public RunnableWithCode delegate;
     public int optionOnKeyboardCancel = 1;
     public int optionOnKeyboardConfirm = 0;

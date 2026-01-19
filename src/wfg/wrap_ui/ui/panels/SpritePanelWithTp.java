@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.Optional;
 
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
@@ -34,11 +33,11 @@ import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
  *      
  *      @Override
  *      public TooltipMakerAPI createAndAttachTp() {
- *          TooltipMakerAPI tp = getPanel().createUIElement(300, 20, false);
+ *          TooltipMakerAPI tp = ComponentFactory.createTooltip(300, false);
  *          tp.addPara("Example text", 3);
  *          
- *          add(tp).inBR(...);
- *          return tp; 
+ *          ComponentFactory.addTooltip(tp, 20, false, m_panel).inBR(...);
+ *          return tp;
  *      }
  * };
  * }</pre></p>
@@ -61,7 +60,7 @@ public class SpritePanelWithTp extends SpritePanel<SpritePanelWithTp>
         return Optional.of(m_sprite);
     }
 
-    public CustomPanelAPI getTpParent() { return null; }
+    public UIPanelAPI getTpParent() { return null; }
     public TooltipMakerAPI createAndAttachTp() { return null; }
     public FaderUtil getFader() { return fader; }
 }

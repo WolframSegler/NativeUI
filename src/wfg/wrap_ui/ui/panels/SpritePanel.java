@@ -4,7 +4,6 @@ import java.awt.Color;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
@@ -42,7 +41,7 @@ import wfg.wrap_ui.util.RenderUtils;
  */
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
-> extends CustomPanel<SpritePanelPlugin<PanelType>, PanelType, CustomPanelAPI> 
+> extends CustomPanel<SpritePanelPlugin<PanelType>, PanelType> 
     implements HasOutline{
 
     public static class Base extends SpritePanel<Base> {

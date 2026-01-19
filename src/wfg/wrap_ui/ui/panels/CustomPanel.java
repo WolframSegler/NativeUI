@@ -52,9 +52,8 @@ import wfg.wrap_ui.ui.systems.TooltipSystem;
  * </pre>
  */
 public abstract class CustomPanel<
-    PluginType extends CustomPanelPlugin<? extends CustomPanel<?, ?, ParentType>, PluginType>, 
-    PanelType extends CustomPanel<PluginType, ? extends CustomPanel<?, ? extends PanelType, ParentType>, ParentType>,
-    ParentType extends UIPanelAPI
+    PluginType extends CustomPanelPlugin<? extends CustomPanel<?, ?>, PluginType>, 
+    PanelType extends CustomPanel<PluginType, ? extends CustomPanel<?, ? extends PanelType>>
 > {
     public static final Object clearChildrenMethod;
     public static final Object getChildrenCopyMethod;
@@ -85,7 +84,7 @@ public abstract class CustomPanel<
             .findFirst().get();
     }
 
-    protected final ParentType m_parent;
+    protected final UIPanelAPI m_parent;
     protected final CustomPanelAPI m_panel;
     protected final PluginType m_plugin;
 
@@ -101,9 +100,8 @@ public abstract class CustomPanel<
      *      and calling init(this).</li>
      * </ul>
      */
-    @SuppressWarnings("unchecked")
     public CustomPanel(UIPanelAPI parent, int width, int height, PluginType plugin) {
-        m_parent = (ParentType) parent;
+        m_parent = parent;
         m_plugin = plugin;
         
         m_panel = Global.getSettings().createCustom(width, height, plugin);
@@ -127,7 +125,7 @@ public abstract class CustomPanel<
      * Use with caution: if the actual parent type differs, a {@code ClassCastException}
      * may occur at runtime.
      */
-    public final ParentType getParent() {
+    public final UIPanelAPI getParent() {
         return m_parent;
     }
 
@@ -153,7 +151,7 @@ public abstract class CustomPanel<
         return (a).getPosition();
     }
 
-    public final PositionAPI add(CustomPanel<?, ?, ?> a) {
+    public final PositionAPI add(CustomPanel<?, ?> a) {
         m_panel.addComponent(a.getPanel());
 
         return a.getPos();
@@ -265,21 +263,21 @@ public abstract class CustomPanel<
         /**
          * Called once per frame while the cursor is over the panel.
          */
-        default void onHover(CustomPanel<?, ?, ?> source) {}
+        default void onHover(CustomPanel<?, ?> source) {}
 
         /**
          * Called once when the cursor first enters the panel.
          */
-        default void onHoverStarted(CustomPanel<?, ?, ?> source) {}
+        default void onHoverStarted(CustomPanel<?, ?> source) {}
 
         /**
          * Called once when the cursor leaves the panel.
          */
-        default void onHoverEnded(CustomPanel<?, ?, ?> source) {}
+        default void onHoverEnded(CustomPanel<?, ?> source) {}
 
-        default void onClicked(CustomPanel<?, ?, ?> source, boolean isLeftClick) {}
+        default void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {}
 
-        default void onShortcutPressed(CustomPanel<?, ?, ?> source) {}
+        default void onShortcutPressed(CustomPanel<?, ?> source) {}
 
         /**
          * Use org.lwjgl.input.Keyboard. Default of 0 means no shortcut.
@@ -404,16 +402,16 @@ public abstract class CustomPanel<
 
         /**
         * Return the parent panel of the tooltip.
-        * Must return a non-null CustomPanelAPI. Otherwise the tooltip will not be removed.
+        * Must return a non-null UIPanelAPI. Otherwise the tooltip will not be removed.
         * Never attach the tooltip to the codex. It WILL crash.
         */
-        CustomPanelAPI getTpParent();
+        UIPanelAPI getTpParent();
 
         /**
         * Return the parent panel of the codex is, ideally the same as the tooltip.
-        * Must return a non-null CustomPanelAPI. Otherwise the codex will not be removed.
+        * Must return a non-null UIPanelAPI. Otherwise the codex will not be removed.
         */
-        default Optional<CustomPanelAPI> getCodexParent() {
+        default Optional<UIPanelAPI> getCodexParent() {
             return Optional.empty();
         }
 
@@ -459,17 +457,15 @@ public abstract class CustomPanel<
         default void setExpanded(boolean a) {}
 
         /**
-         * A tooltip interface that acts as a mutable shell.
-         * Used primarily to pass null checks during UI construction and allow
-         * tooltip creation to be deferred until the actual content is ready.
+         * Represents a tooltip creator. 
+         * Used primarily to pass tooltip creation logic around as an object
          *
          * This class should be returned from {@link #createAndAttachTp()} when the real tooltip
          * is not yet available. The {@code factory} Supplier is used to supply the actual
-         * TooltipMakerAPI instance later, enabling lazy or dynamic creation.
+         * TooltipMakerAPI instance later, enabling lazy/dynamic creation.
          *
          * The real power lies in the ability to assign the {@code factory} field a Supplier
-         * from any scope, allowing flexible tooltip-building logic that can depend on
-         * runtime state or user input instead of fixed static data.
+         * from any scope, allowing flexible tooltip-building.
          *
          * For example, a table component can accept a factory from its user and call it
          * to create tooltips for headers or rows on demand, vastly improving flexibility.
@@ -480,15 +476,16 @@ public abstract class CustomPanel<
          *     PendingTooltip pending = new PendingTooltip();
          *     pending.factory = () -> {
          *         // Create and return the real tooltip here
-         *         TooltipMakerAPI tooltip = somePanel.createUIElement(...);
+         *         TooltipMakerAPI tooltip = ComponentFactory.createTooltip(...);
          *         // Configure tooltip as needed
+         *         ComponentFactory.addTooltip(...).inTL(...);
          *         return tooltip;
          *     };
          *     return pending.factory.get();
          * }
          * </pre>
          */
-        public static class PendingTooltip<ParentType extends CustomPanelAPI> {
+        public static class PendingTooltip<ParentType extends UIPanelAPI> {
             /**
              * Factory method to create the tooltip.
              * Must be set by subclasses or instances.

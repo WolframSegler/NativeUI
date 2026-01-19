@@ -11,7 +11,7 @@ import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
 
 public final class ActionListenerSystem<
     PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType, ?> & AcceptsActionListener
+    PanelType extends CustomPanel<PluginType, PanelType> & AcceptsActionListener
 > extends BaseSystem<PluginType, PanelType>{
 
     public ActionListenerSystem(PluginType plugin) {

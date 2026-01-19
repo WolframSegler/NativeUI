@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
 
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import wfg.wrap_ui.ui.ComponentFactory;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
 import wfg.wrap_ui.ui.plugins.PieChartPlugin;
 import wfg.wrap_ui.util.RenderUtils;
@@ -17,13 +17,13 @@ import wfg.wrap_ui.util.WrapUiUtils;
 
 import static wfg.wrap_ui.util.UIConstants.*;
 
-public class PieChart extends CustomPanel<PieChartPlugin, PieChart, UIPanelAPI> implements
+public class PieChart extends CustomPanel<PieChartPlugin, PieChart> implements
     HasTooltip
 {
     /**
      * Does not require manual positioning or parent attachment for this instance.
      */
-    public PendingTooltip<CustomPanelAPI> pendingTp = null;
+    public PendingTooltip<UIPanelAPI> pendingTp = null;
     public float anglePerSegment = 3f;
     public Direction startDirection = Direction.NORTH;
 
@@ -174,14 +174,16 @@ public class PieChart extends CustomPanel<PieChartPlugin, PieChart, UIPanelAPI> 
         return pendingTp != null;
     }
 
-    public CustomPanelAPI getTpParent() {
+    public UIPanelAPI getTpParent() {
         return pendingTp.parentSupplier.get();
     }
 
     public TooltipMakerAPI createAndAttachTp() {
         final TooltipMakerAPI tp = pendingTp.factory.get();
 
-        pendingTp.parentSupplier.get().addUIElement(tp);
+        ComponentFactory.addTooltip(tp, tp.getHeightSoFar(), false,
+            pendingTp.parentSupplier.get()
+        );
         WrapUiUtils.mouseCornerPos(tp, opad);
         return tp;
     }

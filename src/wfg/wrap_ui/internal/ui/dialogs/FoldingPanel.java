@@ -22,7 +22,7 @@ import wfg.wrap_ui.internal.util.PanelFillRenderer;
 import wfg.wrap_ui.ui.Attachments;
 import wfg.wrap_ui.ui.panels.CustomPanel;
 
-public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel, UIPanelAPI> {
+public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> {
     public boolean renderBackground = true;
     public boolean transitionEnabled = true;
     public boolean isAlwaysScissor = false;

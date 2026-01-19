@@ -12,7 +12,7 @@ import wfg.wrap_ui.util.RenderUtils;
 
 public final class FaderSystem<
     PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType, ?> & HasFader
+    PanelType extends CustomPanel<PluginType, PanelType> & HasFader
 > extends BaseSystem<PluginType, PanelType> {
 
     public static enum Glow {

@@ -2,7 +2,6 @@ package wfg.wrap_ui.ui.panels;
 
 import java.awt.Color;
 
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.wrap_ui.ui.panels.CustomPanel.HasBackground;
@@ -13,8 +12,7 @@ import wfg.wrap_ui.ui.plugins.BasePanelPlugin;
  */
 public class BasePanel extends CustomPanel<
     BasePanelPlugin<BasePanel>,
-    BasePanel,
-    CustomPanelAPI
+    BasePanel
 > implements HasBackground{
 
     public Color BgColor = Color.BLACK;

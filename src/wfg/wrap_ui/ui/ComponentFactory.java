@@ -6,14 +6,54 @@ import java.awt.Color;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
+import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
+import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.ScrollPanelAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
+import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
+import rolflectionlib.util.RolfLectionUtil;
 import wfg.wrap_ui.ui.panels.Button;
 import wfg.wrap_ui.util.CallbackRunnable;
 
 public class ComponentFactory {
+    private static final CustomPanelAPI customPanel = Global.getSettings().createCustom(pad, pad, null);
+
+    private static final Object setButtonListenerMethod;
+    private static final Object scrollPanelConstr;
+    private static final Object setContentSizeMethod;
+    private static final Object setSizeMethod;
+    private static final Object setMaxShadowHeightMethod;
+    private static final Object setUseSimpleShadowsMethod;
+
+    static {
+        final TooltipMakerAPI tp = customPanel.createUIElement(1f, 1f, true);
+        customPanel.addUIElement(tp);
+        final Class<?> scrollClass = tp.getExternalScroller().getClass();
+
+        setButtonListenerMethod = RolfLectionUtil.getMethodDeclared(
+            "setButtonListener", StandardTooltipV2Expandable.class, 1
+        );
+        scrollPanelConstr = RolfLectionUtil.getConstructor(scrollClass,
+            RolfLectionUtil.getConstructorParamTypesSingleConstructor(scrollClass)
+        );
+        setContentSizeMethod = RolfLectionUtil.getMethodDeclared("setContentSize", 
+            scrollClass, 2
+        );
+        setSizeMethod = RolfLectionUtil.getMethodFromSuperClass("setSize", scrollClass);
+        setMaxShadowHeightMethod = RolfLectionUtil.getMethodDeclared("setMaxShadowHeight", 
+            scrollClass, 1
+        );
+        setUseSimpleShadowsMethod = RolfLectionUtil.getMethodDeclared("setUseSimpleShadows", 
+            scrollClass, 1
+        );
+    }
+
     public static final Button createCheckboxWithText(
         UIPanelAPI parent, int btnSize, String text, String font, CallbackRunnable<Button> onClick, 
         Color txtColor, int textAndBtnGap
@@ -38,5 +78,139 @@ public class ComponentFactory {
         checkbox.add(label).inBL(btnSize + textAndBtnGap, (maxH - lblH) / 2f);
 
         return checkbox;
+    }
+
+    /**
+     * @param panel will exclusively be used by the caption&value pair
+     */
+    public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
+        String valueTxt, Color captionColor
+    ) { addCaptionValueBlock(panel, captionTxt, valueTxt, captionColor, highlight); }
+
+    /**
+     * @param panel will exclusively be used by the caption&value pair
+     */
+    public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
+        String valueTxt, Color captionColor, Color valueColor
+    ) {
+        addCaptionValueBlock(panel, captionTxt, valueTxt, Fonts.ORBITRON_12, Fonts.INSIGNIA_VERY_LARGE,
+            captionColor, valueColor, true, 0f
+        );
+    }
+
+    /**
+     * @param panel will exclusively be used by the caption&value pair
+     */
+    public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
+        String valueTxt, Color captionColor, float maxW
+    ) { addCaptionValueBlock(panel, captionTxt, valueTxt, captionColor, highlight, maxW); }
+
+    /**
+     * @param panel will exclusively be used by the caption&value pair
+     */
+    public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
+        String valueTxt, Color captionColor, Color valueColor, float maxW
+    ) {
+        addCaptionValueBlock(panel, captionTxt, valueTxt, Fonts.ORBITRON_12, Fonts.INSIGNIA_VERY_LARGE,
+            captionColor, valueColor, true, maxW
+        );
+    }
+
+    /**
+     * @param panel will exclusively be used by the caption&value pair
+     */
+    public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt, String valueTxt,
+        String captionFont, String valueFont, Color captionColor, Color valueColor,
+        boolean highlightOnHover, float maxW
+    ) {
+        final SettingsAPI settings = Global.getSettings();
+
+        final LabelAPI captionLbl = settings.createLabel(captionTxt, captionFont);
+        captionLbl.setColor(captionColor);
+        captionLbl.setHighlightOnMouseover(highlightOnHover);
+
+        final LabelAPI valueLbl = settings.createLabel(valueTxt, valueFont);
+        valueLbl.setColor(valueColor);
+        valueLbl.setHighlightOnMouseover(highlightOnHover);
+
+        if (maxW > 0f) {
+            layoutCaptionValueLabels(maxW, panel, captionLbl, valueLbl);
+        } else {
+            layoutCaptionValueLabels(panel, captionLbl, valueLbl);
+        }
+    }
+
+    public static final void layoutCaptionValueLabels(
+        UIPanelAPI panel, LabelAPI captionLbl, LabelAPI valueLbl
+    ) {
+        final float panelW = Math.max(
+            captionLbl.computeTextWidth(captionLbl.getText()),
+            valueLbl.computeTextWidth(valueLbl.getText())
+        );
+        layoutCaptionValueLabels(panelW, panel, captionLbl, valueLbl);
+    }
+
+    public static final void layoutCaptionValueLabels(float maxW,
+        UIPanelAPI panel, LabelAPI captionLbl, LabelAPI valueLbl
+    ) {
+        captionLbl.autoSizeToWidth(maxW);
+        valueLbl.autoSizeToWidth(maxW);
+
+        captionLbl.setAlignment(Alignment.MID);
+        valueLbl.setAlignment(Alignment.MID);        
+
+        final float captionH = captionLbl.getPosition().getHeight();
+        final float valueH = valueLbl.getPosition().getHeight();
+
+        panel.addComponent((UIComponentAPI) captionLbl).inTL(0f, 0f).setSize(maxW, captionH);
+        panel.addComponent((UIComponentAPI) valueLbl).inTL(0f, captionH + pad).setSize(maxW, valueH);
+
+        panel.getPosition().setSize(maxW, captionH + pad + valueH);
+    }
+
+    public static final TooltipMakerAPI createTooltip(float width, boolean withScroller) {
+        final StandardTooltipV2Expandable tp = StandardTooltipV2Expandable.createAsUIElement(
+            width - (withScroller ? 5f : 0f)
+        );
+        RolfLectionUtil.invokeMethodDirectly(setButtonListenerMethod, tp, customPanel);
+        return tp;
+    }
+
+    public static final PositionAPI addTooltip(TooltipMakerAPI tooltip, float h, boolean withScroller) {
+        return addTooltip(tooltip, h, withScroller, Attachments.getScreenPanel());
+    }
+
+    public static final PositionAPI addTooltip(TooltipMakerAPI tooltip, float h, boolean withScroller,
+        UIPanelAPI parent
+    ) {
+        tooltip.setForceProcessInput(true);
+        if (tooltip instanceof StandardTooltipV2Expandable tp) {
+            StandardTooltipV2Expandable.updateSizeAsUIElement(tp);
+            if (withScroller) {
+                final Object scrollPanel = RolfLectionUtil.instantiateClass(scrollPanelConstr);
+                RolfLectionUtil.invokeMethodDirectly(setContentSizeMethod, scrollPanel,
+                    tp.getWidth(), tp.getHeight()
+                );
+                RolfLectionUtil.invokeMethodDirectly(setSizeMethod, scrollPanel,
+                    tp.getWidth() + 5f, h
+                );
+                RolfLectionUtil.invokeMethodDirectly(setMaxShadowHeightMethod, scrollPanel,
+                    15f
+                );
+                RolfLectionUtil.invokeMethodDirectly(setUseSimpleShadowsMethod, scrollPanel,
+                    true
+                );
+                tooltip.setExternalScroller((ScrollPanelAPI) scrollPanel);
+                return parent.addComponent(tp);
+            } else {
+                tp.setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
+                return parent.addComponent(tp);
+            }
+        } else {
+            throw new IllegalArgumentException(
+                "addTooltip only supports StandardTooltipV2Expandable instances. " +
+                "Provided tooltip of type " + tooltip.getClass().getName() + " is invalid."
+            );
+        }
     }
 }

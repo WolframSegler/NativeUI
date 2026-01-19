@@ -11,7 +11,7 @@ import static wfg.wrap_ui.util.UIConstants.*;
 
 public final class OutlineSystem<
     PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType, ?> & HasOutline
+    PanelType extends CustomPanel<PluginType, PanelType> & HasOutline
 > extends BaseSystem<PluginType, PanelType> {
 
     public static enum Outline {

@@ -16,7 +16,7 @@ import wfg.wrap_ui.util.WrapUiUtils;
 
 public final class TooltipSystem<
     PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType, ?> & HasTooltip
+    PanelType extends CustomPanel<PluginType, PanelType> & HasTooltip
 > extends BaseSystem<PluginType, PanelType>{
 
     private final HasTooltip provider;

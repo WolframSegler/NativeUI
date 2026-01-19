@@ -6,14 +6,13 @@ import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.wrap_ui.internal.util.BorderRenderer;
 import wfg.wrap_ui.internal.util.BorderRenderer.BorderSide;
 import wfg.wrap_ui.ui.Attachments;
 import wfg.wrap_ui.ui.plugins.DockPanelPlugin;
 
-public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel, UIPanelAPI> {
+public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel> {
     
     public static enum DockDirection {
         LEFT, RIGHT, TOP, BOTTOM

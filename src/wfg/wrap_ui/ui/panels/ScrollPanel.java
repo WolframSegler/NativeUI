@@ -22,7 +22,7 @@ import wfg.wrap_ui.util.UIConstants;
 /**
  * Do not add children directly to ScrollPanel, but to the contentPanel
  */
-public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel, UIPanelAPI>
+public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel>
     implements HasBackground
 {
     public enum ScrollType { HORIZONTAL, VERTICAL, BOTH }

@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.Misc;
 import wfg.wrap_ui.util.CallbackRunnable;
 import wfg.wrap_ui.util.WrapUiUtils;
 import wfg.wrap_ui.util.WrapUiUtils.AnchorType;
+import wfg.wrap_ui.ui.ComponentFactory;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip.PendingTooltip;
 import wfg.wrap_ui.ui.panels.SpritePanel.Base;
 import wfg.wrap_ui.ui.plugins.BasePanelPlugin;
@@ -86,7 +87,7 @@ import static wfg.wrap_ui.util.UIConstants.*;
  * This component supports tooltips both for headers and rows via {@link PendingTooltip}.
  * <p>
  */
-public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, SortableTable, CustomPanelAPI> {
+public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, SortableTable> {
 
     public boolean showSortIcon = true;
     public boolean sortingEnabled = true;
@@ -218,10 +219,8 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             null
         );
 
-        final TooltipMakerAPI tp = m_rowContainer.createUIElement(
-            getPos().getWidth() + pad,
-            getPos().getHeight() - (HEADER_HEIGHT + pad),
-            true
+        final TooltipMakerAPI tp = ComponentFactory.createTooltip(
+            getPos().getWidth() + pad, true
         );
 
         int cumulativeYOffset = pad;
@@ -232,12 +231,13 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         }
 
         tp.setHeightSoFar(cumulativeYOffset);
-
-        m_rowContainer.addUIElement(tp).inTL(-pad, 0);
+        ComponentFactory.addTooltip(tp, getPos().getHeight() - (HEADER_HEIGHT + pad),
+            true, m_rowContainer
+        ).inTL(-pad, 0);
         add(m_rowContainer).inTL(0, HEADER_HEIGHT + pad);
     }
 
-    private class HeaderPanel extends CustomPanel<BasePanelPlugin<HeaderPanel>, HeaderPanel, CustomPanelAPI> 
+    private class HeaderPanel extends CustomPanel<BasePanelPlugin<HeaderPanel>, HeaderPanel> 
         implements HasOutline, HasBackground, HasFader, HasAudioFeedback, HasFaction, HasActionListener,
         AcceptsActionListener
     {
@@ -287,7 +287,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             return Optional.of(this);
         }
 
-        public void onClicked(CustomPanel<?, ?, ?> source, boolean isLeftClick) {
+        public void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {
             if (!sortingEnabled) return;
             
             SortableTable.this.sortRows(listIndex);
@@ -331,11 +331,11 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         private boolean isExpanded = false;
 
         @Override
-        public CustomPanelAPI getTpParent() {
+        public UIPanelAPI getTpParent() {
             if (column.getTooltipType() == String.class) {
                 return getParent();
             } else if (column.getTooltipType() == PendingTooltip.class) {
-                return ((PendingTooltip<? extends CustomPanelAPI>) column.tooltip).parentSupplier.get();
+                return ((PendingTooltip<? extends UIPanelAPI>) column.tooltip).parentSupplier.get();
             } else {
                 throw new IllegalArgumentException(
                     "Tooltip for header '" + column.title + "' has an illegal type."
@@ -348,7 +348,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             final TooltipMakerAPI tooltip;
 
             if (column.getTooltipType() == String.class) {
-                tooltip = getTpParent().createUIElement(headerTooltipWidth, 0, false);
+                tooltip = ComponentFactory.createTooltip(headerTooltipWidth, false);
     
                 tooltip.addPara((String) column.tooltip, pad);
 
@@ -361,7 +361,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
                 );
             }
 
-            getTpParent().addUIElement(tooltip);
+            ComponentFactory.addTooltip(tooltip, 0f, false, getTpParent());
             WrapUiUtils.anchorPanelWithBounds(tooltip, getPanel(), AnchorType.TopLeft, 0);
 
             return tooltip;
@@ -432,7 +432,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         }
     }
 
-    public class RowPanel extends CustomPanel<BasePanelPlugin<RowPanel>, RowPanel, CustomPanelAPI> 
+    public class RowPanel extends CustomPanel<BasePanelPlugin<RowPanel>, RowPanel> 
         implements HasTooltip, HasFader, HasOutline, HasAudioFeedback, HasActionListener, AcceptsActionListener
     {
         public Color textColor = base;
@@ -577,7 +577,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             return Optional.of(this);
         }
 
-        public void onClicked(CustomPanel<?, ?, ?> source, boolean isLeftClick) {
+        public void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {
             SortableTable table = SortableTable.this;
             table.selectRow(this);
             m_selectedRow = this;
@@ -625,22 +625,22 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             return m_tooltip != null;
         }
 
-        public CustomPanelAPI getTpParent() {
+        public UIPanelAPI getTpParent() {
             return m_tooltip.parentSupplier.get();
         }
         
         public TooltipMakerAPI createAndAttachTp() {
-            TooltipMakerAPI tooltip = m_tooltip.factory.get();
+            final TooltipMakerAPI tp = m_tooltip.factory.get();
 
-            getTpParent().addUIElement(tooltip);
-            WrapUiUtils.mouseCornerPos(tooltip, opad);
+            ComponentFactory.addTooltip(tp, 0f, false, getTpParent());
+            WrapUiUtils.mouseCornerPos(tp, opad);
 
             if (codexID != null) {
-                tooltip.setCodexEntryId(codexID);
-                WrapUiUtils.positionCodexLabel(tooltip, opad, pad);
+                tp.setCodexEntryId(codexID);
+                WrapUiUtils.positionCodexLabel(tp, opad, pad);
             }
 
-            return tooltip;
+            return tp;
         }
 
         public void addCell(Object cell, cellAlg alg, Object sort, Color textColor) {
@@ -737,7 +737,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
      * @param tp optional.
      * @param onRowClicked gets called when the row is clicked.
      */
-    public <TpType extends CustomPanelAPI> void pushRow(String codexID, Object customData, Color textColor,
+    public <TpType extends UIPanelAPI> void pushRow(String codexID, Object customData, Color textColor,
         Color highlight, PendingTooltip<TpType> tp, CallbackRunnable<RowPanel> onRowClicked
     ) {
         if (pendingRow == null || pendingRow.m_cellData.isEmpty()) {

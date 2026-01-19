@@ -8,7 +8,7 @@ import wfg.wrap_ui.util.RenderUtils;
 
 public final class BackgroundSystem<
     PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType, ?> & HasBackground
+    PanelType extends CustomPanel<PluginType, PanelType> & HasBackground
 > extends BaseSystem<PluginType, PanelType> {
 
     public BackgroundSystem(PluginType a) {
