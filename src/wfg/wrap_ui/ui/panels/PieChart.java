@@ -5,44 +5,38 @@ import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
 
-import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import wfg.wrap_ui.ui.ComponentFactory;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.TooltipComp;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
-import wfg.wrap_ui.ui.plugins.PieChartPlugin;
 import wfg.wrap_ui.util.RenderUtils;
-import wfg.wrap_ui.util.WrapUiUtils;
 
 import static wfg.wrap_ui.util.UIConstants.*;
 
-public class PieChart extends CustomPanel<PieChartPlugin, PieChart> implements
+public class PieChart extends CustomPanel<PieChart> implements
     HasTooltip
 {
-    /**
-     * Does not require manual positioning or parent attachment for this instance.
-     */
-    public PendingTooltip<UIPanelAPI> pendingTp = null;
+    public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
+
     public float anglePerSegment = 3f;
     public Direction startDirection = Direction.NORTH;
 
     private final ArrayList<PieSlice> data;
 
     public PieChart(UIPanelAPI parent, int width, int height, ArrayList<PieSlice> data) {
-        super(parent, width, height, new PieChartPlugin());
+        super(parent, width, height);
 
         this.data = data;
-
-        getPlugin().init(this);
     }
 
     public void createPanel() {}
 
-    public void renderImpl(float alpha) {
+    @Override
+    public void render(float alpha) {
+        super.render(alpha);
         float startDeg = startDirection.direction;
 
-        final PositionAPI pos = getPos();
         final float radiusX = pos.getWidth() / 2f;
         final float radiusY = pos.getHeight() / 2f;
         final float cx = pos.getX() +radiusX;
@@ -168,24 +162,6 @@ public class PieChart extends CustomPanel<PieChartPlugin, PieChart> implements
 
             GL11.glEnd();
         }
-    }
-
-    public boolean isTooltipEnabled() {
-        return pendingTp != null;
-    }
-
-    public UIPanelAPI getTpParent() {
-        return pendingTp.parentSupplier.get();
-    }
-
-    public TooltipMakerAPI createAndAttachTp() {
-        final TooltipMakerAPI tp = pendingTp.factory.get();
-
-        ComponentFactory.addTooltip(tp, tp.getHeightSoFar(), false,
-            pendingTp.parentSupplier.get()
-        );
-        WrapUiUtils.mouseCornerPos(tp, opad);
-        return tp;
     }
 
     public static class PieSlice {

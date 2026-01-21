@@ -1,59 +1,53 @@
 package wfg.wrap_ui.ui.panels;
 
-import static wfg.wrap_ui.util.UIConstants.bgAlpha;
-import static wfg.wrap_ui.util.UIConstants.dark;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.awt.Color;
-import java.util.Optional;
-import java.util.function.Supplier;
+import org.lwjgl.input.Mouse;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
-import com.fs.starfarer.api.campaign.FactionAPI;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI.ActionListenerDelegate;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.api.util.FaderUtil;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.wrap_ui.ui.ComponentFactory;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin;
-import wfg.wrap_ui.ui.systems.ActionListenerSystem;
-import wfg.wrap_ui.ui.systems.FaderSystem.Glow;
-import wfg.wrap_ui.ui.systems.OutlineSystem.Outline;
+import wfg.wrap_ui.ui.components.ComponentContainer;
+import wfg.wrap_ui.ui.components.InputSnapshot;
+import wfg.wrap_ui.ui.components.LayoutOffsetComp;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.UIContextComp;
+import wfg.wrap_ui.ui.plugins.ForwardingPanelPlugin;
+import wfg.wrap_ui.ui.systems.AudioFeedbackSystem;
+import wfg.wrap_ui.ui.systems.BackgroundSystem;
+import wfg.wrap_ui.ui.systems.BaseSystem;
+import wfg.wrap_ui.ui.systems.HoverGlowSystem;
+import wfg.wrap_ui.ui.systems.InteractionSystem;
+import wfg.wrap_ui.ui.systems.OutlineSystem;
 import wfg.wrap_ui.ui.systems.TooltipSystem;
 
 /**
- * Represents the visual and layout container for a set of components managed by a matching {@link CustomPanelPlugin}.
+ * Represents the visual and layout container for a set of components.
  *
  * <p><strong>Design principles:</strong></p>
  * <ul>
- *   <li>The panel is responsible for all <em>UI-specific</em> state — such as background color, position,
- *       dimensions, and any interface-specific properties (e.g. implementing {@link HasBackground}).</li>
- *   <li>The panel does not store or manage plugin-specific logic or toggles; those belong in the plugin.</li>
- *   <li>By implementing capability interfaces (like {@link HasBackground}), the panel exposes relevant data
- *       to both the plugin and systems in a type-safe way.</li>
- *   <li>Recursive bounds (with selective wildcards) ensure methods like <code>{@link #getPlugin()}</code> / <code>{@link #getPanel()}</code> resolve to the concrete types at compile time, while still allowing a single plugin implementation to be reused by multiple panel subclasses.</li>
+ *   <li>The panel owns all <em>UI-specific</em> state like background color, position,
+ *       dimensions, layout offsets, and other visual properties.</li>
+ *   <li>Panels are responsible for creating, registering, and wiring their components.</li>
+ *   <li>Systems operate primarily on components; direct panel access is secondary and
+ *       reserved for panel-defined behavior.</li>
+ *   <li>Capability interfaces (such as {@link HasBackground}) register systems that may add their required components.</li>
+ *   <li>Panels may expose selected components as <code>public final</code> fields.
+ *       Such components are part of the panel’s public contract. Components not exposed
+ *       this way are internal and must be accessed only through panel APIs.</li>
+ *   <li>The associated plugin is a thin forwarder and does not own state or behavior.</li>
  * </ul>
- *
- * <p>Example usage:</p>
- * <pre>
- * // Panel implementing {@link HasBackground}
- * public class MyPanel extends CustomPanel< MyPanelPlugin<MyPanel>, MyPanel> implements HasBackground {
- *     private final Color bgColor;
- *
- *     public Color getBgColor() { return bgColor; }
- * }
- * </pre>
  */
 public abstract class CustomPanel<
-    PluginType extends CustomPanelPlugin<? extends CustomPanel<?, ?>, PluginType>, 
-    PanelType extends CustomPanel<PluginType, ? extends CustomPanel<?, ? extends PanelType>>
+    PanelType extends CustomPanel<PanelType>
 > {
     public static final Object clearChildrenMethod;
     public static final Object getChildrenCopyMethod;
@@ -61,8 +55,6 @@ public abstract class CustomPanel<
     public static final Object addToPositionMethod;
     public static final Object removeFromPositionMethod;
     public static final Object positionSetParentMethod;
-
-    private static final Object pluginField;
 
     static {
         final UIPanelAPI panelIns = Global.getSettings().createCustom(0, 0, null);
@@ -78,15 +70,15 @@ public abstract class CustomPanel<
         addToPositionMethod = RolfLectionUtil.getMethod("add", posClazz, 1);
         removeFromPositionMethod = RolfLectionUtil.getMethod("remove", posClazz, 1);
         positionSetParentMethod = RolfLectionUtil.getMethod("setParent", posClazz, 1);
-        pluginField = RolfLectionUtil.getAllFields(panelClazz).stream()
-            .filter(f -> CustomUIPanelPlugin.class.isAssignableFrom(
-                RolfLectionUtil.getFieldType(f)))
-            .findFirst().get();
     }
+
+    private ComponentContainer compContainer = null;
+    private final List<BaseSystem<PanelType>> systems = new ArrayList<>();
+    protected final InputSnapshot inputSnapshot = new InputSnapshot();
 
     protected final UIPanelAPI m_parent;
     protected final UIPanelAPI m_panel;
-    protected final PluginType m_plugin;
+    protected final PositionAPI pos;
 
     /**
      * Ownership and lifecycle rules for child panels:
@@ -96,36 +88,152 @@ public abstract class CustomPanel<
      *       since each panel handles positioning its children separately.</li>
      *   <li>The parent <b>MUST NOT</b> call <code>{@link #createPanel()}</code>.
      *      This ensures that the child’s members are fully initialized before panel creation.</li>
-     *   <li>The child is responsible for initializing the Plugin with <code>{@link #getPlugin()}</code>
-     *      and calling init(this).</li>
      * </ul>
      */
-    public CustomPanel(UIPanelAPI parent, int width, int height, PluginType plugin) {
+    public CustomPanel(UIPanelAPI parent, int width, int height) {
         m_parent = parent;
-        m_plugin = plugin;
-        
+
+        final ForwardingPanelPlugin plugin = new ForwardingPanelPlugin();
         m_panel = Global.getSettings().createCustom(width, height, plugin);
+        pos = m_panel.getPosition();
+        plugin.m_panel = this;
+
+        initSystems();
     }
 
-    public final UIPanelAPI getPanel() {
-        return m_panel;
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected void initSystems() {
+        if (m_panel instanceof HasTooltip) {
+            addSystem(new TooltipSystem(this));
+        }
+
+        if (m_panel instanceof HasBackground) {
+            addSystem(new BackgroundSystem(this));
+        }
+
+        if (m_panel instanceof HasAudioFeedback) {
+            addSystem(new AudioFeedbackSystem(this));
+        }
+
+        if (m_panel instanceof HasOutline) {
+            addSystem(new OutlineSystem(this));
+        }
+
+        if (m_panel instanceof HasHoverGlow) {
+            addSystem(new HoverGlowSystem(this));
+        }
+
+        if (m_panel instanceof HasInteraction) {
+            addSystem(new InteractionSystem(this));
+        }
+
+        if (m_panel instanceof HasLayoutOffset) {
+            comp().setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
+        }
+
+        if (m_panel instanceof HasUIContext) {
+            comp().setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        }
     }
 
-    public final PositionAPI getPos() {
-        return m_panel.getPosition();
+    public final ComponentContainer getComponentContainer() { return comp(); }
+    public final ComponentContainer comp() {
+        if (compContainer == null) compContainer = new ComponentContainer();
+        return compContainer;
     }
 
-    public final UIPanelAPI getParent() {
-        return m_parent;
+    protected final <C extends BaseSystem<PanelType>> void addSystem(C system) {
+        systems.add(system);
     }
 
-    public final PluginType getPlugin() {
-        return m_plugin;
+    public void removeSystem(BaseSystem<PanelType> system) {
+        systems.remove(system);
+        system.onRemove();
     }
 
-    public final void setPlugin(CustomUIPanelPlugin newPlugin) {
-        RolfLectionUtil.setPrivateVariable(pluginField, m_panel, newPlugin);
+    public final List<BaseSystem<PanelType>> getPanelSystems() { return systems(); }
+    public final List<BaseSystem<PanelType>> systems() {
+        return systems;
     }
+
+    public void render(float alpha) {
+        for (BaseSystem<PanelType> system : systems) {
+            system.renderBelow(alpha, inputSnapshot);
+        }
+    }
+
+    public void renderBelow(float alpha) {
+        for (BaseSystem<PanelType> system : systems) {
+            system.renderBelow(alpha, inputSnapshot);
+        }
+    }
+
+    public void advance(float delta) {
+        for (BaseSystem<PanelType> system : systems) {
+            system.advance(delta, inputSnapshot);
+        }
+    }
+
+    public void processInput(List<InputEventAPI> events) {
+        inputSnapshot.resetFrameFlags();
+
+        // General events used by most systems
+        for (InputEventAPI event : events) {
+            
+            if (event.isMouseMoveEvent()) {
+                inputSnapshot.mouseEvent = event;
+
+                final float mouseX = event.getX();
+                final float mouseY = event.getY();
+
+                final float x = pos.getX();
+                final float y = pos.getY();
+                final float w = pos.getWidth();
+                final float h = pos.getHeight();
+
+                // Check for mouse over panel
+                final boolean hoveredBefore = inputSnapshot.hoveredLastFrame;
+                inputSnapshot.hoveredLastFrame = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+
+                inputSnapshot.hoverStarted = inputSnapshot.hoveredLastFrame && !hoveredBefore;
+                inputSnapshot.hoverEnded   = !inputSnapshot.hoveredLastFrame && hoveredBefore;
+            }
+
+            if (event.isLMBDownEvent() && inputSnapshot.hoveredLastFrame) {
+                inputSnapshot.LMBDownLastFrame = true;
+                inputSnapshot.hasLMBClickedBefore = true;
+                inputSnapshot.isActive = true;
+            }
+
+            if (event.isLMBUpEvent() || !Mouse.isButtonDown(0)) {
+                if (inputSnapshot.hasLMBClickedBefore) inputSnapshot.LMBUpLastFrame = true;
+                inputSnapshot.isActive = false;
+                inputSnapshot.hasLMBClickedBefore = false;
+            }
+
+            if (event.isRMBDownEvent() && inputSnapshot.hoveredLastFrame) {
+                inputSnapshot.RMBDownLastFrame = true;
+                inputSnapshot.hasRMBClickedBefore = true;
+            }
+
+            if (event.isRMBUpEvent() || !Mouse.isButtonDown(1)) {
+                if (inputSnapshot.hasRMBClickedBefore) inputSnapshot.RMBUpLastFrame = true;
+                inputSnapshot.hasRMBClickedBefore = false;
+            }
+        }
+
+        // System specific
+        for (BaseSystem<PanelType> system : systems) {
+            system.processInput(events, inputSnapshot);
+        }
+    }
+
+    public void buttonPressed(Object buttonID) {}
+    public void positionChanged(PositionAPI position) {}
+
+    public final UIPanelAPI getPanel() { return m_panel; }
+    public final PositionAPI getPos() { return pos; }
+    public final UIPanelAPI getParent() { return m_parent; }
 
     public final PositionAPI add(LabelAPI a) {
         return add((UIComponentAPI) a);
@@ -141,7 +249,7 @@ public abstract class CustomPanel<
         return (a).getPosition();
     }
 
-    public final PositionAPI add(CustomPanel<?, ?> a) {
+    public final PositionAPI add(CustomPanel<?> a) {
         m_panel.addComponent(a.getPanel());
 
         return a.getPos();
@@ -156,17 +264,17 @@ public abstract class CustomPanel<
     }
 
     public PositionAPI addPositionOnly(UIComponentAPI comp) {
-        final PositionAPI pos = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, pos, getPos());
-        RolfLectionUtil.invokeMethodDirectly(addToPositionMethod, getPos(), pos);
-        return pos;
+        final PositionAPI position = comp.getPosition();
+        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, pos);
+        RolfLectionUtil.invokeMethodDirectly(addToPositionMethod, pos, position);
+        return position;
     }
 
     public PositionAPI removePositionOnly(UIComponentAPI comp) {
-        final PositionAPI pos = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, pos, (Object)null);
-        RolfLectionUtil.invokeMethodDirectly(removeFromPositionMethod, getPos(), pos);
-        return pos;
+        final PositionAPI position = comp.getPosition();
+        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, (Object)null);
+        RolfLectionUtil.invokeMethodDirectly(removeFromPositionMethod, pos, position);
+        return position;
     }
 
     public final void clearChildren() {
@@ -174,320 +282,28 @@ public abstract class CustomPanel<
     }
 
     public final void setSize(int width, int height) {
-        m_panel.getPosition().setSize(width, height);
+        pos.setSize(width, height);
     }
 
     public final void setWidth(int width) {
-        m_panel.getPosition().setSize(width, getPos().getHeight());
+        pos.setSize(width, pos.getHeight());
     }
 
     public final void setHeight(int height) {
-        m_panel.getPosition().setSize(getPos().getWidth(), height);
+        pos.setSize(pos.getWidth(), height);
     }
 
     /**
-     * The method for populating the main panel. Can be left empty.
+     * The method for populating the panel. Can be left empty.
      */
     public abstract void createPanel();
 
-    public static interface HasMarket {
-        MarketAPI getMarket();
-        default void setMarket(MarketAPI market) {}
-    }
-
-    public interface HasFaction {
-        default FactionAPI getFaction() {
-            return Global.getSector().getPlayerFaction();
-        }
-    }
-
-    /**
-     * Marks a panel as being able to accept and store a {@link HasActionListener}.
-     * <p>
-     * This interface is primarily intended for panels that work with the explicit
-     * interaction methods defined in {@link HasActionListener}, allowing {@code ActionListenerSystem} 
-     * to automatically invoke those callbacks.
-     * </p>
-     *
-     * <p>
-     * This design keeps {@code AcceptsActionListener} compatible with both {@link HasActionListener}
-     * and {@link TooltipMakerAPI.ActionListenerDelegate} while encouraging use of the more explicit,
-     * strongly-typed {@link HasActionListener} methods for clarity and composability.
-     * </p>
-     */
-    public static interface AcceptsActionListener {
-        default Optional<HasActionListener> getActionListener() {
-            return Optional.empty();
-        }
-        default void setActionListener(HasActionListener listener) {}
-
-        /**
-         * Optional support for the vanilla Starsector ActionListenerDelegate.
-         * This listener is not invoked automatically by the custom {@link ActionListenerSystem}.
-         * If you want to use it, you must call actionPerformed() manually from your plugin.
-         */
-        default Optional<ActionListenerDelegate> getVanillaActionListener() {
-            return Optional.empty();
-        }
-        default void setVanillaActionListener(ActionListenerDelegate listener) {}
-    }
-
-    /**
-     * A strongly-typed, explicit alternative to {@link com.fs.starfarer.api.ui.TooltipMakerAPI.ActionListenerDelegate}.
-     * <p>
-     * While the built-in {@code ActionListenerDelegate} reports a single, catch-all {@code actionPerformed} event,
-     * this listener clearly differentiates between interaction types.
-     * </p>
-     * 
-     * <p>
-     * Implement this interface in any {@link CustomPanel} (or compatible type) to handle specific user interactions.
-     * The {@code source} parameter passed to each method is always the panel where the event originated.
-     * </p>
-     */
-    public static interface HasActionListener {
-
-        default boolean isListenerEnabled() {
-            return true;
-        }
-
-        /**
-         * Called once per frame while the cursor is over the panel.
-         */
-        default void onHover(CustomPanel<?, ?> source) {}
-
-        /**
-         * Called once when the cursor first enters the panel.
-         */
-        default void onHoverStarted(CustomPanel<?, ?> source) {}
-
-        /**
-         * Called once when the cursor leaves the panel.
-         */
-        default void onHoverEnded(CustomPanel<?, ?> source) {}
-
-        default void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {}
-
-        default void onShortcutPressed(CustomPanel<?, ?> source) {}
-
-        /**
-         * Use org.lwjgl.input.Keyboard. Default of 0 means no shortcut.
-         */
-        default int getShortcut() {
-            return 0;
-        } 
-    }
-
-    public static interface HasFader {
-
-        /**
-         * Indicates whether this panel controls its own {@code faderUtil} instance.
-         * <p>
-         * Some panels may instead synchronize their fading behavior with another panel's fader.
-         * In such cases, this should return {@code false}.
-         */
-        default boolean isFaderOwner() {
-            return true;
-        }
-
-        FaderUtil getFader();
-
-        /**
-         * Returns the type of glow this panel should use.
-         *
-         * <ul>
-         *     <li>{@link Glow#OVERLAY} or {@link Glow#UNDERLAY}: supports polygon-shaped glow.</li>
-         *     <li>{@link Glow#ADDITIVE}: works with convex/polygon shapes too; a sprite texture is optional.
-         *         If a sprite is provided via {@link #getAdditiveSprite()}, it will be used for rendering,
-         *         otherwise a colored quad/polygon will be drawn.</li>
-         *     <li>{@link Glow#NONE}: no glow.</li>
-         * </ul>
-         */
-        default Glow getGlowType() {
-            return Glow.OVERLAY;
-        }
-
-        default boolean isPersistentGlow() {
-            return false;
-        }
-
-        default float getOverlayBrightness() {
-            return 0.25f;
-        }
-
-        default float getAdditiveBrightness() {
-            return 0.6f;
-        }
-
-        default Color getGlowColor() {
-            return Color.WHITE;
-        }
-
-        /**
-         * Returns the sprite used for additive glow.
-         *
-         * <p>Providing a sprite will render the glow using the texture, otherwise the system will
-         * draw a colored polygon/quad according to {@link #getFaderMaskVertices()} (if applicable). 
-         */
-        default Optional<SpriteAPI> getAdditiveSprite() {
-            return Optional.empty();
-        }
-
-        /**
-         * Returns the polygon vertices of the background shape in CCW order.
-         * Returning null is a rectangle.
-         */
-        default float[] getFaderMaskVertices() {
-            return null;
-        }
-    }
-
-    public static interface HasOutline {
-
-        default Outline getOutline() {
-            return Outline.LINE;
-        }
-
-        default Color getOutlineColor() {
-            return dark;
-        }
-    }
-
-    public static interface HasAudioFeedback {
-        default boolean isSoundActive() {
-            return true;
-        }
-
-        default boolean isUseDisableSound() {
-            return false;
-        }
-
-        default String getButtonPressedSound() {
-            return "ui_button_pressed";
-        }
-
-        default String getMouseOverSound() {
-            return "ui_button_mouseover";
-        }
-
-        default String getButtonPressedDisabledSound() {
-            return "ui_button_disabled_pressed";
-        }
-    }
-
-    public static interface HasBackground {
-        default Color getBgColor() {
-            return new Color(0, 0, 0, 255);
-        }
-
-        default boolean isBgEnabled() {
-            return true;
-        }
-
-        default float getBgAlpha() {
-            return bgAlpha;
-        }
-    }
-
-    public static interface HasTooltip {
-
-        /**
-        * Return the parent panel of the tooltip.
-        * Must return a non-null UIPanelAPI. Otherwise the tooltip will not be removed.
-        * Never attach the tooltip to the codex. It WILL crash.
-        */
-        UIPanelAPI getTpParent();
-
-        /**
-        * Return the parent panel of the codex is, ideally the same as the tooltip.
-        * Must return a non-null UIPanelAPI. Otherwise the codex will not be removed.
-        */
-        default Optional<UIPanelAPI> getCodexParent() {
-            return Optional.empty();
-        }
-
-        /**
-        * The {@link TooltipSystem} will call this.
-        * Must create its own tooltip, attach it, position it and return it.
-        * A new tooltip will be created instead of an update.
-        * Therefore, conditional changes to the tooltip should happen during creation.
-        */
-        TooltipMakerAPI createAndAttachTp();
-
-        /**
-        * The {@link TooltipSystem} will call this.
-        * Must create its own codex, attach it, position it and return it.
-        */
-        default Optional<TooltipMakerAPI> createAndAttachCodex() {
-            return Optional.empty();
-        }
-
-        /**
-         * The system uses this ID to open the codex.
-         * Therefore it must be provided independent of {@code createCodex()} for codex behaviour.
-         */ 
-        default Optional<String> getCodexID() {
-            return Optional.empty();
-        }
-
-        /**
-         * Use this toggle to conditionally disable the tooltip.
-         */
-        default boolean isTooltipEnabled() {
-            return true;
-        }
-
-        default float getTooltipDelay() {
-            return 0.3f;
-        }
-
-        default boolean isExpanded() {
-            return false;
-        }
-
-        default void setExpanded(boolean a) {}
-
-        /**
-         * Represents a tooltip creator. 
-         * Used primarily to pass tooltip creation logic around as an object
-         *
-         * This class should be returned from {@link #createAndAttachTp()} when the real tooltip
-         * is not yet available. The {@code factory} Supplier is used to supply the actual
-         * TooltipMakerAPI instance later, enabling lazy/dynamic creation.
-         *
-         * The real power lies in the ability to assign the {@code factory} field a Supplier
-         * from any scope, allowing flexible tooltip-building.
-         *
-         * For example, a table component can accept a factory from its user and call it
-         * to create tooltips for headers or rows on demand, vastly improving flexibility.
-         *
-         * <p><b>Example usage:</b>
-         * <pre>
-         * public TooltipMakerAPI createAndAttachTp() {
-         *     PendingTooltip pending = new PendingTooltip();
-         *     pending.factory = () -> {
-         *         // Create and return the real tooltip here
-         *         TooltipMakerAPI tooltip = ComponentFactory.createTooltip(...);
-         *         // Configure tooltip as needed
-         *         ComponentFactory.addTooltip(...).inTL(...);
-         *         return tooltip;
-         *     };
-         *     return pending.factory.get();
-         * }
-         * </pre>
-         */
-        public static class PendingTooltip<ParentType extends UIPanelAPI> {
-            /**
-             * Factory method to create the tooltip.
-             * Must be set by subclasses or instances.
-             */
-            public Supplier<TooltipMakerAPI> factory;
-
-            /**
-             * Factory method to return the parent panel of the tooltip created by the factory.
-             * Must return a non-null UIPanelAPI.
-             * Classes that support PendingTooltip will use this factory.
-             */
-            public  Supplier<ParentType> parentSupplier;
-        }
-    }
+    public interface HasInteraction {}
+    public interface HasHoverGlow {}
+    public interface HasOutline {}
+    public interface HasAudioFeedback {}
+    public interface HasBackground {}
+    public interface HasTooltip {}
+    public interface HasLayoutOffset {}
+    public interface HasUIContext {}
 }

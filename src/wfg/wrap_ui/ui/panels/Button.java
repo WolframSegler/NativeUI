@@ -1,68 +1,84 @@
 package wfg.wrap_ui.ui.panels;
 
-import java.util.Optional;
-import java.util.function.Supplier;
 import java.awt.Color;
 
 import org.lwjgl.input.Keyboard;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
-import wfg.wrap_ui.ui.panels.CustomPanel.AcceptsActionListener;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasActionListener;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasFader;
+import wfg.wrap_ui.ui.panels.CustomPanel.HasInteraction;
+import wfg.wrap_ui.ui.panels.CustomPanel.HasLayoutOffset;
+import wfg.wrap_ui.ui.components.HoverGlowComp;
+import wfg.wrap_ui.ui.components.InteractionComp;
+import wfg.wrap_ui.ui.components.LayoutOffsetComp;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.TooltipComp;
+import wfg.wrap_ui.ui.components.UIContextComp;
+import wfg.wrap_ui.ui.panels.CustomPanel.HasHoverGlow;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
-import wfg.wrap_ui.ui.plugins.ButtonPlugin;
-import wfg.wrap_ui.ui.systems.FaderSystem.Glow;
+import wfg.wrap_ui.ui.panels.CustomPanel.HasUIContext;
 import wfg.wrap_ui.util.CallbackRunnable;
 import wfg.wrap_ui.util.RenderUtils;
 
 import static wfg.wrap_ui.util.UIConstants.*;
 
-public class Button extends CustomPanel<ButtonPlugin, Button> implements 
-    HasFader, HasActionListener, AcceptsActionListener, HasTooltip
+/**
+ * <p><strong>Component access policy:</strong></p>
+ * <ul>
+ *   <li><b>Public components</b> expose supported customization points and may be read or modified
+ *       directly by external code.</li>
+ *   <li><b>Protected components</b> are internal implementation details and must only be accessed
+ *       by this class or subclasses.</li>
+ *   <li>If a panel provides a setter for a value that affects component state, that setter
+ *       <b>must be used</b> instead of mutating the component directly.</li>
+ * </ul>
+ *
+ * <p>
+ * This distinction makes supported extension points explicit while allowing systems to
+ * freely read component data.
+ * </p>
+ */
+public class Button extends CustomPanel<Button> implements 
+    HasHoverGlow, HasInteraction, HasTooltip, HasUIContext, HasLayoutOffset
 {
-    public float highlightBrightness = 0.2f;
+    public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
+    public final UIContextComp context = comp().getComp(NativeComponents.UI_CONTEXT);
+    public final LayoutOffsetComp offset = comp().getComp(NativeComponents.LAYOUT_OFFSET); 
+    protected final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
+    protected final InteractionComp<Button> interaction = comp().getComp(NativeComponents.INTERACTION);
+
     public float bgAlpha = 0.9f;
     public float bgDisabledAlpha = 0.8f;
-    public boolean checked = false;
-    public boolean disabled = false;
-    public boolean quickMode = false;
     public boolean clickable = true;
-    public boolean showTooltipWhileInactive = false;
     public boolean rightClicksOkWhenDisabled = false;
     public boolean performActionWhenDisabled = false;
-    public boolean tooltipExpanded = false;
-    public boolean tooltipEnabled = false;
     public boolean disabledWhileInvisible = true;
-    public boolean soundEnabled = true; 
+    public boolean soundEnabled = true;
     public Color bgSelectedColor = dark;
     public Color bgColor = dark;
     public Color bgDisabledColor = new Color(17, 52, 62);
-    public Color highlightColor = base;
-    public Glow highlightType = Glow.OVERLAY;
     public Object customData = null;
+    public String mouseOverSound = "ui_button_mouseover";
+    public CallbackRunnable<Button> onClicked;
+    public CutStyle cutStyle = CutStyle.NONE;
+    public int overrideCut = 0;
 
+    protected LabelAPI label = null;
     protected String labelText;
     protected String labelFont;
-    protected LabelAPI label = null;
-    protected CallbackRunnable<Button> onClick;
-    protected int shortcut = 0;
-    protected String mouseOverSound = "ui_button_mouseover";
-    protected boolean appendShortcutToText = false;
-    protected CutStyle cutStyle = CutStyle.NONE;
-    protected int overrideCut = 0;
-    protected Color labelColor = btnTxtColor;
-    protected final FaderUtil fader = new FaderUtil(0, 0, 0.2f, true, true);
-    protected final PendingTooltip<UIPanelAPI> tooltip = new PendingTooltip<>();
+    protected Alignment alg = Alignment.MID;
+    
+    private boolean appendShortcutToText = false;
+    private boolean disabled = false;
+    private boolean checked = false;
+    private boolean quickMode = false;
+    private boolean showTooltipWhileInactive = false;
     
     /**
      * @param onClick if null, clicking toggles the checked state; otherwise, the Runnable handles it.
@@ -70,240 +86,216 @@ public class Button extends CustomPanel<ButtonPlugin, Button> implements
     public Button(UIPanelAPI parent, int width, int height, String text, String font,
         CallbackRunnable<Button> onClick
     ) {
-        super(parent, width, height, new ButtonPlugin());
+        super(parent, width, height);
 
         labelText = text == null ? "" : text;
         labelFont = font == null ? Fonts.ORBITRON_12 : font;
-        this.onClick = onClick;
+        this.onClicked = onClick;
 
-        getPlugin().init(this);
-        getPlugin().setIgnoreUIState(true);
+        context.ignoreContext = true;
+
+        glow.fader = new FaderUtil(0, 0, 0.2f, false, true);
+        glow.color = base;
+        glow.overlayBrightness = 0.2f;
+        glow.faderMaskVertices = getFaderMaskVertices();
+
+        interaction.onClicked = (source, isLeftClick) -> {
+            if ((!isLeftClick && !rightClicksOkWhenDisabled) || !clickable) return;
+
+            interaction.onShortcutPressed.run(source);
+        };
+        interaction.onHoverStarted = (source) -> {
+            Global.getSoundPlayer().playUISound(mouseOverSound, 1, 1);
+        };
+        interaction.onShortcutPressed = (source) -> {
+            if (getPanel().getOpacity() <= 0f && !disabledWhileInvisible) return;
+            glow.fader.forceIn();
+
+            if (soundEnabled) {
+                if (disabled && !performActionWhenDisabled) {
+                    Global.getSoundPlayer().playUISound("ui_button_disabled_pressed", 1, 1);
+                    return;
+                } else {
+                    Global.getSoundPlayer().playUISound("ui_button_pressed", 1, 1);
+                }
+            }
+
+            if (onClicked != null) {
+                onClicked.run(this);
+            } else if (!quickMode) checked = !checked;
+
+            label.flash(0.2f, 1f);
+        };
+
         createPanel();
     }
 
+    public void recreateLabel() {
+        final LabelAPI newlbl = Global.getSettings().createLabel(labelText, labelFont);
+
+        final String finalText = !appendShortcutToText ? labelText :
+            labelText + " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
+        newlbl.setText(finalText);
+        newlbl.getPosition().setSize(pos.getWidth(), pos.getHeight());
+        newlbl.setColor(label.getColor());
+        newlbl.setAlignment(alg);
+        if (appendShortcutToText) {
+            newlbl.setHighlightColor(highlight);
+            newlbl.setHighlight(Keyboard.getKeyName(interaction.shortcut));
+        }
+
+        label = newlbl;
+        add(label).inBL(0f, 0f);
+    }
+
     public void createPanel() {
-        final SettingsAPI settings = Global.getSettings();
-        final PositionAPI pos = getPos();
         if (label != null) remove(label);
 
-        String finalText = labelText;
-        if (appendShortcutToText) finalText = finalText + " [" + Keyboard.getKeyName(shortcut) + "]";
-        label = settings.createLabel(finalText, labelFont);
+        final String finalText = !appendShortcutToText ? labelText :
+            labelText + " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
+        label = Global.getSettings().createLabel(finalText, labelFont);
         label.getPosition().setSize(pos.getWidth(), pos.getHeight());
-        label.setColor(labelColor);
-        label.setAlignment(Alignment.MID);
+        label.setColor(btnTxtColor);
+        label.setAlignment(alg);
         if (appendShortcutToText) {
             label.setHighlightColor(highlight);
-            label.setHighlight(Keyboard.getKeyName(shortcut));
+            label.setHighlight(Keyboard.getKeyName(interaction.shortcut));
         }
 
         add(label).inBL(0f, 0f);
     }
 
-    public Optional<HasActionListener> getActionListener() {
-        return Optional.of(this);
+    public boolean getEnabled() { return !disabled; }
+    public void setEnabled(boolean enabled) {
+        disabled = !enabled;
+        tooltip.enabled = isTooltipEnabled();
+        glow.persistent = isPersistentGlow();
+    }
+
+    public boolean isChecked() { return checked; }
+    public void setChecked(boolean bool) {
+        checked = bool;
+        glow.persistent = isPersistentGlow();
+    }
+
+    public boolean isQuickMode() { return quickMode; }
+    public void setQuickMode(boolean mode) {
+        quickMode = mode;
+        glow.persistent = isPersistentGlow();
+    }
+
+    public void setShowTooltipWhileInactive(boolean bool) {
+        showTooltipWhileInactive = bool;
+        tooltip.enabled = isTooltipEnabled();
     }
 
     public void click(boolean ignoreState) {
-        if (ignoreState) onShortcutPressed(this);
-        else onClicked(this, true);
-    }
-
-    public void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {
-        if ((!isLeftClick && !rightClicksOkWhenDisabled) || !clickable) return;
-
-        onShortcutPressed(source);
-    }
-
-    public void onHoverStarted(CustomPanel<?, ?> source) {
-        Global.getSoundPlayer().playUISound(mouseOverSound, 1, 1);
-    }
-
-    public void setOnClick(CallbackRunnable<Button> r) {
-        onClick = r;
-    }
-
-    public void onShortcutPressed(CustomPanel<?, ?> source) {
-        if (getPanel().getOpacity() <= 0f && !disabledWhileInvisible) return;
-        fader.forceIn();
-
-        if (disabled && !performActionWhenDisabled) {
-            Global.getSoundPlayer().playUISound("ui_button_disabled_pressed", 1, 1);
-            return;
-        }
-
-        Global.getSoundPlayer().playUISound("ui_button_pressed", 1, 1);
-        if (onClick != null) {
-            onClick.run(this);
-        } else if (!quickMode) checked = !checked;
-
-        label.flash(0.2f, 1f);
-    }
-
-    public int getShortcut() {
-        return shortcut;
+        if (ignoreState) interaction.onShortcutPressed.run(this);
+        else interaction.onClicked.handle(this, true);
     }
 
     /**
      * @param keyCode the key code corresponding to {@link org.lwjgl.input.Keyboard} constants
      */
     public void setShortcut(int keyCode) {
-        shortcut = keyCode;
+        interaction.shortcut = keyCode;
         appendShortcutToText = true;
-        createPanel();
+        recreateLabel();
     }
 
-    public FaderUtil getFader() {
-        return fader;
-    }
-
-    public UIPanelAPI getTpParent() {
-        return tooltip.parentSupplier.get();
-    }
-
-    public TooltipMakerAPI createAndAttachTp() {
-        return tooltip.factory.get();
-    }
-
-    public boolean isExpanded() {
-        return tooltipExpanded;
-    }
-
-    /**
-     * Used by {@link wfg.wrap_ui.ui.systems.TooltipSystem} to reset state on condition
-     */
-    public void setExpanded(boolean a) {
-        tooltipExpanded = a;
-    }
-
-    public boolean isTooltipEnabled() {
-        return tooltipEnabled && (showTooltipWhileInactive || !disabled);
-    }
-
-    public String getMouseOverSound() {
-        return mouseOverSound;
-    }
-
-    public void setMouseOverSound(String settingsID) {
-        mouseOverSound = settingsID;
-    }
-
-    public boolean isPersistentGlow() {
-        return checked && !disabled && !quickMode;
-    }
-
-    public float getOverlayBrightness() {
-        return highlightBrightness;
-    }
-
+    public String getText() { return labelText; }
     public void setText(String text) {
         labelText = text;
-        createPanel();
-    }
-
-    public String getText() {
-        return labelText;
+        recreateLabel();
     }
 
     public void setFont(String font) {
         labelFont = font;
-        createPanel();
+        recreateLabel();
     }
 
     public void setAppendShortcutToText(boolean a) {
         appendShortcutToText = a;
-        createPanel();
+        recreateLabel();
     }
 
     public void setHighlightBounceDown(boolean bool) {
-        fader.setBounceDown(bool);
+        glow.fader.setBounceDown(bool);
     }
 
     public Color getLabelColor() {
-        return labelColor;
+        return label.getColor();
     }
 
     public void setLabelColor(Color color) {
-        labelColor = color;
-        createPanel();
-    }
-
-    public Color getGlowColor() {
-        return highlightColor;
-    }
-
-    public Glow getGlowType() {
-        return highlightType;
+        label.setColor(color);
     }
 
     public void setAlignment(Alignment alg) {
-        label.setAlignment(alg);
+        this.alg = alg;
+        recreateLabel();
     }
 
-    public void setTooltipFactory(Supplier<TooltipMakerAPI> factory) {
-        tooltip.factory = factory;
-        if (tooltip.parentSupplier != null) tooltipEnabled = true;
+    @Override
+    public void positionChanged(PositionAPI position) {
+        super.positionChanged(position);
+        glow.faderMaskVertices = getFaderMaskVertices();
+        recreateLabel();
     }
 
-    public void setParentSupplier(Supplier<UIPanelAPI> parentSupplier) {
-        tooltip.parentSupplier = parentSupplier;
-        if (tooltip.factory != null) tooltipEnabled = true;
-    }
-
-    public Color getBgColor() {
-        if (disabled) return bgDisabledColor;
-        if (!quickMode && checked) return bgSelectedColor;
-        return bgColor;
-    }
-
-    public float getBgAlpha() {
-        return disabled ? bgDisabledAlpha : bgAlpha;
-    }
-
-    public void setCutStyle(CutStyle style) {
-        cutStyle = style;
-    }
-
-    public Button setCutSize(int px) {
-        overrideCut = px;
-        return this;
-    }
-
-    public float[] getFaderMaskVertices() {
-        final PositionAPI pos = getPos();
-        final float cutSize = computeCut((int) pos.getWidth(), (int) pos.getHeight());
-
-        final float[] cuts = cutStyle.toVector4();
-        for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
-
-        return RenderUtils.buildCornersVertices(
-            pos.getX() + getPlugin().offsetX,
-            pos.getY() + getPlugin().offsetY,
-            pos.getWidth() + getPlugin().offsetW,
-            pos.getHeight() + getPlugin().offsetH,
-            cuts
-        );
-    }
-
-    public void renderImpl(float alphaMult) {
-        final PositionAPI pos = getPos();
-
-        final float x = pos.getX() + getPlugin().offsetX;
-        final float y = pos.getY() + getPlugin().offsetY;
-        final float w = pos.getWidth() + getPlugin().offsetW;
-        final float h = pos.getHeight() + getPlugin().offsetH;
+    @Override
+    public void renderBelow(float alpha) {
+        super.renderBelow(alpha);
+        
+        final float x = pos.getX() + offset.x;
+        final float y = pos.getY() + offset.y;
+        final float w = pos.getWidth() + offset.w;
+        final float h = pos.getHeight() + offset.h;
         final float cutSize = computeCut((int) w, (int) h);
 
         final float[] cuts = cutStyle.toVector4();
         for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
         final float[] verts = RenderUtils.buildCornersVertices(x, y, w, h, cuts);
 
-        RenderUtils.drawPolygon(verts, getBgColor(), alphaMult * getBgAlpha());
+        RenderUtils.drawPolygon(verts, getBgColor(), alpha * getBgAlpha());
     }
 
     protected float computeCut(int w, int h) {
         if (overrideCut > 0) return overrideCut;
         return Math.min(w, h) * 0.2f;
+    }
+
+    protected boolean isTooltipEnabled() {
+        return (showTooltipWhileInactive || !disabled);
+    }
+
+    protected boolean isPersistentGlow() {
+        return checked && !disabled && !quickMode;
+    }
+
+    protected Color getBgColor() {
+        if (disabled) return bgDisabledColor;
+        if (!quickMode && checked) return bgSelectedColor;
+        return bgColor;
+    }
+
+    protected float getBgAlpha() {
+        return disabled ? bgDisabledAlpha : bgAlpha;
+    }
+
+    protected float[] getFaderMaskVertices() {
+        final float cutSize = computeCut((int) pos.getWidth(), (int) pos.getHeight());
+
+        final float[] cuts = cutStyle.toVector4();
+        for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
+
+        return RenderUtils.buildCornersVertices(
+            pos.getX() + offset.x,
+            pos.getY() + offset.y,
+            pos.getWidth() + offset.w,
+            pos.getHeight() + offset.h,
+            cuts
+        );
     }
 
     public enum CutStyle {

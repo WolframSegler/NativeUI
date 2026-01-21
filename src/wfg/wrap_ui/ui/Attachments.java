@@ -17,52 +17,35 @@ import rolflectionlib.util.RolfLectionUtil;
  */
 public class Attachments {
 
-    private static final Object getWarRoomPanelMethod;
-    private static final Object getTitleScreenPanelMethod;
-    private static final Object getTutorialOverlayMethod;
-    private static final Object getCombatScreenPanelMethod;
-    private static final Object getCampaignScreenPanelMethod;
-    private static final Object getCampaignCoreMethod;
-    private static final Object getCoreUIcurrentTabMethod;
-    private static final Object getEncounterDialogMethod;
-    private static final Object getEncounterDialogCoreUIMethod;
-
-    private static final Class<?> coreUIclass;
-    private static final Class<?> encounterDialogClass;
-
-    static {
-        getTitleScreenPanelMethod = RolfLectionUtil.getMethod(
-            "getScreenPanel", TitleScreenState.class
-        );
-        getTutorialOverlayMethod = RolfLectionUtil.getMethod(
-            "getTutorialOverlay", CombatState.class
-        );
-        getCombatScreenPanelMethod = RolfLectionUtil.getMethod(
-            "getWidgetPanel", CombatState.class
-        );
-        getCampaignScreenPanelMethod = RolfLectionUtil.getMethod(
-            "getScreenPanel", CampaignState.class
-        );
-        getCampaignCoreMethod = RolfLectionUtil.getMethod(
-            "getCore", CampaignState.class
-        );
-        coreUIclass = RolfLectionUtil.getReturnType(getCampaignCoreMethod);
-        getCoreUIcurrentTabMethod = RolfLectionUtil.getMethod(
-            "getCurrentTab", coreUIclass
-        );
-        getEncounterDialogMethod = RolfLectionUtil.getMethod(
-            "getEncounterDialog", CampaignState.class
-        );
-        encounterDialogClass = RolfLectionUtil.getReturnType(getEncounterDialogMethod);
-        getEncounterDialogCoreUIMethod = RolfLectionUtil.getMethod(
-            "getCoreUI", encounterDialogClass
-        );
-    }
-    
-    static {
-        getWarRoomPanelMethod = RolfLectionUtil.getMethod("getWarroom",
-            CombatState.class);
-    }
+    private static final Object getWarRoomPanelMethod = RolfLectionUtil.getMethod(
+        "getWarroom",CombatState.class
+    );
+    private static final Object getTitleScreenPanelMethod = RolfLectionUtil.getMethod(
+        "getScreenPanel", TitleScreenState.class
+    );
+    private static final Object getTutorialOverlayMethod = RolfLectionUtil.getMethod(
+        "getTutorialOverlay", CombatState.class
+    );
+    private static final Object getCombatScreenPanelMethod = RolfLectionUtil.getMethod(
+        "getWidgetPanel", CombatState.class
+    );
+    private static final Object getCampaignScreenPanelMethod = RolfLectionUtil.getMethod(
+        "getScreenPanel", CampaignState.class
+    );
+    private static final Object getCampaignCoreMethod = RolfLectionUtil.getMethod(
+        "getCore", CampaignState.class
+    );
+    private static final Object getEncounterDialogMethod = RolfLectionUtil.getMethod(
+        "getEncounterDialog", CampaignState.class
+    );
+    private static final Class<?> coreUIclass = RolfLectionUtil.getReturnType(getCampaignCoreMethod);
+    private static final Class<?> encounterDialogClass = RolfLectionUtil.getReturnType(getEncounterDialogMethod);
+    private static final Object getCoreUIcurrentTabMethod = RolfLectionUtil.getMethod(
+        "getCurrentTab", coreUIclass
+    );
+    private static final Object getEncounterDialogCoreUIMethod = RolfLectionUtil.getMethod(
+        "getCoreUI", encounterDialogClass
+    );
 
     /**
      * Must be interacting with an entity.

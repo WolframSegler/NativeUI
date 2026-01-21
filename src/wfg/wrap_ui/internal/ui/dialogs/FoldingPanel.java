@@ -15,14 +15,13 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
-import wfg.wrap_ui.internal.ui.plugins.FoldingPanelPlugin;
 import wfg.wrap_ui.internal.util.BorderRenderer;
 import wfg.wrap_ui.internal.util.NoiseRenderer;
 import wfg.wrap_ui.internal.util.PanelFillRenderer;
 import wfg.wrap_ui.ui.Attachments;
 import wfg.wrap_ui.ui.panels.CustomPanel;
 
-public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> {
+public class FoldingPanel extends CustomPanel<FoldingPanel> {
     public boolean renderBackground = true;
     public boolean transitionEnabled = true;
     public boolean isAlwaysScissor = false;
@@ -42,8 +41,8 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
     public FoldingPanel(UIPanelAPI parent, int width, int height, String borderPrefix,
         int borderThickness
     ) {
-        super(parent, width + borderThickness*2, height + borderThickness*2, new FoldingPanelPlugin());
-        getPlugin().init(this);
+        super(parent, width + borderThickness * 3, height + borderThickness * 3);
+        
         this.borderThickness = borderThickness;
         borderRenderer = new BorderRenderer(borderPrefix, width, height);
         initializeBackground();
@@ -82,7 +81,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
         final PositionAPI pos = getPos();
         final SettingsAPI settings = Global.getSettings();
         backgroundLayer = new PanelFillRenderer(settings.getSprite("ui", "scanline11"),
-            pos.getWidth() - pad * 2, pos.getHeight() - pad * 2
+            pos.getWidth() - pad * 3, pos.getHeight() - pad * 3
         );
         backgroundLayer.setColors(
             new Color(0, 0, 0, 125), new Color(0, 0, 0, backgroundAlphaMin));
@@ -93,12 +92,12 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
         backgroundLayer.edgeSize = 7f;
 
         foregroundLayer = new PanelFillRenderer(settings.getSprite("ui", "scanline11"),
-            pos.getWidth() - pad * 2, pos.getHeight() - pad * 2
+            pos.getWidth() - pad * 3, pos.getHeight() - pad * 3
         );
         foregroundLayer.useAdditiveBlend = true;
         foregroundLayer.setColors(new Color(10, 38, 44, 0), new Color(10, 38, 44, 0));
         noiseRenderer = new NoiseRenderer(settings.getSprite("ui", "noise"),
-            pos.getWidth() - pad * 2, pos.getHeight() - pad * 2
+            pos.getWidth() - pad * 3, pos.getHeight() - pad * 3
         );
     }
 
@@ -141,7 +140,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
     public PositionAPI setSize(float width, float height) {
         if (currentPanel != null) {
             currentPanel.getPosition().setSize(
-                width - borderThickness * 2f, height - borderThickness * 2f
+                width - borderThickness * 3, height - borderThickness * 3
             );
         }
 
@@ -151,18 +150,20 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
     }
 
     public float getContentWidth() {
-        return getPos().getWidth() - borderThickness * 2f;
+        return getPos().getWidth() - borderThickness * 3;
     }
 
     public float getContentHeight() {
-        return getPos().getHeight() - borderThickness * 2f;
+        return getPos().getHeight() - borderThickness * 3;
     }
 
     public void flickerNoise(float inDuration, float outDuration) {
         noiseRenderer.fadeIn(inDuration, outDuration);
     }
 
-    public void advanceImpl(float delta) {
+    @Override
+    public void advance(float delta) {
+        super.advance(delta);
         if (nextPanel != null && noiseRenderer.isMaxBrightness()) {
             currentPanel = nextPanel;
             nextPanel = null;
@@ -186,17 +187,20 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
         return fader;
     }
 
-    public void processInputImpl(List<InputEventAPI> events) {
+    @Override
+    public void processInput(List<InputEventAPI> events) {
+        super.processInput(events);
         if (currentPanel != null && fader.getBrightness() >= 0.75f && nextPanel == null) {
             currentPanel.processInput(events);
         }
     }
 
-    public void renderImpl(float alphaMult) {
+    @Override
+    public void renderBelow(float alpha) {
+        super.renderBelow(alpha);
         if (fader.getBrightness() == 0f && fader.isIdle()) return;
 
-        final PositionAPI pos = getPos();
-        final float brightness = fader.getBrightness() * alphaMult;
+        final float brightness = fader.getBrightness() * alpha;
         final float heightScale = Math.min(1f, brightness / 0.75f);
         final float transitionAlpha = Math.max(0f, (brightness - 0.75f) / 0.25f);
         final float borderAlphaFactor = Math.min(1f, brightness / 0.25f);
@@ -216,8 +220,8 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
             final float scale = Global.getSettings().getScreenScaleMult();
             final int scissorX = (int) (x + borderThickness * scale);
             final int scissorY = (int) (y + borderThickness * scale);
-            final int scissorW = (int) ((panelWidth - borderThickness * 2f) * scale);
-            final int scissorH = (int) ((panelHeight - borderThickness * 2f) * scale);
+            final int scissorW = (int) ((panelWidth - borderThickness * 3) * scale);
+            final int scissorH = (int) ((panelHeight - borderThickness * 3) * scale);
             GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
         }
 
@@ -249,11 +253,6 @@ public class FoldingPanel extends CustomPanel<FoldingPanelPlugin, FoldingPanel> 
         }
     }
 
-    public UIComponentAPI getCurr() {
-        return currentPanel;
-    }
-
-    public UIComponentAPI getNext() {
-        return nextPanel;
-    }
+    public UIComponentAPI getCurr() { return currentPanel; }
+    public UIComponentAPI getNext() { return nextPanel; }
 }

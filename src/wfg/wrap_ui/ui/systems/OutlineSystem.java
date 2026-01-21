@@ -2,47 +2,48 @@ package wfg.wrap_ui.ui.systems;
 
 import com.fs.starfarer.api.ui.PositionAPI;
 
+import wfg.wrap_ui.ui.components.InputSnapshot;
+import wfg.wrap_ui.ui.components.LayoutOffsetComp;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.OutlineComp;
+import wfg.wrap_ui.ui.components.UIContextComp;
+import wfg.wrap_ui.ui.components.OutlineComp.OutlineType;
 import wfg.wrap_ui.ui.panels.CustomPanel;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasOutline;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
 import wfg.wrap_ui.util.RenderUtils;
 import static wfg.wrap_ui.util.UIConstants.*;
 
 public final class OutlineSystem<
-    PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType> & HasOutline
-> extends BaseSystem<PluginType, PanelType> {
+    PanelType extends CustomPanel<PanelType>
+> extends BaseSystem<PanelType> {
 
-    public static enum Outline {
-        NONE,
-        LINE,
-        VERY_THIN,
-        THIN,
-        MEDIUM,
-        THICK,
-        TEX_VERY_THIN,
-        TEX_THIN,
-        TEX_MEDIUM,
-        TEX_THICK
-    }
+    private final OutlineComp outline;
+    private final UIContextComp context;
+    private final LayoutOffsetComp offset;
 
-    public OutlineSystem(PluginType plugin) {
-        super(plugin);
+    public OutlineSystem(PanelType panel) {
+        super(panel);
+
+        final var comp = panel.comp();
+        comp.setIfNotPresent(NativeComponents.OUTLINE, new OutlineComp());
+        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
+
+        outline = comp.getComp(NativeComponents.OUTLINE);
+        context = comp.getComp(NativeComponents.UI_CONTEXT);
+        offset = comp.getComp(NativeComponents.LAYOUT_OFFSET);
     }
 
     @Override
     public final void render(float alphaMult, InputSnapshot input) {
-        if (getPanel().getOutline() == null || getPanel().getOutline() == Outline.NONE) return;
+        if (!outline.enabled || outline.type == OutlineType.NONE || !context.isValid()) return;
 
-        PanelType panel = getPanel();
         final PositionAPI pos = panel.getPos();
 
         String textureID = null;
         int textureSize = 4;
         int borderThickness = 0;
 
-        switch (getPanel().getOutline()) {
+        switch (outline.type) {
             case LINE: borderThickness = 1; break;
             case VERY_THIN: borderThickness = 2; break;
             case THIN: borderThickness = 3; break;
@@ -50,38 +51,31 @@ public final class OutlineSystem<
             case THICK: borderThickness = 8; break;
             case TEX_VERY_THIN: textureID = "ui_border4"; break;
             case TEX_THIN: textureID = "ui_border3"; break;
-            case TEX_MEDIUM:
-                textureID = "ui_border1";
-                textureSize = 8;
-                break;
-            case TEX_THICK:
-                textureID = "ui_border2";
-                textureSize = 24;
-                break;
-            default:
-                break;
+            case TEX_MEDIUM: textureID = "ui_border1"; textureSize = 8; break;
+            case TEX_THICK: textureID = "ui_border2"; textureSize = 24; break;
+            default: break;
         }
 
         if (borderThickness != 0) {
             RenderUtils.drawFramedBorder(
-                pos.getX() + getPlugin().offsetX,
-                pos.getY() + getPlugin().offsetY,
-                pos.getWidth() + getPlugin().offsetW,
-                pos.getHeight() + getPlugin().offsetH,
-                borderThickness,
-                getPanel().getOutlineColor(),
-                alphaMult
+                    pos.getX() + offset.x,
+                    pos.getY() + offset.y,
+                    pos.getWidth() + offset.w,
+                    pos.getHeight() + offset.h,
+                    borderThickness,
+                    outline.color,
+                    alphaMult
             );
         }
 
         if (textureID != null) {
             RenderUtils.drawRoundedBorder(
-                pos.getX() - pad + getPlugin().offsetX,
-                pos.getY() - pad + getPlugin().offsetY,
-                pos.getWidth() + pad * 2 + getPlugin().offsetW,
-                pos.getHeight() + pad * 2 + getPlugin().offsetH,
-                1, textureID, textureSize,
-                getPanel().getOutlineColor()
+                    pos.getX() - pad + offset.x,
+                    pos.getY() - pad + offset.y,
+                    pos.getWidth() + pad * 2 + offset.w,
+                    pos.getHeight() + pad * 2 + offset.h,
+                    1, textureID, textureSize,
+                    outline.color
             );
         }
     }

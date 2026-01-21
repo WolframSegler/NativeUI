@@ -10,17 +10,15 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import wfg.wrap_ui.internal.util.BorderRenderer;
 import wfg.wrap_ui.internal.util.BorderRenderer.BorderSide;
 import wfg.wrap_ui.ui.Attachments;
-import wfg.wrap_ui.ui.plugins.DockPanelPlugin;
 
-public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel> {
+public abstract class DockPanel extends CustomPanel<DockPanel> {
     
     public static enum DockDirection {
         LEFT, RIGHT, TOP, BOTTOM
     }
 
     public boolean isOpen = false;
-    public float durIn = 0.3f;
-    public float durOut = 0.3f;
+    public float durIn, durOut = 0.3f;
 
     protected DockDirection dockDir = DockDirection.LEFT;
     protected float offsetX, offsetY = 0f;
@@ -32,8 +30,7 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel> 
     protected String borderPrefix = "ui_border1";
 
     public DockPanel(final int width, final int height, final DockDirection dir) {
-        super(Attachments.getScreenPanel(), width, height, new DockPanelPlugin());
-        getPlugin().init(this);
+        super(Attachments.getScreenPanel(), width, height);
         Attachments.getScreenPanel().addComponent(m_panel);
 
         border = new BorderRenderer(borderPrefix, width, height, BorderSide.LEFT);
@@ -62,16 +59,17 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel> 
     public void setBorder(String prefix) {
         borderPrefix = prefix;
         border = new BorderRenderer(prefix);
-        setSize(getPos().getWidth(), getPos().getHeight());
+        setSize(pos.getWidth(), pos.getHeight());
     }
 
     public PositionAPI setSize(final float w, final float h) {
-        getPos().setSize(w, h);
+        pos.setSize(w, h);
         border.setSize(w + pad*2, h + pad*2);
         return getPos();
     }
 
-    public void advanceImpl(final float delta) {
+    @Override
+    public void advance(final float delta) {
         final float target = isOpen ? 1f : 0f;
         final float speed = isOpen ?
             (durIn > 0f ? 1f / durIn : Float.POSITIVE_INFINITY) :
@@ -85,7 +83,9 @@ public abstract class DockPanel extends CustomPanel<DockPanelPlugin, DockPanel> 
         }
     }
 
-    public void renderImpl(final float alpha) {
+    @Override
+    public void renderBelow(final float alpha) {
+        super.renderBelow(alpha);
         final PositionAPI pos = getPos();
 
         if (border != null) {

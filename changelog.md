@@ -1,3 +1,11 @@
+v0.3.0-beta
+- Modified HasTooltip to reduce boilerplate.
+- Turned all the interfaces of CustomPanel to components.
+- CustomPanel now owns a ComponentContainer member.
+- CustomPanel now owns the systems.
+- Replaced all plugins for CustomPanel in favor of a forwarder plugin.
+- 
+
 v0.2.1-beta
 - Misc. bug fixes
 - Made SpritePanel and SpritePanelWithTp a lot leaner in terms of composition
@@ -5,6 +13,7 @@ v0.2.1-beta
 - Added addCaptionValueBlock to ComponentFactory to have values with titles.
 - Removed ParentType from CustomPanel, as it does not need to be a CustomPanelAPI instance anymore.
 - Removed CustomPanelAPI dependency fully. Ready to switch to a custom UIPanelAPI Impl. for the future.
+
 
 v0.2.0-beta
 - Created a carbon copy of DialogPanel because the API for vanilla version was too restrictive

@@ -1,32 +1,41 @@
 package wfg.wrap_ui.ui.systems;
 
+import wfg.wrap_ui.ui.components.BackgroundComp;
+import wfg.wrap_ui.ui.components.InputSnapshot;
+import wfg.wrap_ui.ui.components.LayoutOffsetComp;
+import wfg.wrap_ui.ui.components.NativeComponents;
 import wfg.wrap_ui.ui.panels.CustomPanel;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasBackground;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
 import wfg.wrap_ui.util.RenderUtils;
 
 public final class BackgroundSystem<
-    PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType> & HasBackground
-> extends BaseSystem<PluginType, PanelType> {
+    PanelType extends CustomPanel<PanelType>
+> extends BaseSystem<PanelType> {
 
-    public BackgroundSystem(PluginType a) {
-        super(a);
+    private final BackgroundComp bg;
+    private final LayoutOffsetComp offset;
+
+    public BackgroundSystem(PanelType panel) {
+        super(panel);
+
+        final var comp = panel.comp();
+        comp.setIfNotPresent(NativeComponents.BACKGROUND, new BackgroundComp());
+        comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new BackgroundComp());
+
+        bg = comp.getComp(NativeComponents.BACKGROUND);
+        offset = comp.getComp(NativeComponents.LAYOUT_OFFSET);
     }
 
     @Override
-    public final void renderBelow(float alphaMult, InputSnapshot input) {
-        if (!getPanel().isBgEnabled()) {
-            return;
-        }
-        final var pos = getPanel().getPos();
+    public void renderBelow(float alphaMult, InputSnapshot input) {
+        if (!bg.enabled) return;
 
-        final int x = (int) pos.getX() + getPlugin().offsetX;
-        final int y = (int) pos.getY() + getPlugin().offsetY;
-        final int w = (int) pos.getWidth() + getPlugin().offsetW;
-        final int h = (int) pos.getHeight() + getPlugin().offsetH;
+        final var pos = panel.getPos();
 
-        RenderUtils.drawQuad(x, y, w, h, getPanel().getBgColor(), getPanel().getBgAlpha(), false);
+        final int x = (int) pos.getX() + offset.x;
+        final int y = (int) pos.getY() + offset.y;
+        final int w = (int) pos.getWidth() + offset.w;
+        final int h = (int) pos.getHeight() + offset.h;
+
+        RenderUtils.drawQuad(x, y, w, h, bg.color, bg.alpha, false);
     }
 }

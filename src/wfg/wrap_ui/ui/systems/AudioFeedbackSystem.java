@@ -6,45 +6,52 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SoundPlayerAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 
+import wfg.wrap_ui.ui.components.AudioFeedbackComp;
+import wfg.wrap_ui.ui.components.ComponentContainer;
+import wfg.wrap_ui.ui.components.InputSnapshot;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.UIContextComp;
 import wfg.wrap_ui.ui.panels.CustomPanel;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasAudioFeedback;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
 
 public final class AudioFeedbackSystem<
-    PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType> & HasAudioFeedback
-> extends BaseSystem<PluginType, PanelType> {
+    PanelType extends CustomPanel<PanelType>
+> extends BaseSystem<PanelType> {
 
-    /**
-     * Newly created Systems shouldn't make a sound for this many game ticks.
-     */
-    final private int initCompTicks = 10;
-    private long accumulatedGameTicks = 0;
+    private static final int initCompTicks = 10;
 
-    public AudioFeedbackSystem(PluginType plugin) {
-        super(plugin);
+    private final AudioFeedbackComp audio;
+    private final UIContextComp context;
+
+    public AudioFeedbackSystem(PanelType panel) {
+        super(panel);
+        final ComponentContainer comp = panel.comp();
+        comp.setIfNotPresent(NativeComponents.AUDIO_FEEDBACK, new AudioFeedbackComp());
+        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        
+        audio = panel.comp().getComp(NativeComponents.AUDIO_FEEDBACK);
+        context = panel.comp().getComp(NativeComponents.UI_CONTEXT);
     }
 
     @Override
     public void processInput(List<InputEventAPI> events, InputSnapshot input) {
-        if (getPanel().isSoundActive() &&
-            getPlugin().isValidUIContext() &&
-            accumulatedGameTicks > initCompTicks
-        ) {
-            final SoundPlayerAPI player = Global.getSoundPlayer();
-            if (input.hoverStarted) {
-                player.playUISound(getPanel().getMouseOverSound(), 1, 1);
+        if (audio == null || !audio.enabled) return;
+
+        if (audio.accumulatedGameTicks > initCompTicks && context.isValid()) {
+            SoundPlayerAPI player = Global.getSoundPlayer();
+
+            if (input.hoverStarted && audio.enabled) {
+                player.playUISound(audio.mouseOverSound, 1f, 1f);
             }
 
-            if (input.LMBUpLastFrame) {
-                if (getPanel().isUseDisableSound()) {
-                    player.playUISound(getPanel().getButtonPressedDisabledSound(), 1, 1);
+            if (input.LMBUpLastFrame && audio.enabled) {
+                if (audio.useDisabledSound) {
+                    player.playUISound(audio.buttonPressedDisabledSound, 1f, 1f);
                 } else {
-                    player.playUISound(getPanel().getButtonPressedSound(), 1, 1);
+                    player.playUISound(audio.buttonPressedSound, 1f, 1f);
                 }
             }
         }
-        accumulatedGameTicks++;
+
+        audio.accumulatedGameTicks++;
     }
 }

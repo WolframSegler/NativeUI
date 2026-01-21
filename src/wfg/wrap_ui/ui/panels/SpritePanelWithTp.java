@@ -1,66 +1,44 @@
 package wfg.wrap_ui.ui.panels;
 
 import java.awt.Color;
-import java.util.Optional;
 
-import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.api.util.FaderUtil;
 
+import wfg.wrap_ui.ui.components.AudioFeedbackComp;
+import wfg.wrap_ui.ui.components.HoverGlowComp;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.TooltipComp;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasAudioFeedback;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasFader;
+import wfg.wrap_ui.ui.panels.CustomPanel.HasHoverGlow;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
 
 /**
- * A generic sprite panel with tooltip and fading support.
+ * A sprite panel with tooltip, hover glow, and audio feedback support.
  *
- * <p>This class is designed to be subclassed or instantiated anonymously. The default implementation
- * provides a template, but the actual functionality should be defined by the subclass or anonymous
- * implementation. Users must override {@link #getTpParent()}, and {@link #createAndAttachTp()} to
- * have a working tooltip.</p>
- *
- * <p>Intended usage example:
+ * <p>Usage example:
  * <pre>{@code
- * SpritePanelWithTp panel = new SpritePanelWithTp(parent, width, height, plugin,
- *                                               "iconPath", color, fillColor, drawBorder) {
- *      @Override
- *      public UIPanelAPI getTpParent() {
- *          return getPanel();
- *      }
- * }</pre>
- * <pre>{@code
- *      
- *      @Override
- *      public TooltipMakerAPI createAndAttachTp() {
- *          TooltipMakerAPI tp = ComponentFactory.createTooltip(300, false);
- *          tp.addPara("Example text", 3);
- *          
- *          ComponentFactory.addTooltip(tp, 20, false, m_panel).inBR(...);
- *          return tp;
- *      }
+ * SpritePanelWithTp panel = new SpritePanelWithTp(parent, 64, 64, "iconPath", null, null);
+ * panel.tooltip.builder = (tooltip, expanded) -> {
+ *     tooltip.addPara("...", pad);
  * };
- * }</pre></p>
- *
- * <p>By default, the glow color is white and tooltip methods return null</p>
+ * panel.tooltip.positioner = (tooltip, expanded) -> {
+ *     // default if not overridden is WrapUiUtils.mouseCornerPos(tooltip)
+ *     WrapUiUtils.anchorPanel(tooltip, anchor, AnchorType.LeftTop, pad);
+ * };
+ * }</pre>
  */
 public class SpritePanelWithTp extends SpritePanel<SpritePanelWithTp>
-    implements HasTooltip, HasFader, HasAudioFeedback
+    implements HasTooltip, HasHoverGlow, HasAudioFeedback
 {
-    public final FaderUtil fader = new FaderUtil(0, 0, 0.2f, true, true);
+    public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
+    public final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
+    public final AudioFeedbackComp audio = comp().getComp(NativeComponents.AUDIO_FEEDBACK);
 
     public SpritePanelWithTp(UIPanelAPI parent, int width, int height, String spriteID,
         Color color, Color fillColor
     ) {
         super(parent, width, height, spriteID, color, fillColor);
-    }
 
-    @Override
-    public Optional<SpriteAPI> getAdditiveSprite() {
-        return Optional.of(m_sprite);
+        glow.additiveSprite = m_sprite;
     }
-
-    public UIPanelAPI getTpParent() { return null; }
-    public TooltipMakerAPI createAndAttachTp() { return null; }
-    public FaderUtil getFader() { return fader; }
 }

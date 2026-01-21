@@ -5,37 +5,42 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.api.util.Misc;
 
-import wfg.wrap_ui.util.CallbackRunnable;
 import wfg.wrap_ui.util.WrapUiUtils;
 import wfg.wrap_ui.util.WrapUiUtils.AnchorType;
 import wfg.wrap_ui.ui.ComponentFactory;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip.PendingTooltip;
+import wfg.wrap_ui.ui.components.AudioFeedbackComp;
+import wfg.wrap_ui.ui.components.BackgroundComp;
+import wfg.wrap_ui.ui.components.HoverGlowComp;
+import wfg.wrap_ui.ui.components.InteractionComp;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.OutlineComp;
+import wfg.wrap_ui.ui.components.TooltipComp;
+import wfg.wrap_ui.ui.components.UIContextComp;
+import wfg.wrap_ui.ui.components.HoverGlowComp.GlowType;
+import wfg.wrap_ui.ui.components.InteractionComp.ClickHandler;
+import wfg.wrap_ui.ui.components.TooltipComp.TooltipBuilder;
 import wfg.wrap_ui.ui.panels.SpritePanel.Base;
-import wfg.wrap_ui.ui.plugins.BasePanelPlugin;
-import wfg.wrap_ui.ui.systems.FaderSystem.Glow;
-import wfg.wrap_ui.ui.systems.OutlineSystem.Outline;
 import static wfg.wrap_ui.util.UIConstants.*;
 
 /**
  * SortableTable is a customizable, sortable UI table component designed to display
  * tabular data within a custom panel environment. It extends {@link CustomPanel}
- * to integrate smoothly with the Wrao UI framework.
+ * to integrate smoothly with the NativeUI framework.
  * <p>
  * <b>This table supports:</b>
  * <ul>
  *   <li>Dynamic column headers with customizable width, tooltip, alignment, and sorting behavior.</li>
- *   <li>Adding rows with multiple typed cells (text, icons, custom components, numeric values).</li>
+ *   <li>Adding rows with multiple typed cells (text, icons, UIComponent, numeric values).</li>
  *   <li>Sorting rows by any sortable column (e.g., numeric or text columns).</li>
  *   <li>Row selection events via a listener callback for interactive behavior.</li>
  * </ul>
@@ -45,12 +50,12 @@ import static wfg.wrap_ui.util.UIConstants.*;
  *   <li>{@link Integer} — displayed as a small-font label with optional color.</li>
  *   <li>{@link String} — displayed as a small-font label with optional color.</li>
  *   <li>{@link SpritePanel} — displayed as a sprite panel UI component.</li>
- *   <li>{@link UIPanelAPI} — displayed directly as a UI panel component.</li>
+ *   <li>{@link UIComponentAPI} — displayed directly as a UI panel component.</li>
  *   <li>{@link LabelAPI} — displayed as a label UI component with optional color.</li>
  * </ul>
  * </p>
  * <b>Typical usage example:</b>
- * <pre>{@code
+ * <pre>{
  * SortableTable table = new SortableTable(...);
  *
  * // Setup headers with labels, widths, tooltips, merge flags and merge group
@@ -61,19 +66,20 @@ import static wfg.wrap_ui.util.UIConstants.*;
  *     "Faction", 150, "Controlling faction", false, false, -1,
  *     // etc.
  * );
- *
+ * ...
+ * 
  * // Add rows with multiple typed cells and associated tooltips
  * table.addCell(iconPanel, cellAlg.LEFT, null, null);
  * table.addCell(colonyName, cellAlg.LEFT, null, textColor);
- * table.addCell(5, cellAlg.MID, null, textColor);
- * // ...
+ * table.addCell(colonySize, cellAlg.MID, null, textColor);
+ * ...
  * 
  * // Register a listener for row selection
  * final CallbackRunnable<RowManager> rowSelectedRunnable = (row) -> {
  *      ...
  * };
  *
- * table.pushRow(codexID, customData, null, highlightColor, tooltip, rowSelectedRunnable);
+ * table.pushRow(customData, tpBuilder, onRowClicked, codexID, textColor, highlight);
  *
  * // Add table to UI panel and initialize it
  * parentPanel.addComponent(table.getPanel()).inTL(0, 0);
@@ -83,10 +89,10 @@ import static wfg.wrap_ui.util.UIConstants.*;
  * table.sortRows(columnIndex);
  * }</pre>
  * <p>
- * This component supports tooltips both for headers and rows via {@link PendingTooltip}.
+ * This component supports tooltips both for headers and rows via {@link TooltipBuilder}.
  * <p>
  */
-public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, SortableTable> {
+public class SortableTable extends CustomPanel<SortableTable> {
 
     public boolean showSortIcon = true;
     public boolean sortingEnabled = true;
@@ -124,17 +130,14 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
 
     public final static int headerTooltipWidth = 250;
 
-    public final static String sortIconPath;
-    static {
-        sortIconPath = Global.getSettings().getSpriteName("ui", "sortIcon");
-    }
+    public final static String sortIconPath = Global.getSettings().getSpriteName("ui", "sortIcon");
 
     public SortableTable(UIPanelAPI parent, int width, int height) {
         this(parent, width, height, 20, 28);
     }
 
     public SortableTable(UIPanelAPI parent, int width, int height, int headerHeight, int rowHeight) {
-        super(parent, width, height, null);
+        super(parent, width, height);
         HEADER_HEIGHT = headerHeight;
         ROW_HEIGHT = rowHeight;
     }
@@ -145,7 +148,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
 
         // Create headers
         m_headerContainer = Global.getSettings().createCustom(
-            getPos().getWidth(),
+            pos.getWidth(),
             HEADER_HEIGHT,
             null
         );
@@ -159,16 +162,16 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             HeaderPanel panel = null;
 
             // Merged headers
-            if (column.isMerged()) {
-                int setID = column.getSetID();
+            if (column.isMerged) {
+                int setID = column.mergeSetID;
 
-                if (!column.isParent()) {
+                if (!column.isParent) {
                     continue;
                 }
                 // Calculate total width of all merged columns in this set
                 int mergedWidth = lastHeaderPad;
                 for (ColumnManager col : m_columns) {
-                    if (col.isMerged() && col.getSetID() == setID) {
+                    if (col.isMerged && col.mergeSetID == setID) {
                         mergedWidth += col.width;
                     }
                 }
@@ -206,20 +209,20 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
                 cumulativeXOffset += column.width;
             }
 
-            column.setHeaderPanel(panel);
+            column.headerPanel = panel;
         }
 
         getPanel().addComponent(m_headerContainer).inTL(0,0);
 
         // Create rows
         m_rowContainer = Global.getSettings().createCustom(
-            getPos().getWidth(),
-            getPos().getHeight() - (HEADER_HEIGHT + pad),
+            pos.getWidth(),
+            pos.getHeight() - (HEADER_HEIGHT + pad),
             null
         );
 
         final TooltipMakerAPI tp = ComponentFactory.createTooltip(
-            getPos().getWidth() + pad, true
+            pos.getWidth() + pad, true
         );
 
         int cumulativeYOffset = pad;
@@ -230,42 +233,56 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         }
 
         tp.setHeightSoFar(cumulativeYOffset);
-        ComponentFactory.addTooltip(tp, getPos().getHeight() - (HEADER_HEIGHT + pad),
+        ComponentFactory.addTooltip(tp, pos.getHeight() - (HEADER_HEIGHT + pad),
             true, m_rowContainer
         ).inTL(-pad, 0);
         add(m_rowContainer).inTL(0, HEADER_HEIGHT + pad);
     }
 
-    private class HeaderPanel extends CustomPanel<BasePanelPlugin<HeaderPanel>, HeaderPanel> 
-        implements HasOutline, HasBackground, HasFader, HasAudioFeedback, HasFaction, HasActionListener,
-        AcceptsActionListener
+    private class HeaderPanel extends CustomPanel<HeaderPanel> implements
+        HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction, HasUIContext
     {
+        public final OutlineComp outline = comp().getComp(NativeComponents.OUTLINE);
+        public final BackgroundComp bg = comp().getComp(NativeComponents.BACKGROUND);
+        public final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
+        public final AudioFeedbackComp audio = comp().getComp(NativeComponents.AUDIO_FEEDBACK);
+        public final InteractionComp<HeaderPanel> interaction = comp().getComp(NativeComponents.INTERACTION);
+        public final UIContextComp context = comp().getComp(NativeComponents.UI_CONTEXT);
+
         protected final ColumnManager column;
         public int listIndex = -1;
 
-        private boolean isPersistentGlow = false;
-        private final FaderUtil m_fader = new FaderUtil(0, 0, 0.2f, true, true);
 
         public HeaderPanel(UIPanelAPI parent, int width, int height, ColumnManager column, int listIndex) {
-            super(parent, width, height, new BasePanelPlugin<>());
+            super(parent, width, height);
             this.column = column;
             this.listIndex = listIndex;
 
-            getPlugin().init(this);
-            getPlugin().setIgnoreUIState(true);
+            context.ignoreContext = true;
+
+            interaction.onClicked = (source, isLeftClick) -> {
+                if (!sortingEnabled) return;
+                SortableTable.this.sortRows(listIndex);
+            };
+
+            glow.color = Misc.getTooltipTitleAndLightHighlightColor();
+
+            outline.color = Global.getSector().getPlayerFaction().getGridUIColor();
+
             createPanel();
         }
 
         @Override
         public void createPanel() {
-            final LabelAPI lbl = Global.getSettings().createLabel(column.title, Fonts.ORBITRON_12);
-            lbl.setColor(getFaction().getBaseUIColor());
+            final SettingsAPI settings = Global.getSettings();
+            final LabelAPI lbl = settings.createLabel(column.title, Fonts.ORBITRON_12);
+            lbl.setColor(settings.getBasePlayerColor());
             final float lblWidth = lbl.computeTextWidth(lbl.getText());
             final float lblHeight = lbl.computeTextHeight(lbl.getText());
 
             lbl.getPosition().inTL(
-                (getPos().getWidth() / 2f) - (lblWidth / 2f),
-                (getPos().getHeight() / 2f) - (lblHeight / 2f) 
+                (pos.getWidth() / 2f) - (lblWidth / 2f),
+                (pos.getHeight() / 2f) - (lblHeight / 2f) 
             );
             add(lbl);
 
@@ -274,119 +291,50 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
                     getPanel(),
                     HEADER_HEIGHT - 2, HEADER_HEIGHT,
                     sortIconPath,
-                    getFaction().getBaseUIColor(),
+                    settings.getBasePlayerColor(),
                     null
                 );
     
                 add(sortIcon).inBR(1, 0);
             }
         }
-
-        public Optional<HasActionListener> getActionListener() {
-            return Optional.of(this);
-        }
-
-        public void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {
-            if (!sortingEnabled) return;
-            
-            SortableTable.this.sortRows(listIndex);
-        }
-
-        public FaderUtil getFader() {
-            return m_fader;
-        }
-
-        public boolean isPersistentGlow() {
-            return isPersistentGlow;
-        }
-
-        public void setPersistentGlow(boolean a) {
-            isPersistentGlow = a;
-        }
-
-        public Color getGlowColor() {
-            return Misc.getTooltipTitleAndLightHighlightColor();
-        }
-
-        public Color getOutlineColor() {
-            return getFaction().getGridUIColor();
-        }
-
-        public Color getBgColor() {
-            return new Color(0, 0, 0, 255);
-        }
-
-        public float getBgAlpha() {
-            return 0.65f;
-        }
     }
 
     public class HeaderPanelWithTooltip extends HeaderPanel implements HasTooltip {
+        public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
+
         public HeaderPanelWithTooltip(UIPanelAPI parent, int width, int height,
             ColumnManager column, int listIndex) {
             super(parent, width, height, column, listIndex);
-        }
 
-        private boolean isExpanded = false;
-
-        @Override
-        public UIPanelAPI getTpParent() {
-            if (column.getTooltipType() == String.class) {
-                return getParent();
-            } else if (column.getTooltipType() == PendingTooltip.class) {
-                return ((PendingTooltip<? extends UIPanelAPI>) column.tooltip).parentSupplier.get();
+            if (column.tooltip instanceof TooltipBuilder builder) {
+                tooltip.builder = builder;
+            } else if (column.tooltip instanceof String text) {
+                tooltip.builder = (tooltip, expanded) -> {
+                    tooltip.addPara(text, pad);
+                };
             } else {
                 throw new IllegalArgumentException(
-                    "Tooltip for header '" + column.title + "' has an illegal type."
-                );
-            }
-        }
-
-        @Override
-        public TooltipMakerAPI createAndAttachTp() {
-            final TooltipMakerAPI tooltip;
-
-            if (column.getTooltipType() == String.class) {
-                tooltip = ComponentFactory.createTooltip(headerTooltipWidth, false);
-    
-                tooltip.addPara((String) column.tooltip, pad);
-
-            } else if (column.getTooltipType() == PendingTooltip.class) {
-                tooltip = ((PendingTooltip<? extends UIPanelAPI>) column.tooltip).factory.get();
-
-            } else {
-                throw new IllegalArgumentException(
-                    "Tooltip for header '" + column.title + "' has an illegal type."
+                    "Tooltip for header '" + column.title + "' has an illegal type: " +
+                    column.tooltip.getClass()
                 );
             }
 
-            ComponentFactory.addTooltip(tooltip, 0f, false, getTpParent());
-            WrapUiUtils.anchorPanelWithBounds(tooltip, getPanel(), AnchorType.TopLeft, 0);
-
-            return tooltip;
-        }
-
-        @Override
-        public boolean isExpanded() {
-            return isExpanded;
-        }
-
-        @Override
-        public void setExpanded(boolean a) {
-            isExpanded = a;
+            tooltip.positioner = (tooltip, expanded) -> {
+                WrapUiUtils.anchorPanelWithBounds(tooltip, m_panel, AnchorType.TopLeft, 0);
+            };
         }
     }
 
     public class ColumnManager {
-
         public String title;
         public int width;
         public Object tooltip;
+        public HeaderPanel headerPanel = null;
         
-        private HeaderPanel headerPanel = null;
-        private boolean isMerged = false;
-        private boolean isParent = false;
-        private int mergeSetID = 0;
+        public final boolean isMerged;
+        public final boolean isParent;
+        public final int mergeSetID;
 
         public ColumnManager(String title, int width, Object tooltip,
             boolean isMerged, boolean isParent, int mergeSetID) {
@@ -398,64 +346,40 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             this.isParent = isParent;
             this.mergeSetID = mergeSetID;
         }
-
-        public Class<?> getTooltipType() {
-            if (tooltip instanceof String) {
-                return String.class;
-            }
-            if (tooltip instanceof PendingTooltip) {
-                return PendingTooltip.class;
-            }
-
-            return Object.class;
-        }
-
-        public boolean isMerged() {
-            return isMerged;
-        }
-
-        public boolean isParent() {
-            return isParent;
-        }
-
-        public int getSetID() {
-            return mergeSetID;
-        }
-
-        public HeaderPanel getHeaderPanel() {
-            return headerPanel;
-        }
-
-        public void setHeaderPanel(HeaderPanel a) {
-            headerPanel = a;
-        }
     }
 
-    public class RowPanel extends CustomPanel<BasePanelPlugin<RowPanel>, RowPanel> 
-        implements HasTooltip, HasFader, HasOutline, HasAudioFeedback, HasActionListener, AcceptsActionListener
+    public class RowPanel extends CustomPanel<RowPanel> 
+        implements HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
     {
+        public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
+        public final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
+        public final OutlineComp outline = comp().getComp(NativeComponents.OUTLINE);
+        public final AudioFeedbackComp audio = comp().getComp(NativeComponents.AUDIO_FEEDBACK);
+        public final InteractionComp<RowPanel> interaction = comp().getComp(NativeComponents.INTERACTION);
+        public final UIContextComp context = comp().getComp(NativeComponents.UI_CONTEXT);
+
         public Color textColor = base;
-        public PendingTooltip<? extends UIPanelAPI> m_tooltip = null;
-        public CallbackRunnable<RowPanel> onRowClicked = null;
         public Object customData = null;
         
         protected final List<Object> m_cellData = new ArrayList<>();
         protected final List<cellAlg> m_cellAlignment = new ArrayList<>();
         protected final List<Object> m_sortValues = new ArrayList<>();
         protected final List<Color> m_useColor = new ArrayList<>();
-        protected String codexID = null;
-
-        private final FaderUtil m_fader = new FaderUtil(0, 0, 0.2f, true, true);
-        private boolean isPersistentGlow = false;
-        private Color glowColor = dark;
-        private Outline outline = Outline.NONE;
-        private Color outlineColor = dark;
 
         public RowPanel(UIPanelAPI parent, int width, int height) {
-            super(parent, width, height, new BasePanelPlugin<>());
+            super(parent, width, height);
 
-            getPlugin().init(this);
-            getPlugin().setIgnoreUIState(true);
+            context.ignoreContext = true;
+
+            glow.color = dark;
+            glow.type = GlowType.UNDERLAY;
+
+            outline.enabled = false;
+
+            interaction.onClicked = (source, isLeftClick) -> {
+                SortableTable.this.selectRow(this);
+                m_selectedRow = this;
+            };
         }
 
         public void createPanel() {
@@ -502,7 +426,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
                     compWidth = sprite.getPos().getWidth();
                     compHeight = sprite.getPos().getHeight();
 
-                } else if (cell instanceof UIPanelAPI panel) {
+                } else if (cell instanceof UIComponentAPI panel) {
                     comp = panel;
                     compWidth = panel.getPosition().getWidth();
                     compHeight = panel.getPosition().getHeight();
@@ -558,108 +482,25 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             return m_sortValues.get(columnIndex);
         }
 
-        public void setCodexId(String codex) {
-            codexID = codex;
-        }
-
         public void setTextColor(Color color) {
-            if (color != null) {
-                textColor = color;
-            }
-        }
-
-        public FaderUtil getFader() {
-            return m_fader;
-        }
-
-        public Optional<HasActionListener> getActionListener() {
-            return Optional.of(this);
-        }
-
-        public void onClicked(CustomPanel<?, ?> source, boolean isLeftClick) {
-            SortableTable table = SortableTable.this;
-            table.selectRow(this);
-            m_selectedRow = this;
-            if (onRowClicked != null) onRowClicked.run(this);
-        }
-
-        public Glow getGlowType() {
-            return Glow.UNDERLAY;
-        }
-
-        public boolean isPersistentGlow() {
-            return isPersistentGlow;
-        }
-
-        public void setPersistentGlow(boolean a) {
-            isPersistentGlow = a;
-        }
-
-        public Color getGlowColor() {
-            return glowColor;
-        }
-
-        public void setGlowColor(Color a) {
-            glowColor = a;
-        }
-
-        public void setOutline(Outline a) {
-            outline = a;
-        }
-
-        public Outline getOutline() {
-            return outline;
-        }
-
-        public Color getOutlineColor() {
-            return outlineColor;
-        }
-
-        public void setOutlineColor(Color color) {
-            outlineColor = color;
-        }
-
-        @Override
-        public boolean isTooltipEnabled() {
-            return m_tooltip != null;
-        }
-
-        public UIPanelAPI getTpParent() {
-            return m_tooltip.parentSupplier.get();
+            if (color != null) textColor = color;
         }
         
-        public TooltipMakerAPI createAndAttachTp() {
-            final TooltipMakerAPI tp = m_tooltip.factory.get();
-
-            ComponentFactory.addTooltip(tp, 0f, false, getTpParent());
-            WrapUiUtils.mouseCornerPos(tp, opad);
-
-            if (codexID != null) {
-                tp.setCodexEntryId(codexID);
-                WrapUiUtils.positionCodexLabel(tp, opad, pad);
-            }
-
-            return tp;
-        }
-
         public void addCell(Object cell, cellAlg alg, Object sort, Color textColor) {
             m_cellData.add(cell);
             m_cellAlignment.add(alg);
             m_sortValues.add(sort);
             m_useColor.add(textColor);
         }
-
-        public List<Object> getCellData() {
-            return m_cellData;
-        }
+        public List<Object> getCellData() { return m_cellData; }
     }
 
     /**
      * Each set must contain the title of the header, its width, the text of the
-     * tooltip or a {@link PendingTooltip}, whether if it is merged, if it is the parent and the ID of the mergeSet.
+     * tooltip or a {@link TooltipBuilder}, whether if it is merged, if it is the parent and the ID of the mergeSet.
      * A merged non-parent header will not display a tooltip.
      * <br></br> The expected input is {String, int, String, bool, bool, int}.
-     * Or alternatively {String, int, {@link PendingTooltip}, bool, bool, int}.
+     * Or alternatively {String, int, {@link TooltipBuilder}, bool, bool, int}.
      * The tooltip and mergeSetID can be left empty:
      * {String, int, null, bool, bool, null}.
      */
@@ -684,8 +525,8 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             if (!(widthObj instanceof Number)) {
                 throw new IllegalArgumentException("Header width must be int.");
             }
-            if (tooltipObj != null && !(tooltipObj instanceof String || tooltipObj instanceof PendingTooltip)) {
-                throw new IllegalArgumentException("Tooltip text must be String, PendingTooltip or null.");
+            if (tooltipObj != null && !(tooltipObj instanceof String || tooltipObj instanceof TooltipBuilder)) {
+                throw new IllegalArgumentException("Tooltip text must be String, TooltipBuilder or null.");
             }
             if (!(isMergedObj instanceof Boolean)) {
                 throw new IllegalArgumentException("isMerged must be Boolean.");
@@ -698,27 +539,27 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
             }
             final int mergeSetID = mergeSetIdObj != null ? ((Number) mergeSetIdObj).intValue() : -1;
 
-            m_columns.add(
-                    new ColumnManager(
-                            (String) titleObj,
-                            ((Number) widthObj).intValue(),
-                            (Object) tooltipObj,
-                            (Boolean) isMergedObj,
-                            (Boolean) isParentObj,
-                            mergeSetID));
+            m_columns.add(new ColumnManager(
+                (String) titleObj,
+                ((Number) widthObj).intValue(),
+                (Object) tooltipObj,
+                (Boolean) isMergedObj,
+                (Boolean) isParentObj,
+                mergeSetID
+            ));
         }
     }
 
     /**
      * The call order of addCell must match the order of Columns.
      * Supports the following types:
-     * String, LabelAPI, LtvSpritePanel, ? extends UIPanelAPI
+     * String, LabelAPI, {@link SpritePanel}, (? extends UIComponentAPI)
      */
     public void addCell(Object cell, cellAlg alg, Object sortValue, Color textColor) {
         if (pendingRow == null) {
             pendingRow = new RowPanel(
                 getParent(),
-                (int) getPos().getWidth() - 2,
+                (int) pos.getWidth() - 2,
                 ROW_HEIGHT
             );
         }
@@ -727,34 +568,33 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
     }
 
     /**
-     * Uses the added cells to create a row and clears the {@code pendingRow}.
+     * Uses the added cells to create a row and clears the {@link SortableTable#pendingRow}.
      * The amount of cells must match the column amount.
-     * @param codexID optional.
      * @param customData stored by RowManager instance.
-     * @param textColor sets all the cells to that color.
+     * @param tp optional TooltipBuilder.
+     * @param onRowClicked optional. overrides the default select behavior.
+     * @param codexID optional.
+     * @param textColor optional. Sets all the cells to that color.
      * @param highlight optional.
-     * @param tp optional.
-     * @param onRowClicked gets called when the row is clicked.
      */
-    public <TpType extends UIPanelAPI> void pushRow(String codexID, Object customData, Color textColor,
-        Color highlight, PendingTooltip<TpType> tp, CallbackRunnable<RowPanel> onRowClicked
+    public void pushRow(Object customData, TooltipBuilder tp, ClickHandler<RowPanel> onRowClicked,
+        String codexID, Color textColor, Color highlight
     ) {
         if (pendingRow == null || pendingRow.m_cellData.isEmpty()) {
             throw new IllegalStateException("Cannot push row: no cells have been added yet. "
-                    + "Call addCell() before pushRow().");
+                + "Call addCell() before pushRow().");
 
         } else if (pendingRow.m_cellData.size() != m_columns.size()) {
             throw new IllegalStateException("Cannot push row: cell count mismatch. "
-                    + "The number of cells must match the number of columns.");
+                + "The number of cells must match the number of columns.");
 
         }
-        pendingRow.setCodexId(codexID);
         pendingRow.setTextColor(textColor);
         pendingRow.customData = customData;
-        if (highlight != null) pendingRow.setGlowColor(highlight);
-        if (onRowClicked != null) pendingRow.onRowClicked = onRowClicked;
-
-        pendingRow.m_tooltip = tp;
+        if (codexID != null) pendingRow.tooltip.codexID = codexID;
+        if (highlight != null) pendingRow.glow.color = highlight;
+        if (onRowClicked != null) pendingRow.interaction.onClicked = onRowClicked;
+        if (tp != null) pendingRow.tooltip.builder = tp;
         
         pendingRow.createPanel();
         m_rows.add(pendingRow);
@@ -763,16 +603,14 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
     }
 
     public void sortRows(int index) {
-        if (m_rows.isEmpty()) {
-            return;
-        }
+        if (m_rows.isEmpty()) return;
 
         selectedSortColumnIndex = index;
         if (index == prevSelectedSortColumnIndex) {
             ascending = !ascending;
         }
 
-        Object value = m_rows.get(0).getSortValue(index);
+        final Object value = m_rows.get(0).getSortValue(index);
 
         if (value instanceof String) {
             Collections.sort(m_rows, stringComparator);
@@ -785,9 +623,10 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
 
         } else {
             throw new IllegalArgumentException(
-                    "Cannot sort rows: unsupported sort value type '"
-                            + value.getClass().getSimpleName()
-                            + "'. Supported types are String, Integer, Long, Float and Double.");
+                "Cannot sort rows: unsupported sort value type '" +
+                value.getClass().getSimpleName() +
+                "'. Supported types are String and Number."
+            );
         }
 
         prevSelectedSortColumnIndex = index;
@@ -815,7 +654,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
         RowPanel target = null;
         for (RowPanel row : m_rows) {
             boolean result = row == m_rows.get(m_rows.size() - 1);
-            row.setPersistentGlow(result);
+            row.glow.persistent = result;
 
             if (result) {
                 target = row;
@@ -827,7 +666,7 @@ public class SortableTable extends CustomPanel<BasePanelPlugin<SortableTable>, S
 
     public void selectRow(RowPanel selectedRow) {
         for (RowPanel row : m_rows) {
-            row.setPersistentGlow(row == selectedRow);
+            row.glow.persistent = row == selectedRow;
         }
     }
 

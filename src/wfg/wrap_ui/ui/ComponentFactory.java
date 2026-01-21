@@ -65,7 +65,7 @@ public class ComponentFactory {
         checkbox.bgAlpha = 1f;
         checkbox.bgDisabledAlpha = 1f;
         checkbox.bgSelectedColor = new Color(60, 230, 250);
-        checkbox.quickMode = false;
+        checkbox.setQuickMode(false);
 
         final LabelAPI label = settings.createLabel(
             text, font == null ? Fonts.DEFAULT_SMALL : font

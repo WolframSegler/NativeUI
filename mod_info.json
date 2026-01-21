@@ -2,7 +2,7 @@
 	"id":"wfg_wrap_ui",
 	"name":"WrapUI",
 	"author":"WolframSegler",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"description":"A basic UI framework I created while working with Starsector's UI.",
 	"gameVersion":"0.98a-RC8",
 	"utility": true,

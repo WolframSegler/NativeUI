@@ -9,23 +9,21 @@ import com.fs.graphics.util.GLListManager.GLListToken;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
-import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.api.util.Misc;
 
-import wfg.wrap_ui.ui.plugins.SliderPlugin;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
 import wfg.wrap_ui.util.NumUtils;
 import wfg.wrap_ui.util.RenderUtils;
 
 import java.awt.Color;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-public class Slider extends CustomPanel<SliderPlugin, Slider> {
+public class Slider extends CustomPanel<Slider> {
 
     public float minRange = 0f;
     public float maxRange = 1f;
@@ -86,8 +84,10 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
     private float cachedAlphaMult = -1f;
     private float cachedHighlightBrightness = -1f;
 
-    public Slider(UIPanelAPI parent, String initialText, float minRange, float maxRange, int width, int height) {
-        super(parent, width, height, new SliderPlugin());
+    public Slider(UIPanelAPI parent, String initialText, float minRange, float maxRange, int width,
+        int height
+    ) {
+        super(parent, width, height);
         final SettingsAPI settings = Global.getSettings();
 
         barColor = settings.getColor("progressBarStandardColor");
@@ -100,7 +100,6 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
         this.maxRange = maxRange;
         cachedMaxValue = maxRange;
 
-        getPlugin().init(this);
         createLabel(null);
     }
     
@@ -210,7 +209,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
     }
 
     public float getXCoordinateForProgressValue(float progress) {
-        final float w = getPos().getWidth() - 8f;
+        final float w = pos.getWidth() - 8f;
         return w * (cachedProgressValue - minRange) / (maxRange - minRange) +
                 w * (progress - minRange) / (maxRange - minRange) + 4.5f;
     }
@@ -239,7 +238,9 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
         }
     }
 
-    public void renderImpl(float alphaMult) {
+    @Override
+    public void renderBelow(float alpha) {
+        super.renderBelow(alpha);
         float roundedProgress = cachedProgressValue;
         if (roundBarValue) {
             roundedProgress = Math.round(roundedProgress / roundingIncrement) * roundingIncrement;
@@ -255,14 +256,13 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
             highlightBrightness = highlightBrightnessOverrideValue;
         }
 
-        if (alphaMult != cachedAlphaMult || highlightBrightness != cachedHighlightBrightness) {
+        if (alpha != cachedAlphaMult || highlightBrightness != cachedHighlightBrightness) {
             GLListManager.invalidateList(GLListToken);
         }
 
-        cachedAlphaMult = alphaMult;
+        cachedAlphaMult = alpha;
         cachedHighlightBrightness = highlightBrightness;
         shouldInterpolateCachedValues = true;
-        final PositionAPI pos = getPos();
         final float x = 0;
         final float y = 0;
         final float w = pos.getWidth();
@@ -274,7 +274,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
             GLListToken = GLListManager.beginList();
 
             // Background
-            RenderUtils.drawQuad(x, y, w, h, Color.BLACK, alphaMult, false);
+            RenderUtils.drawQuad(x, y, w, h, Color.BLACK, alpha, false);
 
             // Layout offsets
             float leftMargin = x + 3f;
@@ -306,21 +306,21 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
             { // Gradient Border Glow
                 
                 // Left edge
-                RenderUtils.drawGradientSprite(x, y, x, y + h, 2f, widgetColor, false, 0.5f * alphaMult, 0.5f * alphaMult, 0.5f * alphaMult);
-                RenderUtils.drawGradientSprite(x + 1f, y, x + 1f, y + h, 2f, widgetColor, true, 1f * alphaMult, 1f * alphaMult, alphaMult);
+                RenderUtils.drawGradientSprite(x, y, x, y + h, 2f, widgetColor, false, 0.5f * alpha, 0.5f * alpha, 0.5f * alpha);
+                RenderUtils.drawGradientSprite(x + 1f, y, x + 1f, y + h, 2f, widgetColor, true, 1f * alpha, 1f * alpha, alpha);
     
                 // Right edge
-                RenderUtils.drawGradientSprite(x + w, y, x + w, y + h, 2f, widgetColor, false, 0.5f * alphaMult, 0.5f * alphaMult, 0.5f * alphaMult);
-                RenderUtils.drawGradientSprite(x + w - 1f, y, x + w - 1f, y + h, 2f, widgetColor, true, 1f * alphaMult, 1f * alphaMult, alphaMult);
+                RenderUtils.drawGradientSprite(x + w, y, x + w, y + h, 2f, widgetColor, false, 0.5f * alpha, 0.5f * alpha, 0.5f * alpha);
+                RenderUtils.drawGradientSprite(x + w - 1f, y, x + w - 1f, y + h, 2f, widgetColor, true, 1f * alpha, 1f * alpha, alpha);
     
                 if (!thin) {
                     // Left edge horizontal glow at top/bottom
-                    RenderUtils.drawGradientSprite(x + 1f, y, x + 15f, y, 1f, widgetColor, false, 1f * alphaMult, 0.5f * alphaMult, 0f);
-                    RenderUtils.drawGradientSprite(x + 1f, y + h - 1f, x + 15f, y + h, 1f, widgetColor, false, 1f * alphaMult, 0.5f * alphaMult, 0f);
+                    RenderUtils.drawGradientSprite(x + 1f, y, x + 15f, y, 1f, widgetColor, false, 1f * alpha, 0.5f * alpha, 0f);
+                    RenderUtils.drawGradientSprite(x + 1f, y + h - 1f, x + 15f, y + h, 1f, widgetColor, false, 1f * alpha, 0.5f * alpha, 0f);
     
                     // Right edge horizontal glow at top/bottom
-                    RenderUtils.drawGradientSprite(x + w - 1f, y, x + w - 15f, y, 1f, widgetColor, false, 1f * alphaMult, 0.5f * alphaMult, 0f);
-                    RenderUtils.drawGradientSprite(x + w - 1f, y + h - 1f, x + w - 15f, y + h, 1f, widgetColor, false, 1f * alphaMult, 0.5f * alphaMult, 0f);
+                    RenderUtils.drawGradientSprite(x + w - 1f, y, x + w - 15f, y, 1f, widgetColor, false, 1f * alpha, 0.5f * alpha, 0f);
+                    RenderUtils.drawGradientSprite(x + w - 1f, y + h - 1f, x + w - 15f, y + h, 1f, widgetColor, false, 1f * alpha, 0.5f * alpha, 0f);
                 }
             }
 
@@ -333,7 +333,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     leftMargin - 2f + overAmount, y + 1f,
                     1f,
                     widgetColor, false,
-                    0f, 0.5f * alphaMult, alphaMult
+                    0f, 0.5f * alpha, alpha
                 );
 
                 // Top main bar segment
@@ -342,7 +342,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     leftMargin + minBarWidth - 1.5f, y + 1f,
                     1f,
                     widgetColor, false,
-                    alphaMult, alphaMult, alphaMult
+                    alpha, alpha, alpha
                 );
 
                 // Bottom underfill segment
@@ -351,7 +351,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     leftMargin - 2f + overAmount, y + h - 2f,
                     1f,
                     widgetColor, false,
-                    0f, 0.5f * alphaMult, alphaMult
+                    0f, 0.5f * alpha, alpha
                 );
 
                 // Bottom main bar segment
@@ -360,7 +360,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     leftMargin + minBarWidth - 1.5f, y + h - 2f,
                     1f,
                     widgetColor, false,
-                    alphaMult, alphaMult, alphaMult
+                    alpha, alpha, alpha
                 );
 
                 // Right vertical bar
@@ -369,7 +369,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     leftMargin + minBarWidth - 1.5f, y + h - 1f,
                     1f,
                     widgetColor, false,
-                    alphaMult, alphaMult, alphaMult
+                    alpha, alpha, alpha
                 );
 
                 // Right white edge
@@ -378,7 +378,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     leftMargin + minBarWidth - 1.5f, y + h - 1f,
                     1f,
                     Color.WHITE, true,
-                    0f, alphaMult, 0f
+                    0f, alpha, 0f
                 );
 
                 leftMargin += minBarWidth;
@@ -391,25 +391,25 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                 if (thin) {
                     // Small slider: single horizontal lines
                     RenderUtils.drawGradientSprite(rightEdgeX, y + 1f, rightEdgeX - underfillWidth - 1f, y + 1f,
-                            1f, widgetColor, false, alphaMult, alphaMult, alphaMult);
+                            1f, widgetColor, false, alpha, alpha, alpha);
                     RenderUtils.drawGradientSprite(rightEdgeX, y + h - 2f, rightEdgeX - underfillWidth - 1f, y + h - 2f,
-                            1f, widgetColor, false, alphaMult, alphaMult, alphaMult);
+                            1f, widgetColor, false, alpha, alpha, alpha);
                 } else if (numSubdivisions <= 0) {
                     // Regular slider: split horizontal + vertical segments
                     RenderUtils.drawGradientSprite(rightEdgeX + 2f, y + 1f, rightEdgeX + 2f - overAmount, y + 1f,
-                        1f, widgetColor, false, 0f, 0.5f * alphaMult, alphaMult);
+                        1f, widgetColor, false, 0f, 0.5f * alpha, alpha);
                     RenderUtils.drawGradientSprite(rightEdgeX + 2f - overAmount, y + 1f, rightEdgeX - underfillWidth + 1.5f, y + 1f,
-                        1f, widgetColor, false, alphaMult, alphaMult, alphaMult);
+                        1f, widgetColor, false, alpha, alpha, alpha);
                     RenderUtils.drawGradientSprite(rightEdgeX + 2f, y + h - 2f, rightEdgeX + 2f - overAmount, y + h - 2f,
-                        1f, widgetColor, false, 0f, 0.5f * alphaMult, alphaMult);
+                        1f, widgetColor, false, 0f, 0.5f * alpha, alpha);
                     RenderUtils.drawGradientSprite(rightEdgeX + 2f - overAmount, y + h - 2f, rightEdgeX - underfillWidth + 1.5f, y + h - 2f,
-                        1f, widgetColor, false, alphaMult, alphaMult, alphaMult);
+                        1f, widgetColor, false, alpha, alpha, alpha);
                     
                     // Vertical edge lines
                     RenderUtils.drawGradientSprite(rightEdgeX - underfillWidth + 1.5f, y + 1f, rightEdgeX - underfillWidth + 1.5f, y + h - 1f,
-                        1f, widgetColor, false, alphaMult, alphaMult, alphaMult);
+                        1f, widgetColor, false, alpha, alpha, alpha);
                     RenderUtils.drawGradientSprite(rightEdgeX - underfillWidth + 1.5f, y + 1f, rightEdgeX - underfillWidth + 1.5f, y + h - 1f,
-                        1f, Color.WHITE, false, 0f, alphaMult, 0f);
+                        1f, Color.WHITE, false, 0f, alpha, 0f);
                 }
             }
 
@@ -434,18 +434,18 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                         if (-maxNotchOffset <= 2f) {
                             // Simple notch rectangle
                             RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor,
-                                alphaMult, highlightIntensity, false
+                                alpha, highlightIntensity, false
                             );
                         } else {
                             // Split the highlight bar for the notch
                             RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + maxNotchOffset,
-                                h - 2f, barColor, alphaMult, highlightIntensity, false
+                                h - 2f, barColor, alpha, highlightIntensity, false
                             );
 
                             if (-maxNotchOffset > 0f) {
                                 RenderUtils.drawHighlightBar(
                                     leftMargin + overAmount + maxNotchOffset, y + 1f, -maxNotchOffset, h - 2f,
-                                    barColor, alphaMult * 0.7f, highlightIntensity, false
+                                    barColor, alpha * 0.7f, highlightIntensity, false
                                 );
                             }
                         }
@@ -453,7 +453,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                         // CachedShowNotchOnIfBelowProgress is outside range
                         RenderUtils.drawHighlightBar(
                             leftMargin, y + 1f, overAmount, h - 2f,
-                            barColor, alphaMult, highlightIntensity, false
+                            barColor, alpha, highlightIntensity, false
                         );
                     }
                 }
@@ -468,7 +468,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                         maxNotchOffset,
                         h - 6f,
                         barColor,
-                        alphaMult * 0.65f,
+                        alpha * 0.65f,
                         highlightIntensity,
                         true
                     );
@@ -480,7 +480,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + 2f,
                     leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + h - 2f,
                     1f, widgetColor, false,
-                    alphaMult, alphaMult, alphaMult
+                    alpha, alpha, alpha
                 );
             }
             else { // drawOverflowAndNotches
@@ -494,7 +494,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                         RenderUtils.drawGradientSprite(lineTexture, 
                             leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + 2f, 
                             leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + h - 2f, 
-                            1f, widgetColor, false, alphaMult, alphaMult, alphaMult
+                            1f, widgetColor, false, alpha, alpha, alpha
                         );
                     }
 
@@ -505,15 +505,15 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                         float notchRelativeOffset = getXCoordinateForProgressValue(CachedShowNotchOnIfBelowProgress) - leftMargin - overAmount;
 
                         if (-notchRelativeOffset <= 2f) {
-                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alphaMult, highlightIntensity, false);
+                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alpha, highlightIntensity, false);
                         } else {
                             RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + notchRelativeOffset,
-                                h - 2f, barColor, alphaMult, highlightIntensity, false
+                                h - 2f, barColor, alpha, highlightIntensity, false
                             );
 
                             if (-notchRelativeOffset > 0f) {
                                 RenderUtils.drawHighlightBar(leftMargin + overAmount + notchRelativeOffset,
-                                    y + 1f, -notchRelativeOffset, h - 2f, barColor, alphaMult * 0.7f, 
+                                    y + 1f, -notchRelativeOffset, h - 2f, barColor, alpha * 0.7f, 
                                     highlightIntensity, false
                                 );
                             }
@@ -525,20 +525,20 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                         maxNotchOffset = getXCoordinateForProgressValue(cachedMax) - leftMargin - overAmount;
 
                         if (-maxNotchOffset <= 2f) {
-                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alphaMult, highlightIntensity, false);
+                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alpha, highlightIntensity, false);
                         } else {
-                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + maxNotchOffset + 2f, h - 2f, barColor, alphaMult, highlightIntensity, false);
+                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + maxNotchOffset + 2f, h - 2f, barColor, alpha, highlightIntensity, false);
 
                             if (-maxNotchOffset > 0f) {
                                 RenderUtils.drawHighlightBar(leftMargin + overAmount + maxNotchOffset + 2f, y + 1f,
-                                    -maxNotchOffset - 2f, h - 2f, barColor, alphaMult * 0.7f, highlightIntensity, false
+                                    -maxNotchOffset - 2f, h - 2f, barColor, alpha * 0.7f, highlightIntensity, false
                                 );
                             }
                         }
                     } 
                     // Default highlight
                     else {
-                        RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alphaMult, highlightIntensity, false);
+                        RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alpha, highlightIntensity, false);
                     }
                 }
 
@@ -550,7 +550,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     if (overflowNotchOffset > 0f) {
                         RenderUtils.drawHighlightBar(
                             leftMargin + overAmount + 5f, y + 3f, overflowNotchOffset, h - 6f,
-                            barColor, alphaMult * 0.65f, highlightIntensity * 1f, true
+                            barColor, alpha * 0.65f, highlightIntensity * 1f, true
                         );
                     }
                 }
@@ -568,7 +568,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     x + notchX + 5.5f, y,
                     x + notchX + 5.5f, y + h,
                     1f, widgetColor, false,
-                    0.5f * alphaMult, alphaMult, 0.5f * alphaMult
+                    0.5f * alpha, alpha, 0.5f * alpha
                 );
 
                 // Draw the additive white highlight on top
@@ -577,7 +577,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     x + notchX + 5.5f, y,
                     x + notchX + 5.5f, y + h,
                     1f, Color.white, true,
-                    0f, alphaMult, 0f
+                    0f, alpha, 0f
                 );
             }
 
@@ -594,7 +594,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     overAmount,
                     h - 2f,
                     barColorOverflow,
-                    alphaMult,
+                    alpha,
                     highlightIntensity,
                     false
                 );
@@ -602,13 +602,13 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
 
             RenderUtils.drawGradientSprite(lineTexture, x + progressBarWidth + 5.5f, y,
                 x + progressBarWidth + 5.5f, y + h, 1.0f, widgetColor, false,
-                0.5f * alphaMult, alphaMult, 0.5f * alphaMult
+                0.5f * alpha, alpha, 0.5f * alpha
             );
 
             if (userAdjustable && showAdjustableIndicator) { // User Adjustable Indicator
                 RenderUtils.drawGradientSprite(lineTexture, x + progressBarWidth + 5.5f, y,
                     x + progressBarWidth + 5.5f, y + h, 2.0f, Color.white, false, 
-                    0f, alphaMult, 0f
+                    0f, alpha, 0f
                 );
                 GL11.glDisable(GL11.GL_TEXTURE_2D);
                 GL11.glEnable(GL11.GL_BLEND);
@@ -619,18 +619,18 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                     maxNotchPos = 0.61728394f;
                     maxNotchOffset = x + progressBarWidth + 5.5f + overAmount * 0.25f;
                     float bottomY = y + h;
-                    float alpha = alphaMult * 0.5f;
+                    float alphaMult = alpha * 0.5f;
 
                     GL11.glBegin(GL11.GL_TRIANGLES);
-                    RenderUtils.setGlColor(widgetColor, alpha);
+                    RenderUtils.setGlColor(widgetColor, alphaMult);
                     GL11.glVertex2f(maxNotchOffset, y);
-                    RenderUtils.setGlColor(widgetColor, alpha * 0f);
+                    RenderUtils.setGlColor(widgetColor, alphaMult * 0f);
                     GL11.glVertex2f(maxNotchOffset - highlightIntensity, y - highlightIntensity * maxNotchPos);
                     GL11.glVertex2f(maxNotchOffset + highlightIntensity, y - highlightIntensity * maxNotchPos);
 
-                    RenderUtils.setGlColor(widgetColor, alpha);
+                    RenderUtils.setGlColor(widgetColor, alphaMult);
                     GL11.glVertex2f(maxNotchOffset, bottomY);
-                    RenderUtils.setGlColor(widgetColor, alpha * 0f);
+                    RenderUtils.setGlColor(widgetColor, alphaMult * 0f);
                     GL11.glVertex2f(maxNotchOffset - highlightIntensity, bottomY + highlightIntensity * maxNotchPos);
                     GL11.glVertex2f(maxNotchOffset + highlightIntensity, bottomY + highlightIntensity * maxNotchPos);
                     GL11.glEnd();
@@ -646,37 +646,37 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
 
                     RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - 1f, y + topOffset,
                         leftMargin + subdivisionX - 1f, y + h - topOffset,
-                        1f, Color.black, false, alphaMult, alphaMult, alphaMult
+                        1f, Color.black, false, alpha, alpha, alpha
                     );
 
                     RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX, y + topOffset,
                         leftMargin + subdivisionX, y + h - topOffset,
-                        1f, widgetColor, false, alphaMult * 0.5f, alphaMult, alphaMult * 0.5f
+                        1f, widgetColor, false, alpha * 0.5f, alpha, alpha * 0.5f
                     );
 
                     RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX + 1f, y + topOffset,
                         leftMargin + subdivisionX + 1f, y + h - topOffset,
-                        1f, Color.black, false, alphaMult, alphaMult, alphaMult
+                        1f, Color.black, false, alpha, alpha, alpha
                     );
 
                     RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding,
                         y - 1f, leftMargin + subdivisionX + notchPadding + 1f, y - 1f,
-                        1f, widgetColor, false, alphaMult, alphaMult, alphaMult
+                        1f, widgetColor, false, alpha, alpha, alpha
                     );
 
                     RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding, y,
                         leftMargin + subdivisionX + notchPadding + 1f, y,
-                        1f, Color.black, false, alphaMult, alphaMult, alphaMult
+                        1f, Color.black, false, alpha, alpha, alpha
                     );
 
                     RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding, y + h,
                         leftMargin + subdivisionX + notchPadding + 1f, y + h,
-                        1f, widgetColor, false, alphaMult, alphaMult, alphaMult
+                        1f, widgetColor, false, alpha, alpha, alpha
                     );
 
                     RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding,
                         y + h - 1f, leftMargin + subdivisionX + notchPadding + 1f, y + h - 1f,
-                        1f, Color.black, false, alphaMult, alphaMult, alphaMult
+                        1f, Color.black, false, alpha, alpha, alpha
                     );
                 }
 
@@ -685,32 +685,32 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
 
                 RenderUtils.drawGradientSprite(lineTexture, baseX + 2f, y + 1f, baseX + 2f - overAmount,
                     y + 1f, 1f, widgetColor, false, 0f,
-                    0.5f * alphaMult, alphaMult
+                    0.5f * alpha, alpha
                 );
 
                 RenderUtils.drawGradientSprite(lineTexture, baseX + 2f - overAmount, y + 1f,
                     baseX - underfillWidth + 1.5f, y + 1f, 1f, widgetColor, false,
-                    alphaMult, alphaMult, alphaMult
+                    alpha, alpha, alpha
                 );
 
                 RenderUtils.drawGradientSprite(lineTexture, baseX + 2f, y + h - 2f,
                     baseX + 2f - overAmount, y + h - 2f, 1f, widgetColor,
-                    false, 0f, 0.5f * alphaMult, alphaMult
+                    false, 0f, 0.5f * alpha, alpha
                 );
 
                 RenderUtils.drawGradientSprite(lineTexture, baseX + 2f - overAmount, y + h - 2f,
                     baseX - underfillWidth + 1.5f, y + h - 2f, 1f,
-                    widgetColor, false, alphaMult, alphaMult, alphaMult
+                    widgetColor, false, alpha, alpha, alpha
                 );
 
                 RenderUtils.drawGradientSprite(lineTexture, baseX - underfillWidth + 1.5f, y + 1f,
                     baseX - underfillWidth + 1.5f, y + h - 1f, 1f, widgetColor, 
-                    false, alphaMult, alphaMult, alphaMult
+                    false, alpha, alpha, alpha
                 );
 
                 RenderUtils.drawGradientSprite(lineTexture, baseX - underfillWidth + 1.5f, y + 1f,
                     baseX - underfillWidth + 1.5f, y + h - 1f, 1f, Color.white, 
-                    false, 0f, alphaMult, 0f
+                    false, 0f, alpha, 0f
                 );
             }
 
@@ -720,14 +720,16 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
         GL11.glPopMatrix();
     }
 
-    public void processInputImpl(InputSnapshot snapshot) {
+    @Override
+    public void processInput(List<InputEventAPI> events) {
+        super.processInput(null);
         if (!userAdjustable && barHighlightFader == null) return;
 
-        final InputEventAPI event = snapshot.mouseEvent;
+        final InputEventAPI event = inputSnapshot.mouseEvent;
         if (event == null) return;
 
         if (barHighlightFader != null) {
-            if (snapshot.isActive || snapshot.hoveredLastFrame) {
+            if (inputSnapshot.isActive || inputSnapshot.hoveredLastFrame) {
                 barHighlightFader.fadeIn();
             } else {
                 barHighlightFader.fadeOut();
@@ -736,13 +738,15 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
 
         if (!userAdjustable || event.isConsumed()) return;
 
-        if ((snapshot.isActive)) {
+        if ((inputSnapshot.isActive)) {
             mapInputToProgress(event);
             event.consume();
         }
     }
 
-    public void advanceImpl(float delta) {
+    @Override
+    public void advance(float delta) {
+        super.advance(delta);
         if (roundBarValue && roundingIncrement > 0) {
             cachedProgressValue = Math.round(cachedProgressValue / roundingIncrement) * roundingIncrement;
             progressValue = Math.round(progressValue / roundingIncrement) * roundingIncrement;
@@ -789,7 +793,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
             scrollSpeed = 100f;
 
             // Compute interpolation scale based on the visible width vs the effective progress range
-            interpolationScale = getPos().getWidth() / Math.max(progressValue - minRange, maxRange - minRange);
+            interpolationScale = pos.getWidth() / Math.max(progressValue - minRange, maxRange - minRange);
 
             float effectiveRange = cachedMaxValue - minRange;
             if (cachedProgressValue - minRange > effectiveRange) {
@@ -799,7 +803,7 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
                 effectiveRange = 1f;
             }
 
-            interpolationScale = getPos().getWidth() / effectiveRange;
+            interpolationScale = pos.getWidth() / effectiveRange;
 
             cachedProgressValue = NumUtils.smoothApproach(
                 cachedProgressValue, progressValue,
@@ -909,8 +913,8 @@ public class Slider extends CustomPanel<SliderPlugin, Slider> {
         }
 
         final float offset = 6f;
-        final float maxBarWidth = getPos().getWidth() - offset;
-        float relativeX = mouseX - getPos().getX() - offset;
+        final float maxBarWidth = pos.getWidth() - offset;
+        float relativeX = mouseX - pos.getX() - offset;
 
         if (relativeX > maxBarWidth) relativeX = maxBarWidth;
 

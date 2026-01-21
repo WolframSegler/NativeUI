@@ -1,111 +1,90 @@
 package wfg.wrap_ui.ui.systems;
 
-import java.util.List;
-
-import org.lwjgl.input.Keyboard;
-
-import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
+import wfg.wrap_ui.ui.Attachments;
+import wfg.wrap_ui.ui.ComponentFactory;
+import wfg.wrap_ui.ui.components.InputSnapshot;
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.TooltipComp;
+import wfg.wrap_ui.ui.components.UIContextComp;
 import wfg.wrap_ui.ui.panels.CustomPanel;
-import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
-import wfg.wrap_ui.util.WrapUiUtils;
 
 public final class TooltipSystem<
-    PluginType extends CustomPanelPlugin<PanelType, PluginType>,
-    PanelType extends CustomPanel<PluginType, PanelType> & HasTooltip
-> extends BaseSystem<PluginType, PanelType>{
+    PanelType extends CustomPanel<PanelType>
+> extends BaseSystem<PanelType> {
 
-    private final HasTooltip provider;
-    private TooltipMakerAPI tooltip;
-    private TooltipMakerAPI codex;
+    private final TooltipComp spec;
+    private final UIContextComp context;
+    private final UIPanelAPI parent = Attachments.getScreenPanel();
 
-    private float hoverTime = 0f;
-    private boolean wasF1Down = false;
-    private boolean wasF2Down = false;
+    public TooltipSystem(PanelType panel) {
+        super(panel);
 
-    public TooltipSystem(PluginType a, HasTooltip b) {
-        super(a);
-        provider = b;
+        final var comp = panel.comp();
+        comp.setIfNotPresent(NativeComponents.TOOLTIP, new TooltipComp());
+        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+
+        spec = comp.getComp(NativeComponents.TOOLTIP);
+        context = comp.getComp(NativeComponents.UI_CONTEXT);
     }
 
     @Override
     public final void advance(float amount, InputSnapshot input) {
+        if (!spec.enabled || !context.isValid()) {
+            spec.hoverTime = 0f;
+            hideTooltip();
+            return;
+        }
 
-        if (provider.isTooltipEnabled() && input.hoveredLastFrame && !input.hasLMBClickedBefore && getPlugin().isValidUIContext()) {
-            hoverTime += amount;
-            if (hoverTime > provider.getTooltipDelay()) {
+        if (input.hoveredLastFrame && !input.hasLMBClickedBefore) {
+            spec.hoverTime += amount;
+            if (spec.hoverTime >= spec.tooltipDelay) {
                 showTooltip();
             }
         } else {
-            hoverTime = 0f;
+            spec.hoverTime = 0f;
             hideTooltip();
         }
     }
 
-    @Override
-    public void processInput(List<InputEventAPI> events, InputSnapshot input) {
-        if (tooltip == null || !input.hoveredLastFrame) {
-            getPanel().setExpanded(false);
+    private final void showTooltip() {
+        if (spec.tooltip != null) return;
 
-        } else {
-            final boolean isF1Down = Keyboard.isKeyDown(Keyboard.KEY_F1);
-            final boolean isF2Down = Keyboard.isKeyDown(Keyboard.KEY_F2);
+        spec.tooltip = ComponentFactory.createTooltip(spec.tpWidth, spec.useScroller);
+        updateTooltip(false);
 
-            if (isF1Down && !wasF1Down) {
-                getPanel().setExpanded(!getPanel().isExpanded());
-                hideTooltip();
-            }
+        if (spec.codexID != null) spec.tooltip.setCodexEntryId(spec.codexID);
 
-            if (isF2Down && !wasF2Down) {
-                getPanel().getCodexID().ifPresent(codexID -> {
-                    WrapUiUtils.openCodexPage(codexID);
-                });
-                hideTooltip();
-            }
+        if (spec.tooltip instanceof StandardTooltipV2Expandable expandable) {
+            expandable.setShowBorder(true);
+            expandable.setShowBackground(true);
+            expandable.setBgAlpha(1f);
 
-            wasF1Down = isF1Down;
-            wasF2Down = isF2Down;
+            if (spec.expandable) expandable.makeExpandable();
+            else expandable.makeNonExpandable();
+
+            expandable.setBeforeShowing(() -> updateTooltip(false));
+            expandable.setBeforeExpanding(() -> updateTooltip(true));
+        }
+
+        ComponentFactory.addTooltip(spec.tooltip, 0f, spec.useScroller, parent);
+        updateTooltip(false);
+        parent.bringComponentToTop(spec.tooltip);
+    }
+
+    private final void hideTooltip() {
+        if (spec.tooltip != null) {
+            parent.removeComponent(spec.tooltip);
+            spec.tooltip = null;
         }
     }
 
-    public final void showTooltip() {
-        if (tooltip == null) {
-            tooltip = provider.createAndAttachTp();
-            if (tooltip instanceof StandardTooltipV2Expandable standard) {
-                standard.setShowBorder(true);
-                standard.setShowBackground(true);
-                standard.setBgAlpha(1f);
-            }
-            provider.getTpParent().bringComponentToTop(tooltip);
-        }
-
-        if (codex == null) {
-            codex = provider.createAndAttachCodex().orElse(null);
-            if (codex instanceof StandardTooltipV2Expandable standard) {
-                standard.setShowBorder(true);
-                standard.setShowBackground(true);
-                standard.setBgAlpha(1f);
-            }
-            provider.getCodexParent().ifPresent(attachment -> {
-                attachment.bringComponentToTop(codex);
-            });
-        }
-    }
-
-    public final void hideTooltip() {
-        // The codex needs to be deleted first in-case it is anchored to the tooltip
-        provider.getCodexParent().ifPresent(attachment -> {
-            attachment.removeComponent(codex);
-            codex = null;
-        });
-
-        if (tooltip != null) {
-            provider.getTpParent().removeComponent(tooltip);
-            tooltip = null;
-        }
+    private final void updateTooltip(boolean expanded) {
+        if (spec.tooltip == null) return;
+        spec.builder.buildTp(spec.tooltip, expanded);
+        spec.positioner.position(spec.tooltip, expanded);
+        parent.bringComponentToTop(spec.tooltip);
     }
 }

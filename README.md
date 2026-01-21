@@ -6,7 +6,7 @@ Feel free to create forks or contribute. Bug reports are also appreciated.
 - [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java) and [`CustomPanelPlugin`](src/wfg/wrap_ui/ui/plugins/CustomPanelPlugin.java) for direct injection into vanilla UI hierarchies
 - Extensive use of generics for early error prevention
 - Global UI attachment points via [`Attachments`](src/wfg/wrap_ui/ui/Attachments.java)
-- Barebones UI state tracking using [`UIState`](src/wfg/wrap_ui/ui/UIState.java)
+- Barebones UI context tracking using [`UIContext`](src/wfg/wrap_ui/ui/UIContext.java)
 - [Systems](src/wfg/wrap_ui/ui/systems/BaseSystem.java) for tooltips and fader management to reduce boilerplate, with a more composition-oriented approach
 - Basic [number formatter](src/wfg/wrap_ui/util/NumFormat.java) for large numbers
 

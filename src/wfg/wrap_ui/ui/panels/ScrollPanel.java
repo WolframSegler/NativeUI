@@ -13,23 +13,21 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import rolflectionlib.util.RolfLectionUtil;
+import wfg.wrap_ui.ui.components.BackgroundComp;
+import wfg.wrap_ui.ui.components.NativeComponents;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasBackground;
-import wfg.wrap_ui.ui.plugins.ScrollPanelPlugin;
-import wfg.wrap_ui.ui.plugins.CustomPanelPlugin.InputSnapshot;
-import wfg.wrap_ui.util.UIConstants;
 
 /**
  * Do not add children directly to ScrollPanel, but to the contentPanel
  */
-public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel>
+public class ScrollPanel extends CustomPanel<ScrollPanel>
     implements HasBackground
 {
+    public final BackgroundComp bg = comp().getComp(NativeComponents.BACKGROUND);
+
     public enum ScrollType { HORIZONTAL, VERTICAL, BOTH }
     public ScrollType scrollType = ScrollType.VERTICAL;
     public float scrollSpeed = 0.5f;
-    public boolean bgEnabled = false;
-    public Color bgColor = new Color(100, 100, 100);
-    public float bgAlpha = UIConstants.bgAlpha;
 
     protected final UIPanelAPI contentPanel;
 
@@ -37,7 +35,10 @@ public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel>
     protected float scrollOffsetX, scrollOffsetY;
 
     public ScrollPanel(UIPanelAPI parent, int viewportWidth, int viewportHeight) {
-        super(parent, viewportWidth, viewportHeight, new ScrollPanelPlugin());
+        super(parent, viewportWidth, viewportHeight);
+
+        bg.color = new Color(100, 100, 100);
+        bg.enabled = false;
 
         RolfLectionUtil.getMethodAndInvokeDirectly(
             "setClipping", m_panel, true);
@@ -47,29 +48,10 @@ public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel>
 
         contentPanel = Global.getSettings().createCustom(viewportWidth, viewportHeight, null);
         add(contentPanel).inBL(0, 0);
-
-        getPlugin().init(this);
     }
+    public void createPanel() {}
 
-    public void createPanel() {
-        
-    }
-
-    public Color getBgColor() {
-        return bgColor;
-    }
-
-    public boolean isBgEnabled() {
-        return bgEnabled;
-    }
-
-    public float getBgAlpha() {
-        return bgAlpha;
-    }
-
-    public UIPanelAPI getContentPanel() {
-        return contentPanel;
-    }
+    public UIPanelAPI getContentPanel() { return contentPanel; }
     public void addToContent(UIComponentAPI comp) {
         contentPanel.addComponent(comp);
     }
@@ -84,12 +66,9 @@ public class ScrollPanel extends CustomPanel<ScrollPanelPlugin, ScrollPanel>
         contentPanel.getPosition().setSize(contentPanel.getPosition().getWidth(), height);
     }
 
-    public void renderImpl(float alphaMult) {
-        
-    }
-
-    public void processInputImpl(List<InputEventAPI> events, InputSnapshot shot) {
-        if (!shot.hoveredLastFrame) return;
+    @Override
+    public void processInput(List<InputEventAPI> events) {
+        if (!inputSnapshot.hoveredLastFrame) return;
         
         int scrollValue = 0;
         boolean shiftDown = false;

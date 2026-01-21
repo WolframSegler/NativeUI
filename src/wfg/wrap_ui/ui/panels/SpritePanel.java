@@ -7,9 +7,10 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import wfg.wrap_ui.ui.components.NativeComponents;
+import wfg.wrap_ui.ui.components.OutlineComp;
+import wfg.wrap_ui.ui.components.OutlineComp.OutlineType;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasOutline;
-import wfg.wrap_ui.ui.plugins.SpritePanelPlugin;
-import wfg.wrap_ui.ui.systems.OutlineSystem.Outline;
 import wfg.wrap_ui.util.RenderUtils;
 
 
@@ -33,7 +34,7 @@ import wfg.wrap_ui.util.RenderUtils;
  * 
  * <p><b>Example:</b>
  * <pre>
- * SpritePanel.Base sprite = new SpritePanel.Base(parent, 64, 64, plugin, "ui/icons/sprite", Color.WHITE, null, true);
+ * SpritePanel.Base sprite = new SpritePanel.Base(parent, 64, 64, "ui/icons/sprite", Color.WHITE, null);
  * sprite.setOutlineColor(Color.RED);
  * 
  * panel.addComponent(sprite.getPanel());
@@ -41,46 +42,44 @@ import wfg.wrap_ui.util.RenderUtils;
  */
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
-> extends CustomPanel<SpritePanelPlugin<PanelType>, PanelType> 
-    implements HasOutline{
+> extends CustomPanel<PanelType> implements HasOutline{
 
-    public static class Base extends SpritePanel<Base> {
-        public Base(UIPanelAPI parent, int width, int height, String spriteID, Color color,
-            Color fillColor
-        ) {
-            super(parent, width, height, spriteID, color, fillColor);
-        }
-    }
+    public final OutlineComp outline = comp().getComp(NativeComponents.OUTLINE);
 
-    public boolean drawBorder = false;
     public boolean drawTextureHalo = false;
-    
-    public Color color;
     public Color outlineColor;
     public Color fillColor;
     public Color texHaloColor = Color.GREEN;
-
+    
     protected SpriteAPI m_sprite;
 
-    @SuppressWarnings("unchecked")
     public SpritePanel(UIPanelAPI parent, int width, int height, String spriteID,
         Color color, Color fillColor
     ) {
-        super(parent, width, height, new SpritePanelPlugin<>());
+        super(parent, width, height);
+
+        outline.enabled = false;
+        outline.type = OutlineType.VERY_THIN;
 
         m_sprite = Global.getSettings().getSprite(spriteID);
-        this.color = color;
         this.fillColor = fillColor;
 
-        getPlugin().init((PanelType)this);
+        if (color != null) m_sprite.setColor(color); 
+    }
+    public void createPanel() {}
+
+    @Override
+    public void positionChanged(PositionAPI position) {
+        super.positionChanged(position);
+
+        m_sprite.setSize(pos.getWidth(), pos.getHeight());
     }
 
-    public void renderImpl(float alphaMult) {
+    @Override
+    public void renderBelow(float alpha) {
+        super.renderBelow(alpha);
         if (m_sprite == null) return;
 
-        if (color != null) m_sprite.setColor(color);
-
-        final PositionAPI pos = getPos();
         final float x = pos.getX();
         final float y = pos.getY();
         final float w = pos.getWidth();
@@ -88,37 +87,38 @@ public class SpritePanel<
 
         if (fillColor != null) {
             m_sprite.setColor(fillColor);
-            RenderUtils.drawQuad(x, y, w, h, fillColor, alphaMult, false);
+            RenderUtils.drawQuad(x, y, w, h, fillColor, alpha, false);
         }
 
         if (drawTextureHalo && texHaloColor != null) {
             RenderUtils.drawSpriteOutline(
-                m_sprite, texHaloColor, x, y, w, h, alphaMult, 2
+                m_sprite, texHaloColor, x, y, w, h, alpha, 2
             );
         }
 
-        m_sprite.setSize(w, h);
         m_sprite.render(x, y);
-    }
-
-    @Override
-    public Outline getOutline() {
-        return drawBorder ? Outline.VERY_THIN : Outline.NONE;
-    }
-
-    @Override
-    public Color getOutlineColor() {
-        return outlineColor;
     }
 
     public void setSprite(String spriteID) {
         m_sprite = Global.getSettings().getSprite(spriteID);
     }
     
+    public SpriteAPI getSprite() { return m_sprite; }
     public void setSprite(SpriteAPI sprite) {
         m_sprite = sprite;
     }
 
-    public SpriteAPI getSprite() { return m_sprite; }
-    public void createPanel() {}
+    /**
+     * @param color can be null for white
+     */
+    public final void setColor(Color color) {
+        if (color != null) m_sprite.setColor(color);
+        else m_sprite.setColor(Color.WHITE);
+    }
+
+    public static class Base extends SpritePanel<Base> {
+        public Base(UIPanelAPI parent, int width, int height, String spriteID, Color color,
+            Color fillColor
+        ) { super(parent, width, height, spriteID, color, fillColor); }
+    }
 }
