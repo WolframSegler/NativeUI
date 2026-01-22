@@ -18,12 +18,9 @@ import static wfg.wrap_ui.util.UIConstants.*;
 public class WrapUiUtils {
     public static final int APICodexHeight = 28;
 
-    public static final Object expandLabelField;
-
-    static {
-        expandLabelField = RolfLectionUtil.getFieldByName(
-            "expandLabel", StandardTooltipV2.class);
-    }
+    public static final Object expandLabelField = RolfLectionUtil.getFieldByName(
+        "expandLabel", StandardTooltipV2.class
+    );
 
     public static final void resetFlowLeft(TooltipMakerAPI tooltip, float opad) {
         float prevHeight = tooltip.getHeightSoFar();
@@ -32,6 +29,7 @@ public class WrapUiUtils {
         tooltip.setHeightSoFar(prevHeight);
     }
 
+    @Deprecated
     public static final void positionCodexLabel(TooltipMakerAPI tooltip, int opad, int pad) {
         LabelAPI F2Label = (LabelAPI) RolfLectionUtil.getPrivateVariable(expandLabelField, tooltip);
         if (F2Label != null) {

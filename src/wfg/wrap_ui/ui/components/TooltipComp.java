@@ -3,16 +3,22 @@ package wfg.wrap_ui.ui.components;
 import static wfg.wrap_ui.util.UIConstants.opad;
 
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.wrap_ui.util.WrapUiUtils;
+import wfg.wrap_ui.ui.Attachments;
 import wfg.wrap_ui.ui.systems.TooltipSystem;
 
 public final class TooltipComp extends BaseComponent {
-    public float tpWidth = 400f;
-    public float tooltipDelay = 0.3f;
+    public float width = 400f;
+    public float delay = 0.3f;
+    public float bgAlpha = 1f;
     public boolean expandable = false;
     public boolean useScroller = false;
+    public UIPanelAPI parent = Attachments.getScreenPanel();
     public String codexID = null;
+    public String expandTxt = null;
+    public String unexpandTxt = null;
 
     /** Builds or updates the tooltip contents. REQUIRED. */
     public TooltipBuilder builder;
@@ -22,9 +28,9 @@ public final class TooltipComp extends BaseComponent {
 
 
     /** Internal: only used by {@link TooltipSystem}, do not access */
-    public TooltipMakerAPI tooltip;
+    public TooltipMakerAPI tp_internal;
     /** Internal: only used by {@link TooltipSystem}, do not access */
-    public float hoverTime = 0f;
+    public float hoverTime_internal = 0f;
 
     
     @FunctionalInterface

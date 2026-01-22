@@ -44,9 +44,9 @@ import wfg.wrap_ui.ui.panels.CustomPanel.HasUIContext;
 public class TextPanel extends CustomPanel<TextPanel> implements
     HasTooltip, HasAudioFeedback, HasUIContext
 {
-    public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
-    public final UIContextComp context = comp().getComp(NativeComponents.UI_CONTEXT);
-    public final AudioFeedbackComp audio = comp().getComp(NativeComponents.AUDIO_FEEDBACK);
+    public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
+    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
+    public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
 
     // Shared state for anonymous subclasses to modify.
     public ButtonAPI m_checkbox;
@@ -58,7 +58,7 @@ public class TextPanel extends CustomPanel<TextPanel> implements
     public TextPanel(UIPanelAPI parent, int width, int height) {
         super(parent, width, height);
 
-        context.ignoreContext = true;
+        context.ignore = true;
         createPanel();
     }
     public void createPanel() {}

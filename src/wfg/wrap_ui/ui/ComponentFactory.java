@@ -7,7 +7,6 @@ import java.awt.Color;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.ui.Alignment;
-import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
@@ -19,41 +18,10 @@ import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.wrap_ui.ui.panels.Button;
+import wfg.wrap_ui.ui.systems.TooltipSystem;
 import wfg.wrap_ui.util.CallbackRunnable;
 
 public class ComponentFactory {
-    private static final CustomPanelAPI customPanel = Global.getSettings().createCustom(pad, pad, null);
-
-    private static final Object setButtonListenerMethod;
-    private static final Object scrollPanelConstr;
-    private static final Object setContentSizeMethod;
-    private static final Object setSizeMethod;
-    private static final Object setMaxShadowHeightMethod;
-    private static final Object setUseSimpleShadowsMethod;
-
-    static {
-        final TooltipMakerAPI tp = customPanel.createUIElement(1f, 1f, true);
-        customPanel.addUIElement(tp);
-        final Class<?> scrollClass = tp.getExternalScroller().getClass();
-
-        setButtonListenerMethod = RolfLectionUtil.getMethodDeclared(
-            "setButtonListener", StandardTooltipV2Expandable.class, 1
-        );
-        scrollPanelConstr = RolfLectionUtil.getConstructor(scrollClass,
-            RolfLectionUtil.getConstructorParamTypesSingleConstructor(scrollClass)
-        );
-        setContentSizeMethod = RolfLectionUtil.getMethodDeclared("setContentSize", 
-            scrollClass, 2
-        );
-        setSizeMethod = RolfLectionUtil.getMethodFromSuperClass("setSize", scrollClass);
-        setMaxShadowHeightMethod = RolfLectionUtil.getMethodDeclared("setMaxShadowHeight", 
-            scrollClass, 1
-        );
-        setUseSimpleShadowsMethod = RolfLectionUtil.getMethodDeclared("setUseSimpleShadows", 
-            scrollClass, 1
-        );
-    }
-
     public static final Button createCheckboxWithText(
         UIPanelAPI parent, int btnSize, String text, String font, CallbackRunnable<Button> onClick, 
         Color txtColor, int textAndBtnGap
@@ -168,11 +136,17 @@ public class ComponentFactory {
         panel.getPosition().setSize(maxW, captionH + pad + valueH);
     }
 
-    public static final TooltipMakerAPI createTooltip(float width, boolean withScroller) {
-        final StandardTooltipV2Expandable tp = StandardTooltipV2Expandable.createAsUIElement(
-            width - (withScroller ? 5f : 0f)
-        );
-        RolfLectionUtil.invokeMethodDirectly(setButtonListenerMethod, tp, customPanel);
+    public static final StandardTooltipV2Expandable createTooltip(float width, boolean withScroller) {
+        final StandardTooltipV2Expandable tp = new StandardTooltipV2Expandable(
+            width - 10f - (withScroller ? 5f : 0f), false
+        ) {
+            @Override
+            public void createImpl(boolean bl) {}
+        };
+        tp.setShowBorder(false);
+        tp.setShowBackground(false);
+        tp.setSelfRemove(true);
+
         return tp;
     }
 
@@ -187,17 +161,19 @@ public class ComponentFactory {
         if (tooltip instanceof StandardTooltipV2Expandable tp) {
             StandardTooltipV2Expandable.updateSizeAsUIElement(tp);
             if (withScroller) {
-                final var scrollPanel = (ScrollPanelAPI) RolfLectionUtil.instantiateClass(scrollPanelConstr);
-                RolfLectionUtil.invokeMethodDirectly(setContentSizeMethod, scrollPanel,
+                final var scrollPanel = (ScrollPanelAPI) RolfLectionUtil.instantiateClass(
+                    TooltipSystem.scrollPanelConstr
+                );
+                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setContentSizeMethod, scrollPanel,
                     tp.getWidth(), tp.getHeight()
                 );
-                RolfLectionUtil.invokeMethodDirectly(setSizeMethod, scrollPanel,
+                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setSizeMethod, scrollPanel,
                     tp.getWidth() + 5f, h
                 );
-                RolfLectionUtil.invokeMethodDirectly(setMaxShadowHeightMethod, scrollPanel,
+                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setMaxShadowHeightMethod, scrollPanel,
                     15f
                 );
-                RolfLectionUtil.invokeMethodDirectly(setUseSimpleShadowsMethod, scrollPanel,
+                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setUseSimpleShadowsMethod, scrollPanel,
                     true
                 );
                 scrollPanel.addComponent(tp).inTL(0f, 0f);

@@ -722,7 +722,7 @@ public class Slider extends CustomPanel<Slider> {
 
     @Override
     public void processInput(List<InputEventAPI> events) {
-        super.processInput(null);
+        super.processInput(events);
         if (!userAdjustable && barHighlightFader == null) return;
 
         final InputEventAPI event = inputSnapshot.mouseEvent;

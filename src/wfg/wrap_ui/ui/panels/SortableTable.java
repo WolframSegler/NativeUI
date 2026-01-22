@@ -242,12 +242,12 @@ public class SortableTable extends CustomPanel<SortableTable> {
     private class HeaderPanel extends CustomPanel<HeaderPanel> implements
         HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction, HasUIContext
     {
-        public final OutlineComp outline = comp().getComp(NativeComponents.OUTLINE);
-        public final BackgroundComp bg = comp().getComp(NativeComponents.BACKGROUND);
-        public final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
-        public final AudioFeedbackComp audio = comp().getComp(NativeComponents.AUDIO_FEEDBACK);
-        public final InteractionComp<HeaderPanel> interaction = comp().getComp(NativeComponents.INTERACTION);
-        public final UIContextComp context = comp().getComp(NativeComponents.UI_CONTEXT);
+        public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
+        public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
+        public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+        public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
+        public final InteractionComp<HeaderPanel> interaction = comp().get(NativeComponents.INTERACTION);
+        public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
         protected final ColumnManager column;
         public int listIndex = -1;
@@ -258,7 +258,7 @@ public class SortableTable extends CustomPanel<SortableTable> {
             this.column = column;
             this.listIndex = listIndex;
 
-            context.ignoreContext = true;
+            context.ignore = true;
 
             interaction.onClicked = (source, isLeftClick) -> {
                 if (!sortingEnabled) return;
@@ -301,7 +301,7 @@ public class SortableTable extends CustomPanel<SortableTable> {
     }
 
     public class HeaderPanelWithTooltip extends HeaderPanel implements HasTooltip {
-        public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
+        public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
 
         public HeaderPanelWithTooltip(UIPanelAPI parent, int width, int height,
             ColumnManager column, int listIndex) {
@@ -351,12 +351,12 @@ public class SortableTable extends CustomPanel<SortableTable> {
     public class RowPanel extends CustomPanel<RowPanel> 
         implements HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
     {
-        public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
-        public final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
-        public final OutlineComp outline = comp().getComp(NativeComponents.OUTLINE);
-        public final AudioFeedbackComp audio = comp().getComp(NativeComponents.AUDIO_FEEDBACK);
-        public final InteractionComp<RowPanel> interaction = comp().getComp(NativeComponents.INTERACTION);
-        public final UIContextComp context = comp().getComp(NativeComponents.UI_CONTEXT);
+        public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
+        public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+        public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
+        public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
+        public final InteractionComp<RowPanel> interaction = comp().get(NativeComponents.INTERACTION);
+        public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
         public Color textColor = base;
         public Object customData = null;
@@ -369,12 +369,12 @@ public class SortableTable extends CustomPanel<SortableTable> {
         public RowPanel(UIPanelAPI parent, int width, int height) {
             super(parent, width, height);
 
-            context.ignoreContext = true;
+            tooltip.parent = SortableTable.this.m_panel;
+            context.ignore = true;
+            outline.enabled = false;
 
             glow.color = dark;
             glow.type = GlowType.UNDERLAY;
-
-            outline.enabled = false;
 
             interaction.onClicked = (source, isLeftClick) -> {
                 SortableTable.this.selectRow(this);
@@ -384,9 +384,8 @@ public class SortableTable extends CustomPanel<SortableTable> {
 
         public void createPanel() {
 
-            UIPanelAPI rowPanel = SortableTable.RowPanel.this.getPanel();
             int cumulativeXOffset = 0;
-
+            
             for (int i = 0; i < m_cellData.size(); i++) {
                 Object cell = m_cellData.get(i);
                 cellAlg alignment = m_cellAlignment.get(i);
@@ -448,7 +447,7 @@ public class SortableTable extends CustomPanel<SortableTable> {
 
                 float xOffset = calcXOffset(cumulativeXOffset, colWidth, compWidth, alignment);
                 float yOffset = (ROW_HEIGHT/2) - (compHeight/2);
-                rowPanel.addComponent(comp).inBL(xOffset, yOffset);
+                m_panel.addComponent(comp).inBL(xOffset, yOffset);
 
                 cumulativeXOffset += colWidth;
             }

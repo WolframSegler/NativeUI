@@ -19,14 +19,14 @@ public final class BackgroundSystem<
 
         final var comp = panel.comp();
         comp.setIfNotPresent(NativeComponents.BACKGROUND, new BackgroundComp());
-        comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new BackgroundComp());
+        comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
 
-        bg = comp.getComp(NativeComponents.BACKGROUND);
-        offset = comp.getComp(NativeComponents.LAYOUT_OFFSET);
+        bg = comp.get(NativeComponents.BACKGROUND);
+        offset = comp.get(NativeComponents.LAYOUT_OFFSET);
     }
 
     @Override
-    public void renderBelow(float alphaMult, InputSnapshot input) {
+    public void renderBelow(float alpha, InputSnapshot input) {
         if (!bg.enabled) return;
 
         final var pos = panel.getPos();
@@ -36,6 +36,6 @@ public final class BackgroundSystem<
         final int w = (int) pos.getWidth() + offset.w;
         final int h = (int) pos.getHeight() + offset.h;
 
-        RenderUtils.drawQuad(x, y, w, h, bg.color, bg.alpha, false);
+        RenderUtils.drawQuad(x, y, w, h, bg.color, bg.alpha * alpha, false);
     }
 }

@@ -4,10 +4,10 @@ import wfg.wrap_ui.ui.UIContext;
 import wfg.wrap_ui.ui.UIContext.Context;
 
 public final class UIContextComp extends BaseComponent {
-    public Context targetContext = Context.NONE;
-    public boolean ignoreContext = false;
+    public Context target = Context.NONE;
+    public boolean ignore = false;
 
     public final boolean isValid() {
-        return ignoreContext || UIContext.is(targetContext);
+        return ignore || UIContext.is(target);
     }
 }

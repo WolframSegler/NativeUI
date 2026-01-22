@@ -1,9 +1,13 @@
 package wfg.wrap_ui.ui.systems;
 
-import com.fs.starfarer.api.ui.UIPanelAPI;
+import static wfg.wrap_ui.util.UIConstants.pad;
+
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
-import wfg.wrap_ui.ui.Attachments;
+import rolflectionlib.util.RolfLectionUtil;
 import wfg.wrap_ui.ui.ComponentFactory;
 import wfg.wrap_ui.ui.components.InputSnapshot;
 import wfg.wrap_ui.ui.components.NativeComponents;
@@ -15,9 +19,35 @@ public final class TooltipSystem<
     PanelType extends CustomPanel<PanelType>
 > extends BaseSystem<PanelType> {
 
+    public static final CustomPanelAPI customPanel = Global.getSettings().createCustom(pad, pad, null);
+    public static final Object scrollPanelConstr;
+    public static final Object setContentSizeMethod;
+    public static final Object setSizeMethod;
+    public static final Object setMaxShadowHeightMethod;
+    public static final Object setUseSimpleShadowsMethod;
+
+    static {
+        final TooltipMakerAPI tp = customPanel.createUIElement(1f, 1f, true);
+        customPanel.addUIElement(tp);
+        final Class<?> scrollClass = tp.getExternalScroller().getClass();
+
+        scrollPanelConstr = RolfLectionUtil.getConstructor(scrollClass,
+            RolfLectionUtil.getConstructorParamTypesSingleConstructor(scrollClass)
+        );
+        setContentSizeMethod = RolfLectionUtil.getMethodDeclared("setContentSize", 
+            scrollClass, 2
+        );
+        setSizeMethod = RolfLectionUtil.getMethodFromSuperClass("setSize", scrollClass);
+        setMaxShadowHeightMethod = RolfLectionUtil.getMethodDeclared("setMaxShadowHeight", 
+            scrollClass, 1
+        );
+        setUseSimpleShadowsMethod = RolfLectionUtil.getMethodDeclared("setUseSimpleShadows", 
+            scrollClass, 1
+        );
+    }
+
     private final TooltipComp spec;
     private final UIContextComp context;
-    private final UIPanelAPI parent = Attachments.getScreenPanel();
 
     public TooltipSystem(PanelType panel) {
         super(panel);
@@ -26,65 +56,69 @@ public final class TooltipSystem<
         comp.setIfNotPresent(NativeComponents.TOOLTIP, new TooltipComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
 
-        spec = comp.getComp(NativeComponents.TOOLTIP);
-        context = comp.getComp(NativeComponents.UI_CONTEXT);
+        spec = comp.get(NativeComponents.TOOLTIP);
+        context = comp.get(NativeComponents.UI_CONTEXT);
     }
 
     @Override
-    public final void advance(float amount, InputSnapshot input) {
+    public final void advance(float delta, InputSnapshot input) {
         if (!spec.enabled || !context.isValid()) {
-            spec.hoverTime = 0f;
+            spec.hoverTime_internal = 0f;
             hideTooltip();
             return;
         }
 
-        if (input.hoveredLastFrame && !input.hasLMBClickedBefore) {
-            spec.hoverTime += amount;
-            if (spec.hoverTime >= spec.tooltipDelay) {
+        if (input.hoveredLastFrame && !input.hasLMBClickedBefore && spec.builder != null) {
+            spec.hoverTime_internal += delta;
+            if (spec.hoverTime_internal >= spec.delay) {
                 showTooltip();
             }
         } else {
-            spec.hoverTime = 0f;
+            spec.hoverTime_internal = 0f;
             hideTooltip();
         }
     }
 
     private final void showTooltip() {
-        if (spec.tooltip != null) return;
+        if (spec.tp_internal != null) return;
 
-        spec.tooltip = ComponentFactory.createTooltip(spec.tpWidth, spec.useScroller);
-        updateTooltip(false);
+        final var tp = createTp(spec);
+        tp.createImpl(false);
+        spec.tp_internal = tp;
 
-        if (spec.codexID != null) spec.tooltip.setCodexEntryId(spec.codexID);
-
-        if (spec.tooltip instanceof StandardTooltipV2Expandable expandable) {
-            expandable.setShowBorder(true);
-            expandable.setShowBackground(true);
-            expandable.setBgAlpha(1f);
-
-            if (spec.expandable) expandable.makeExpandable();
-            else expandable.makeNonExpandable();
-
-            expandable.setBeforeShowing(() -> updateTooltip(false));
-            expandable.setBeforeExpanding(() -> updateTooltip(true));
-        }
-
-        ComponentFactory.addTooltip(spec.tooltip, 0f, spec.useScroller, parent);
-        updateTooltip(false);
-        parent.bringComponentToTop(spec.tooltip);
+        ComponentFactory.addTooltip(tp, 0f, spec.useScroller, spec.parent);
+        spec.positioner.position(tp, false);
+        spec.parent.bringComponentToTop(tp);
     }
 
     private final void hideTooltip() {
-        if (spec.tooltip != null) {
-            parent.removeComponent(spec.tooltip);
-            spec.tooltip = null;
+        if (spec.tp_internal != null) {
+            spec.parent.removeComponent(spec.tp_internal);
+            spec.tp_internal = null;
         }
     }
 
-    private final void updateTooltip(boolean expanded) {
-        if (spec.tooltip == null) return;
-        spec.builder.buildTp(spec.tooltip, expanded);
-        spec.positioner.position(spec.tooltip, expanded);
-        parent.bringComponentToTop(spec.tooltip);
+    private static final StandardTooltipV2Expandable createTp(TooltipComp spec) {
+        final StandardTooltipV2Expandable tp = new StandardTooltipV2Expandable(
+            spec.width - 10f - (spec.useScroller ? 5f : 0f), spec.expandable
+        ) {
+            @Override
+            public void createImpl(boolean expanded) {
+                if (expanded) {
+                    expandString = spec.expandTxt == null ? "%s more info" : spec.expandTxt;
+                } else {
+                    unexpandString = spec.unexpandTxt == null ? "%s hide" : spec.unexpandTxt;
+                }
+                spec.builder.buildTp(this, expanded);
+            }
+        };
+        tp.setShowBorder(true);
+        tp.setShowBackground(true);
+        tp.setSelfRemove(true);
+        tp.setBgAlpha(spec.bgAlpha);
+
+        if (spec.codexID != null) tp.setCodexEntryId(spec.codexID);
+
+        return tp;
     }
 }

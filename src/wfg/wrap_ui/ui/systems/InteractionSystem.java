@@ -25,8 +25,8 @@ public final class InteractionSystem<
         comp.setIfNotPresent(NativeComponents.INTERACTION, new InteractionComp<>());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
 
-        listen = comp.getComp(NativeComponents.INTERACTION);
-        context = comp.getComp(NativeComponents.UI_CONTEXT);
+        listen = comp.get(NativeComponents.INTERACTION);
+        context = comp.get(NativeComponents.UI_CONTEXT);
     }
 
     @Override

@@ -28,8 +28,8 @@ public final class AudioFeedbackSystem<
         comp.setIfNotPresent(NativeComponents.AUDIO_FEEDBACK, new AudioFeedbackComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
         
-        audio = panel.comp().getComp(NativeComponents.AUDIO_FEEDBACK);
-        context = panel.comp().getComp(NativeComponents.UI_CONTEXT);
+        audio = panel.comp().get(NativeComponents.AUDIO_FEEDBACK);
+        context = panel.comp().get(NativeComponents.UI_CONTEXT);
     }
 
     @Override

@@ -17,7 +17,7 @@ import static wfg.wrap_ui.util.UIConstants.*;
 public class PieChart extends CustomPanel<PieChart> implements
     HasTooltip
 {
-    public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
+    public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
 
     public float anglePerSegment = 3f;
     public Direction startDirection = Direction.NORTH;

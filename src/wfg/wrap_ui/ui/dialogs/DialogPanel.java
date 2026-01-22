@@ -115,7 +115,7 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
 
     public DialogPanel(UIPanelAPI parent, int w, int h, RunnableWithCode runnable,
         String txt, String... btnText
-    ) { this(parent, w, h, btnTxtColor, btnBgColorDark, runnable, txt, btnText); }
+    ) { this(parent, w, h, Color.WHITE, btnBgColorDark, runnable, txt, btnText); }
 
     public DialogPanel(UIPanelAPI parent, int w, int h, Color btnTxtColor, Color btnBgColor,
         RunnableWithCode runnable, String txt, String... btnTextArr
@@ -152,8 +152,8 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
                 optionsMap.put(btn, i);
                 innerPanel.addComponent(btn.getPanel());
 
-                if (prevBtn == null) btn.getPos().inBR(opad, opad);
-                else  btn.getPos().leftOfMid(prevBtn.getPanel(), opad);
+                if (prevBtn == null) btn.getPos().inBR(pad, pad);
+                else  btn.getPos().leftOfMid(prevBtn.getPanel(), pad*2);
     
                 prevBtn = btn;
             }

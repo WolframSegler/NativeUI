@@ -28,13 +28,13 @@ public final class OutlineSystem<
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
         comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
 
-        outline = comp.getComp(NativeComponents.OUTLINE);
-        context = comp.getComp(NativeComponents.UI_CONTEXT);
-        offset = comp.getComp(NativeComponents.LAYOUT_OFFSET);
+        outline = comp.get(NativeComponents.OUTLINE);
+        context = comp.get(NativeComponents.UI_CONTEXT);
+        offset = comp.get(NativeComponents.LAYOUT_OFFSET);
     }
 
     @Override
-    public final void render(float alphaMult, InputSnapshot input) {
+    public final void renderBelow(float alpha, InputSnapshot input) {
         if (!outline.enabled || outline.type == OutlineType.NONE || !context.isValid()) return;
 
         final PositionAPI pos = panel.getPos();
@@ -58,24 +58,24 @@ public final class OutlineSystem<
 
         if (borderThickness != 0) {
             RenderUtils.drawFramedBorder(
-                    pos.getX() + offset.x,
-                    pos.getY() + offset.y,
-                    pos.getWidth() + offset.w,
-                    pos.getHeight() + offset.h,
-                    borderThickness,
-                    outline.color,
-                    alphaMult
+                pos.getX() + offset.x,
+                pos.getY() + offset.y,
+                pos.getWidth() + offset.w,
+                pos.getHeight() + offset.h,
+                borderThickness,
+                outline.color,
+                alpha
             );
         }
 
         if (textureID != null) {
             RenderUtils.drawRoundedBorder(
-                    pos.getX() - pad + offset.x,
-                    pos.getY() - pad + offset.y,
-                    pos.getWidth() + pad * 2 + offset.w,
-                    pos.getHeight() + pad * 2 + offset.h,
-                    1, textureID, textureSize,
-                    outline.color
+                pos.getX() - pad + offset.x,
+                pos.getY() - pad + offset.y,
+                pos.getWidth() + pad * 2 + offset.w,
+                pos.getHeight() + pad * 2 + offset.h,
+                alpha, textureID, textureSize,
+                outline.color
             );
         }
     }

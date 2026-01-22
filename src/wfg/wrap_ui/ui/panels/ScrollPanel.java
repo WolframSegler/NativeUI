@@ -23,7 +23,7 @@ import wfg.wrap_ui.ui.panels.CustomPanel.HasBackground;
 public class ScrollPanel extends CustomPanel<ScrollPanel>
     implements HasBackground
 {
-    public final BackgroundComp bg = comp().getComp(NativeComponents.BACKGROUND);
+    public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
 
     public enum ScrollType { HORIZONTAL, VERTICAL, BOTH }
     public ScrollType scrollType = ScrollType.VERTICAL;

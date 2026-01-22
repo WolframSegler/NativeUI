@@ -47,11 +47,11 @@ import static wfg.wrap_ui.util.UIConstants.*;
 public class Button extends CustomPanel<Button> implements 
     HasHoverGlow, HasInteraction, HasTooltip, HasUIContext, HasLayoutOffset
 {
-    public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
-    public final UIContextComp context = comp().getComp(NativeComponents.UI_CONTEXT);
-    public final LayoutOffsetComp offset = comp().getComp(NativeComponents.LAYOUT_OFFSET); 
-    protected final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
-    protected final InteractionComp<Button> interaction = comp().getComp(NativeComponents.INTERACTION);
+    public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
+    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
+    public final LayoutOffsetComp offset = comp().get(NativeComponents.LAYOUT_OFFSET); 
+    protected final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+    protected final InteractionComp<Button> interaction = comp().get(NativeComponents.INTERACTION);
 
     public float bgAlpha = 0.9f;
     public float bgDisabledAlpha = 0.8f;
@@ -67,7 +67,7 @@ public class Button extends CustomPanel<Button> implements
     public String mouseOverSound = "ui_button_mouseover";
     public CallbackRunnable<Button> onClicked;
     public CutStyle cutStyle = CutStyle.NONE;
-    public int overrideCut = 0;
+    public int overrideCutSize = 0;
 
     protected LabelAPI label = null;
     protected String labelText;
@@ -92,7 +92,7 @@ public class Button extends CustomPanel<Button> implements
         labelFont = font == null ? Fonts.ORBITRON_12 : font;
         this.onClicked = onClick;
 
-        context.ignoreContext = true;
+        context.ignore = true;
 
         glow.fader = new FaderUtil(0, 0, 0.2f, false, true);
         glow.color = base;
@@ -144,6 +144,7 @@ public class Button extends CustomPanel<Button> implements
             newlbl.setHighlight(Keyboard.getKeyName(interaction.shortcut));
         }
 
+        remove(label);
         label = newlbl;
         add(label).inBL(0f, 0f);
     }
@@ -223,6 +224,10 @@ public class Button extends CustomPanel<Button> implements
         glow.fader.setBounceDown(bool);
     }
 
+    public void setHighlightBrightness(float brightness) {
+        glow.overlayBrightness = brightness;
+    }
+
     public Color getLabelColor() {
         return label.getColor();
     }
@@ -239,6 +244,7 @@ public class Button extends CustomPanel<Button> implements
     @Override
     public void positionChanged(PositionAPI position) {
         super.positionChanged(position);
+        
         glow.faderMaskVertices = getFaderMaskVertices();
         recreateLabel();
     }
@@ -261,7 +267,7 @@ public class Button extends CustomPanel<Button> implements
     }
 
     protected float computeCut(int w, int h) {
-        if (overrideCut > 0) return overrideCut;
+        if (overrideCutSize > 0) return overrideCutSize;
         return Math.min(w, h) * 0.2f;
     }
 

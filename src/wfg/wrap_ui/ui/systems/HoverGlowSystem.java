@@ -4,7 +4,6 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.util.FaderUtil.State;
 
-import wfg.wrap_ui.ui.components.BackgroundComp;
 import wfg.wrap_ui.ui.components.HoverGlowComp;
 import wfg.wrap_ui.ui.components.InputSnapshot;
 import wfg.wrap_ui.ui.components.NativeComponents;
@@ -28,11 +27,11 @@ public final class HoverGlowSystem<
         final var comp = panel.comp();
         comp.setIfNotPresent(NativeComponents.HOVER_GLOW, new HoverGlowComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
-        comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new BackgroundComp());
+        comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
 
-        glow = comp.getComp(NativeComponents.HOVER_GLOW);
-        context = comp.getComp(NativeComponents.UI_CONTEXT);
-        offset = comp.getComp(NativeComponents.LAYOUT_OFFSET);
+        glow = comp.get(NativeComponents.HOVER_GLOW);
+        context = comp.get(NativeComponents.UI_CONTEXT);
+        offset = comp.get(NativeComponents.LAYOUT_OFFSET);
     }
 
     @Override
@@ -51,9 +50,16 @@ public final class HoverGlowSystem<
 
     @Override
     public final void renderBelow(float alphaMult, InputSnapshot input) {
-        if (glow.type != GlowType.UNDERLAY || glow.fader.getBrightness() <= 0f) return;
+        if (glow.fader.getBrightness() <= 0f) return;
 
-        drawGlowLayer(alphaMult, input);
+        switch (glow.type) {
+            case UNDERLAY:
+                drawGlowLayer(alphaMult, input);
+                break;
+
+            default: break;
+        }
+        
     }
 
     @Override
@@ -65,7 +71,7 @@ public final class HoverGlowSystem<
             drawGlowLayer(alpha, input);
             break;
 
-        case ADDITIVE: default:
+        case ADDITIVE:
             final float glowAmount = glow.additiveBrightness * glow.fader.getBrightness() * alpha;
             final SpriteAPI sprite = glow.additiveSprite;
             if (sprite != null) {
@@ -80,6 +86,8 @@ public final class HoverGlowSystem<
                 drawGlowLayer(alpha, input);
             }
             break;
+            
+        default: break;
         }
     }
 

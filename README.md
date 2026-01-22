@@ -1,13 +1,13 @@
 # WrapUI
-A basic UI framework I created while working with Starsector's UI. Not feature-complete.  
+A composition-oriented UI framework I created while working with Starsector's UI. Not feature-complete.  
 Feel free to create forks or contribute. Bug reports are also appreciated.
 
 # Features
-- [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java) and [`CustomPanelPlugin`](src/wfg/wrap_ui/ui/plugins/CustomPanelPlugin.java) for direct injection into vanilla UI hierarchies
+- [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java) for clean injection into vanilla UI hierarchies
 - Extensive use of generics for early error prevention
 - Global UI attachment points via [`Attachments`](src/wfg/wrap_ui/ui/Attachments.java)
 - Barebones UI context tracking using [`UIContext`](src/wfg/wrap_ui/ui/UIContext.java)
-- [Systems](src/wfg/wrap_ui/ui/systems/BaseSystem.java) for tooltips and fader management to reduce boilerplate, with a more composition-oriented approach
+- [Systems](src/wfg/wrap_ui/ui/systems/BaseSystem.java) for tooltips, hoverGlow etc. to reduce boilerplate, with a more composition-oriented approach
 - Basic [number formatter](src/wfg/wrap_ui/util/NumFormat.java) for large numbers
 
 # UI Elements
@@ -21,10 +21,12 @@ Feel free to create forks or contribute. Bug reports are also appreciated.
 - [`DockPanel`](src/wfg/wrap_ui/ui/panels/DockPanel.java) docks to the specified side of the screen and can move in and out of the viewport.
 
 # Usage
-- All panels that wish to use Plugins or Systems must extend [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java) with few exceptions.
+- All panels that wish to use Systems must extend [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java).
 - To access the actual `CustomPanelAPI` instance, the getPanel() method can be used.
-- Do not forget to call getPlugin().init() inside the panel constructor.
 
 # Possible Questions
 - Why is it called Wrap UI?
     - Because [`CustomPanel`](src/wfg/wrap_ui/ui/panels/CustomPanel.java) is a wrapper for `CustomPanelAPI` and is itself not the actual panel.
+
+- How do I see the java documentation for classes?
+    - Make sure to include the src file as a depenency. The JAR file does not contain the documentation.

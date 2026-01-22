@@ -7,10 +7,13 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import wfg.wrap_ui.ui.components.LayoutOffsetComp;
 import wfg.wrap_ui.ui.components.NativeComponents;
 import wfg.wrap_ui.ui.components.OutlineComp;
+import wfg.wrap_ui.ui.components.UIContextComp;
 import wfg.wrap_ui.ui.components.OutlineComp.OutlineType;
 import wfg.wrap_ui.ui.panels.CustomPanel.HasOutline;
+import wfg.wrap_ui.ui.panels.CustomPanel.HasUIContext;
 import wfg.wrap_ui.util.RenderUtils;
 
 
@@ -35,19 +38,20 @@ import wfg.wrap_ui.util.RenderUtils;
  * <p><b>Example:</b>
  * <pre>
  * SpritePanel.Base sprite = new SpritePanel.Base(parent, 64, 64, "ui/icons/sprite", Color.WHITE, null);
- * sprite.setOutlineColor(Color.RED);
+ * sprite.outline.color = Color.RED;
  * 
  * panel.addComponent(sprite.getPanel());
  * </pre>
  */
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
-> extends CustomPanel<PanelType> implements HasOutline{
+> extends CustomPanel<PanelType> implements HasOutline, HasUIContext{
 
-    public final OutlineComp outline = comp().getComp(NativeComponents.OUTLINE);
+    public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
+    public final LayoutOffsetComp offset = comp().get(NativeComponents.LAYOUT_OFFSET);
+    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
     public boolean drawTextureHalo = false;
-    public Color outlineColor;
     public Color fillColor;
     public Color texHaloColor = Color.GREEN;
     
@@ -76,8 +80,7 @@ public class SpritePanel<
     }
 
     @Override
-    public void renderBelow(float alpha) {
-        super.renderBelow(alpha);
+    public void render(float alpha) {
         if (m_sprite == null) return;
 
         final float x = pos.getX();
@@ -96,7 +99,9 @@ public class SpritePanel<
             );
         }
 
+        m_sprite.setAlphaMult(alpha);
         m_sprite.render(x, y);
+        super.render(alpha);
     }
 
     public void setSprite(String spriteID) {

@@ -10,7 +10,7 @@ import wfg.wrap_ui.ui.panels.CustomPanel.HasBackground;
  * An empty implementation of {@link CustomPanel}
  */
 public class BasePanel extends CustomPanel<BasePanel> implements HasBackground {
-    public final BackgroundComp bg = comp().getComp(NativeComponents.BACKGROUND);
+    public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
 
     public BasePanel(UIPanelAPI parent, int width, int height) {
         super(parent, width, height);

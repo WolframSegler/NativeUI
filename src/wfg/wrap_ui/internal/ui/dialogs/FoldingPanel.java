@@ -35,13 +35,16 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     private PanelFillRenderer foregroundLayer;
     private NoiseRenderer noiseRenderer;
     private final FaderUtil fader = new FaderUtil(1f, 0f);
+    private final int sizeOffset;
     private int backgroundAlphaMin = 125;
     private int backgroundAlphaMax = 175;
 
     public FoldingPanel(UIPanelAPI parent, int width, int height, String borderPrefix,
         int borderThickness
     ) {
-        super(parent, width + borderThickness * 3, height + borderThickness * 3);
+        super(parent, width + borderThickness * 2 + pad*2, height + borderThickness * 2 + pad*2);
+
+        sizeOffset = borderThickness * 2 + pad*2;
         
         this.borderThickness = borderThickness;
         borderRenderer = new BorderRenderer(borderPrefix, width, height);
@@ -140,7 +143,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     public PositionAPI setSize(float width, float height) {
         if (currentPanel != null) {
             currentPanel.getPosition().setSize(
-                width - borderThickness * 3, height - borderThickness * 3
+                width - sizeOffset, height - sizeOffset
             );
         }
 
@@ -150,11 +153,11 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     }
 
     public float getContentWidth() {
-        return getPos().getWidth() - borderThickness * 3;
+        return getPos().getWidth() - sizeOffset;
     }
 
     public float getContentHeight() {
-        return getPos().getHeight() - borderThickness * 3;
+        return getPos().getHeight() - sizeOffset;
     }
 
     public void flickerNoise(float inDuration, float outDuration) {
@@ -220,8 +223,8 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
             final float scale = Global.getSettings().getScreenScaleMult();
             final int scissorX = (int) (x + borderThickness * scale);
             final int scissorY = (int) (y + borderThickness * scale);
-            final int scissorW = (int) ((panelWidth - borderThickness * 3) * scale);
-            final int scissorH = (int) ((panelHeight - borderThickness * 3) * scale);
+            final int scissorW = (int) ((panelWidth - sizeOffset) * scale);
+            final int scissorH = (int) ((panelHeight - sizeOffset) * scale);
             GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
         }
 

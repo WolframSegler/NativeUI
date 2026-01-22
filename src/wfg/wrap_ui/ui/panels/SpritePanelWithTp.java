@@ -30,9 +30,9 @@ import wfg.wrap_ui.ui.panels.CustomPanel.HasTooltip;
 public class SpritePanelWithTp extends SpritePanel<SpritePanelWithTp>
     implements HasTooltip, HasHoverGlow, HasAudioFeedback
 {
-    public final TooltipComp tooltip = comp().getComp(NativeComponents.TOOLTIP);
-    public final HoverGlowComp glow = comp().getComp(NativeComponents.HOVER_GLOW);
-    public final AudioFeedbackComp audio = comp().getComp(NativeComponents.AUDIO_FEEDBACK);
+    public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
+    public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+    public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
 
     public SpritePanelWithTp(UIPanelAPI parent, int width, int height, String spriteID,
         Color color, Color fillColor

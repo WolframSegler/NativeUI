@@ -103,35 +103,35 @@ public abstract class CustomPanel<
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected void initSystems() {
-        if (m_panel instanceof HasTooltip) {
-            addSystem(new TooltipSystem(this));
-        }
-
-        if (m_panel instanceof HasBackground) {
+        if (this instanceof HasBackground) {
             addSystem(new BackgroundSystem(this));
         }
 
-        if (m_panel instanceof HasAudioFeedback) {
-            addSystem(new AudioFeedbackSystem(this));
-        }
-
-        if (m_panel instanceof HasOutline) {
+        if (this instanceof HasOutline) {
             addSystem(new OutlineSystem(this));
         }
 
-        if (m_panel instanceof HasHoverGlow) {
+        if (this instanceof HasHoverGlow) {
             addSystem(new HoverGlowSystem(this));
         }
 
-        if (m_panel instanceof HasInteraction) {
+        if (this instanceof HasTooltip) {
+            addSystem(new TooltipSystem(this));
+        }
+
+        if (this instanceof HasAudioFeedback) {
+            addSystem(new AudioFeedbackSystem(this));
+        }
+
+        if (this instanceof HasInteraction) {
             addSystem(new InteractionSystem(this));
         }
 
-        if (m_panel instanceof HasLayoutOffset) {
+        if (this instanceof HasLayoutOffset) {
             comp().setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
         }
 
-        if (m_panel instanceof HasUIContext) {
+        if (this instanceof HasUIContext) {
             comp().setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
         }
     }
@@ -158,7 +158,7 @@ public abstract class CustomPanel<
 
     public void render(float alpha) {
         for (BaseSystem<PanelType> system : systems) {
-            system.renderBelow(alpha, inputSnapshot);
+            system.render(alpha, inputSnapshot);
         }
     }
 
