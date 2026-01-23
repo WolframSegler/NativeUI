@@ -1,5 +1,5 @@
 {
-	"id":"wfg_wrap_ui",
+	"id":"wfg_native_ui",
 	"name":"WrapUI",
 	"author":"WolframSegler",
 	"version": "0.3.0",
@@ -7,7 +7,7 @@
 	"gameVersion":"0.98a-RC8",
 	"utility": true,
 	"jars": [
-        "jars/main/wrap_ui.jar",
+        "jars/main/native_ui.jar",
 		"jars/libs/RolflectionLib.jar"
     ]
 }
