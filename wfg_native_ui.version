@@ -1,0 +1,14 @@
+{
+	"masterVersionFile":"https://raw.githubusercontent.com/WolframSegler/WrapUI/main/wfg_native_ui.version",
+	"modName":"WrapUI",
+	"modThreadId":-1,
+	"modVersion":
+	{
+		"major":0,
+		"minor":3,
+		"patch":0
+	},
+	"starsectorVersion":"0.97a-RC11",
+	"directDownloadURL":"https://github.com/WolframSegler/WrapUI/releases/latest/download/WrapUI.zip",
+	"changelogURL":"https://raw.githubusercontent.com/WolframSegler/WrapUI/main/changelog.md"
+}

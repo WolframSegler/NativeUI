@@ -5,11 +5,11 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>wfg_wrap_ui</groupId>
-  <artifactId>WrapUI</artifactId>
+  <groupId>wfg_native_ui</groupId>
+  <artifactId>NativeUI</artifactId>
   <version>0.3.0</version>
   <packaging>jar</packaging>
-  <name>WrapUI</name>
+  <name>NativeUI</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,7 +17,7 @@
   </properties>
 
   <build>
-    <finalName>wrap_ui</finalName>
+    <finalName>native_ui</finalName>
     <directory>jars/main/</directory>
     <sourceDirectory>src</sourceDirectory>
     <plugins>

@@ -4,7 +4,7 @@ v0.3.0-beta
 - CustomPanel now owns a ComponentContainer member.
 - CustomPanel now owns the systems.
 - Replaced all plugins for CustomPanel in favor of a forwarder plugin.
-- 
+- Renamed the packaging from wrap_ui to native_ui
 
 v0.2.1-beta
 - Misc. bug fixes
