@@ -80,7 +80,8 @@ public class SpritePanel<
     }
 
     @Override
-    public void render(float alpha) {
+    public void renderBelow(float alpha) {
+        super.renderBelow(alpha);
         if (m_sprite == null) return;
 
         final float x = pos.getX();
@@ -101,7 +102,6 @@ public class SpritePanel<
 
         m_sprite.setAlphaMult(alpha);
         m_sprite.render(x, y);
-        super.render(alpha);
     }
 
     public void setSprite(String spriteID) {
