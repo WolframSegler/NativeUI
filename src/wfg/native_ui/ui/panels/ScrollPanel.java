@@ -68,6 +68,7 @@ public class ScrollPanel extends CustomPanel<ScrollPanel>
 
     @Override
     public void processInput(List<InputEventAPI> events) {
+        super.processInput(events);
         if (!inputSnapshot.hoveredLastFrame) return;
         
         int scrollValue = 0;
