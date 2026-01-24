@@ -2,10 +2,11 @@ package wfg.native_ui.ui.components;
 
 /**
  * Enum defining the "core" components that NativeUI provides.
- * Used for O(1) access inside {@link ComponentContainer}.
+ * Used for O(1) access inside {@link UIComponentContainer}.
  * Order of elements matter.
  */
 public enum NativeComponents {
+    INPUT_SNAPSHOT,
     LAYOUT_OFFSET,
     UI_CONTEXT,
     AUDIO_FEEDBACK,

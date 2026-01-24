@@ -2,7 +2,7 @@ package wfg.native_ui.ui.components;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 
-public class InputSnapshot {
+public class InputSnapshotComp extends BaseComponent {
     public boolean LMBDownLastFrame = false;
     public boolean LMBUpLastFrame = false;
     public boolean hasLMBClickedBefore = false;

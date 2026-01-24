@@ -1,15 +1,14 @@
 package wfg.native_ui.ui.components;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * Base container for components.
  * Acts as the "entity" in an ECS-like pattern.
  */
-public class ComponentContainer {
+public class UIComponentContainer {
     private final BaseComponent[] nativeComponents = new BaseComponent[NativeComponents.values().length];
-    private final Map<Class<?>, BaseComponent> customComponents = new HashMap<>();
+    private final ArrayList<BaseComponent> customComponents = new ArrayList<>(2);
 
     public final void set(NativeComponents type, BaseComponent component) {
         nativeComponents[type.ordinal()] = component;
@@ -30,16 +29,22 @@ public class ComponentContainer {
 
 
     public final void addCustom(BaseComponent component) {
-        customComponents.put(component.getClass(), component);
+        customComponents.add(component);
     }
 
     @SuppressWarnings("unchecked")
     public final <T extends BaseComponent> T getCustom(Class<T> type) {
-        return (T) customComponents.get(type);
+        for (BaseComponent comp : customComponents) {
+            if (type.isInstance(comp)) return (T) comp;
+        }
+        return null;
     }
 
     public final boolean hasCustom(Class<? extends BaseComponent> type) {
-        return customComponents.containsKey(type);
+        for (BaseComponent comp : customComponents) {
+            if (type.isInstance(comp)) return true;
+        }
+        return false;
     }
 
     public final void addCustomIfNotPresent(BaseComponent component) {

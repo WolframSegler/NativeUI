@@ -1,9 +1,6 @@
 package wfg.native_ui.ui.panels;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.lwjgl.input.Mouse;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
@@ -15,19 +12,23 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.ComponentFactory;
-import wfg.native_ui.ui.components.ComponentContainer;
-import wfg.native_ui.ui.components.InputSnapshot;
+import wfg.native_ui.ui.components.UIComponentContainer;
 import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.UIContextComp;
+import wfg.native_ui.ui.core.UIElementFlags;
+import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
 import wfg.native_ui.ui.plugins.ForwardingPanelPlugin;
 import wfg.native_ui.ui.systems.AudioFeedbackSystem;
 import wfg.native_ui.ui.systems.BackgroundSystem;
 import wfg.native_ui.ui.systems.BaseSystem;
 import wfg.native_ui.ui.systems.HoverGlowSystem;
 import wfg.native_ui.ui.systems.InteractionSystem;
+import wfg.native_ui.ui.systems.NativeSystems;
 import wfg.native_ui.ui.systems.OutlineSystem;
+import wfg.native_ui.ui.systems.RawInputSystem;
 import wfg.native_ui.ui.systems.TooltipSystem;
+import wfg.native_ui.ui.systems.UISystemContainer;
 
 /**
  * Represents the visual and layout container for a set of components.
@@ -72,9 +73,8 @@ public abstract class CustomPanel<
         positionSetParentMethod = RolfLectionUtil.getMethod("setParent", posClazz, 1);
     }
 
-    private ComponentContainer compContainer = null;
-    private final List<BaseSystem<PanelType>> systems = new ArrayList<>();
-    protected final InputSnapshot inputSnapshot = new InputSnapshot();
+    private UIComponentContainer compContainer = null;
+    private UISystemContainer systemContainer = null;
 
     protected final UIPanelAPI m_parent;
     protected final UIPanelAPI m_panel;
@@ -101,130 +101,77 @@ public abstract class CustomPanel<
         initSystems();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     protected void initSystems() {
-        if (this instanceof HasBackground) {
-            addSystem(new BackgroundSystem(this));
-        }
-
-        if (this instanceof HasOutline) {
-            addSystem(new OutlineSystem(this));
-        }
-
-        if (this instanceof HasHoverGlow) {
-            addSystem(new HoverGlowSystem(this));
-        }
-
-        if (this instanceof HasTooltip) {
-            addSystem(new TooltipSystem(this));
-        }
-
-        if (this instanceof HasAudioFeedback) {
-            addSystem(new AudioFeedbackSystem(this));
-        }
-
-        if (this instanceof HasInteraction) {
-            addSystem(new InteractionSystem(this));
-        }
-
-        if (this instanceof HasLayoutOffset) {
+        if (this instanceof UIElementFlags.HasLayoutOffset) {
             comp().setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
         }
 
-        if (this instanceof HasUIContext) {
+        if (this instanceof UIElementFlags.HasUIContext) {
             comp().setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        }
+
+        if (this instanceof UIElementFlags.HasInputSnapshot) {
+            system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), this);
+        }
+
+        if (this instanceof UIElementFlags.HasBackground) {
+            system().setIfNotPresent(NativeSystems.BACKGROUND, BackgroundSystem.get(), this);
+        }
+
+        if (this instanceof UIElementFlags.HasOutline) {
+            system().setIfNotPresent(NativeSystems.OUTLINE, OutlineSystem.get(), this);
+        }
+
+        if (this instanceof UIElementFlags.HasHoverGlow) {
+            system().setIfNotPresent(NativeSystems.HOVER_GLOW, HoverGlowSystem.get(), this);
+        }
+
+        if (this instanceof UIElementFlags.HasTooltip) {
+            system().setIfNotPresent(NativeSystems.TOOLTIP, TooltipSystem.get(), this);
+        }
+
+        if (this instanceof UIElementFlags.HasAudioFeedback) {
+            system().setIfNotPresent(NativeSystems.AUDIO_FEEDBACK, AudioFeedbackSystem.get(), this);
+        }
+
+        if (this instanceof UIElementFlags.HasInteraction) {
+            system().setIfNotPresent(NativeSystems.INTERACTION, InteractionSystem.get(), this);
         }
     }
 
-    public final ComponentContainer getComponentContainer() { return comp(); }
-    public final ComponentContainer comp() {
-        if (compContainer == null) compContainer = new ComponentContainer();
+    public final UIComponentContainer getComponentContainer() { return comp(); }
+    public final UIComponentContainer comp() {
+        if (compContainer == null) compContainer = new UIComponentContainer();
         return compContainer;
     }
 
-    protected final <C extends BaseSystem<PanelType>> void addSystem(C system) {
-        systems.add(system);
-    }
-
-    public void removeSystem(BaseSystem<PanelType> system) {
-        systems.remove(system);
-        system.onRemove();
-    }
-
-    public final List<BaseSystem<PanelType>> getPanelSystems() { return systems(); }
-    public final List<BaseSystem<PanelType>> systems() {
-        return systems;
+    public final UISystemContainer getPanelSystems() { return system(); }
+    public final UISystemContainer system() {
+        if (systemContainer == null) systemContainer = new UISystemContainer();
+        return systemContainer;
     }
 
     public void render(float alpha) {
-        for (BaseSystem<PanelType> system : systems) {
-            system.render(alpha, inputSnapshot);
+        for (BaseSystem system : systemContainer.getAll()) {
+            system.render(this, alpha);
         }
     }
 
     public void renderBelow(float alpha) {
-        for (BaseSystem<PanelType> system : systems) {
-            system.renderBelow(alpha, inputSnapshot);
+        for (BaseSystem system : systemContainer.getAll()) {
+            system.renderBelow(this, alpha);
         }
     }
 
     public void advance(float delta) {
-        for (BaseSystem<PanelType> system : systems) {
-            system.advance(delta, inputSnapshot);
+        for (BaseSystem system : systemContainer.getAll()) {
+            system.advance(this, delta);
         }
     }
 
     public void processInput(List<InputEventAPI> events) {
-        inputSnapshot.resetFrameFlags();
-
-        // General events used by most systems
-        for (InputEventAPI event : events) {
-            
-            if (event.isMouseMoveEvent()) {
-                inputSnapshot.mouseEvent = event;
-
-                final float mouseX = event.getX();
-                final float mouseY = event.getY();
-
-                final float x = pos.getX();
-                final float y = pos.getY();
-                final float w = pos.getWidth();
-                final float h = pos.getHeight();
-
-                // Check for mouse over panel
-                final boolean hoveredBefore = inputSnapshot.hoveredLastFrame;
-                inputSnapshot.hoveredLastFrame = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
-
-                inputSnapshot.hoverStarted = inputSnapshot.hoveredLastFrame && !hoveredBefore;
-                inputSnapshot.hoverEnded   = !inputSnapshot.hoveredLastFrame && hoveredBefore;
-            }
-
-            if (event.isLMBDownEvent() && inputSnapshot.hoveredLastFrame) {
-                inputSnapshot.LMBDownLastFrame = true;
-                inputSnapshot.hasLMBClickedBefore = true;
-                inputSnapshot.isActive = true;
-            }
-
-            if (event.isLMBUpEvent() || !Mouse.isButtonDown(0)) {
-                if (inputSnapshot.hasLMBClickedBefore) inputSnapshot.LMBUpLastFrame = true;
-                inputSnapshot.isActive = false;
-                inputSnapshot.hasLMBClickedBefore = false;
-            }
-
-            if (event.isRMBDownEvent() && inputSnapshot.hoveredLastFrame) {
-                inputSnapshot.RMBDownLastFrame = true;
-                inputSnapshot.hasRMBClickedBefore = true;
-            }
-
-            if (event.isRMBUpEvent() || !Mouse.isButtonDown(1)) {
-                if (inputSnapshot.hasRMBClickedBefore) inputSnapshot.RMBUpLastFrame = true;
-                inputSnapshot.hasRMBClickedBefore = false;
-            }
-        }
-
-        // System specific
-        for (BaseSystem<PanelType> system : systems) {
-            system.processInput(events, inputSnapshot);
+        for (BaseSystem system : systemContainer.getAll()) {
+            system.processInput(this, events);
         }
     }
 
@@ -297,13 +244,4 @@ public abstract class CustomPanel<
      * The method for populating the panel. Can be left empty.
      */
     public abstract void createPanel();
-
-    public interface HasInteraction {}
-    public interface HasHoverGlow {}
-    public interface HasOutline {}
-    public interface HasAudioFeedback {}
-    public interface HasBackground {}
-    public interface HasTooltip {}
-    public interface HasLayoutOffset {}
-    public interface HasUIContext {}
 }

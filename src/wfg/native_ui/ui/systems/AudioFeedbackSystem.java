@@ -7,33 +7,33 @@ import com.fs.starfarer.api.SoundPlayerAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 
 import wfg.native_ui.ui.components.AudioFeedbackComp;
-import wfg.native_ui.ui.components.ComponentContainer;
-import wfg.native_ui.ui.components.InputSnapshot;
+import wfg.native_ui.ui.components.UIComponentContainer;
+import wfg.native_ui.ui.components.InputSnapshotComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.panels.CustomPanel;
 
-public final class AudioFeedbackSystem<
-    PanelType extends CustomPanel<PanelType>
-> extends BaseSystem<PanelType> {
+public final class AudioFeedbackSystem extends BaseSystem {
+
+    private static final AudioFeedbackSystem INSTANCE = new AudioFeedbackSystem();
+    public static AudioFeedbackSystem get() { return INSTANCE;}
+    private AudioFeedbackSystem() {}
+
+    @Override
+    public void init(CustomPanel<?> element) {
+        final UIComponentContainer comp = element.comp();
+        comp.setIfNotPresent(NativeComponents.AUDIO_FEEDBACK, new AudioFeedbackComp());
+        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+    }
 
     private static final int initCompTicks = 10;
 
-    private final AudioFeedbackComp audio;
-    private final UIContextComp context;
-
-    public AudioFeedbackSystem(PanelType panel) {
-        super(panel);
-        final ComponentContainer comp = panel.comp();
-        comp.setIfNotPresent(NativeComponents.AUDIO_FEEDBACK, new AudioFeedbackComp());
-        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
-        
-        audio = panel.comp().get(NativeComponents.AUDIO_FEEDBACK);
-        context = panel.comp().get(NativeComponents.UI_CONTEXT);
-    }
-
     @Override
-    public void processInput(List<InputEventAPI> events, InputSnapshot input) {
+    public void processInput(final CustomPanel<?> element, final List<InputEventAPI> events) {
+        final AudioFeedbackComp audio = element.comp().get(NativeComponents.AUDIO_FEEDBACK);
+        final UIContextComp context = element.comp().get(NativeComponents.UI_CONTEXT);
+        final InputSnapshotComp input = element.comp().get(NativeComponents.INPUT_SNAPSHOT);
+
         if (audio == null || !audio.enabled) return;
 
         if (audio.accumulatedGameTicks > initCompTicks && context.isValid()) {

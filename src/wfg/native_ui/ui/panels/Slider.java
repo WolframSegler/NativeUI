@@ -13,6 +13,9 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.api.util.Misc;
 
+import wfg.native_ui.ui.components.InputSnapshotComp;
+import wfg.native_ui.ui.components.NativeComponents;
+import wfg.native_ui.ui.core.UIElementFlags.HasInputSnapshot;
 import wfg.native_ui.util.NumUtils;
 import wfg.native_ui.util.RenderUtils;
 
@@ -23,7 +26,9 @@ import java.util.function.Supplier;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-public class Slider extends CustomPanel<Slider> {
+public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
+
+    protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);
 
     public float minRange = 0f;
     public float maxRange = 1f;
@@ -725,11 +730,11 @@ public class Slider extends CustomPanel<Slider> {
         super.processInput(events);
         if (!userAdjustable && barHighlightFader == null) return;
 
-        final InputEventAPI event = inputSnapshot.mouseEvent;
+        final InputEventAPI event = input.mouseEvent;
         if (event == null) return;
 
         if (barHighlightFader != null) {
-            if (inputSnapshot.isActive || inputSnapshot.hoveredLastFrame) {
+            if (input.isActive || input.hoveredLastFrame) {
                 barHighlightFader.fadeIn();
             } else {
                 barHighlightFader.fadeOut();
@@ -738,7 +743,7 @@ public class Slider extends CustomPanel<Slider> {
 
         if (!userAdjustable || event.isConsumed()) return;
 
-        if ((inputSnapshot.isActive)) {
+        if ((input.isActive)) {
             mapInputToProgress(event);
             event.consume();
         }

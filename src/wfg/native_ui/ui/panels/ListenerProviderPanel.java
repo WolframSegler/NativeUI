@@ -4,7 +4,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.components.InteractionComp;
 import wfg.native_ui.ui.components.NativeComponents;
-import wfg.native_ui.ui.panels.CustomPanel.HasInteraction;
+import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
 
 /**
  * Wrapper panel for providing a listener in overlays.

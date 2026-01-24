@@ -1,7 +1,7 @@
 package wfg.native_ui.ui.components;
 
 /**
- * Base class for all components that can be attached to a {@link ComponentContainer}.
+ * Base class for all components that can be attached to a {@link UIComponentContainer}.
  *
  * <p>
  * Components in NativeUI are <b>data and behavior holders</b>, not inheritance

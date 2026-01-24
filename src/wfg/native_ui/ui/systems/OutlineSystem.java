@@ -4,41 +4,39 @@ import static wfg.native_ui.util.UIConstants.*;
 
 import com.fs.starfarer.api.ui.PositionAPI;
 
-import wfg.native_ui.ui.components.InputSnapshot;
 import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.OutlineComp;
 import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.components.OutlineComp.OutlineType;
+import wfg.native_ui.ui.components.UIComponentContainer;
 import wfg.native_ui.ui.panels.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
 
-public final class OutlineSystem<
-    PanelType extends CustomPanel<PanelType>
-> extends BaseSystem<PanelType> {
+public final class OutlineSystem extends BaseSystem {
 
-    private final OutlineComp outline;
-    private final UIContextComp context;
-    private final LayoutOffsetComp offset;
+    private static final OutlineSystem INSTANCE = new OutlineSystem();
+    public static OutlineSystem get() { return INSTANCE;}
+    private OutlineSystem() {}
 
-    public OutlineSystem(PanelType panel) {
-        super(panel);
-
-        final var comp = panel.comp();
+    @Override
+    public void init(CustomPanel<?> element) {
+        final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.OUTLINE, new OutlineComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
         comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
-
-        outline = comp.get(NativeComponents.OUTLINE);
-        context = comp.get(NativeComponents.UI_CONTEXT);
-        offset = comp.get(NativeComponents.LAYOUT_OFFSET);
     }
 
     @Override
-    public final void renderBelow(float alpha, InputSnapshot input) {
+    public final void renderBelow(final CustomPanel<?> element, float alpha) {
+        final var comp = element.comp();
+        final OutlineComp outline = comp.get(NativeComponents.OUTLINE);
+        final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
+        final LayoutOffsetComp offset = comp.get(NativeComponents.LAYOUT_OFFSET);
+
         if (!outline.enabled || outline.type == OutlineType.NONE || !context.isValid()) return;
 
-        final PositionAPI pos = panel.getPos();
+        final PositionAPI pos = element.getPos();
 
         String textureID = null;
         int textureSize = 4;

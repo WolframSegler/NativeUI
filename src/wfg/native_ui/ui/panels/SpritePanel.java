@@ -12,8 +12,8 @@ import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.OutlineComp;
 import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.components.OutlineComp.OutlineType;
-import wfg.native_ui.ui.panels.CustomPanel.HasOutline;
-import wfg.native_ui.ui.panels.CustomPanel.HasUIContext;
+import wfg.native_ui.ui.core.UIElementFlags.HasOutline;
+import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
 import wfg.native_ui.util.RenderUtils;
 
 
@@ -45,7 +45,7 @@ import wfg.native_ui.util.RenderUtils;
  */
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
-> extends CustomPanel<PanelType> implements HasOutline, HasUIContext{
+> extends CustomPanel<PanelType> implements HasOutline, HasUIContext {
 
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
     public final LayoutOffsetComp offset = comp().get(NativeComponents.LAYOUT_OFFSET);
@@ -53,6 +53,7 @@ public class SpritePanel<
 
     public boolean drawTextureHalo = false;
     public Color fillColor;
+    public Color texColor = Color.WHITE;
     public Color texHaloColor = Color.GREEN;
     
     protected SpriteAPI m_sprite;
@@ -68,7 +69,8 @@ public class SpritePanel<
         m_sprite = Global.getSettings().getSprite(spriteID);
         this.fillColor = fillColor;
 
-        if (color != null) m_sprite.setColor(color); 
+        if (color != null) texColor = color;
+
     }
     public void createPanel() {}
 
@@ -90,7 +92,6 @@ public class SpritePanel<
         final float h = pos.getHeight();
 
         if (fillColor != null) {
-            m_sprite.setColor(fillColor);
             RenderUtils.drawQuad(x, y, w, h, fillColor, alpha, false);
         }
 
@@ -101,24 +102,16 @@ public class SpritePanel<
         }
 
         m_sprite.setAlphaMult(alpha);
+        m_sprite.setColor(texColor);
         m_sprite.render(x, y);
     }
 
-    public void setSprite(String spriteID) {
-        m_sprite = Global.getSettings().getSprite(spriteID);
-    }
-    
     public SpriteAPI getSprite() { return m_sprite; }
     public void setSprite(SpriteAPI sprite) {
         m_sprite = sprite;
     }
-
-    /**
-     * @param color can be null for white
-     */
-    public final void setColor(Color color) {
-        if (color != null) m_sprite.setColor(color);
-        else m_sprite.setColor(Color.WHITE);
+    public void setSprite(String spriteID) {
+        m_sprite = Global.getSettings().getSprite(spriteID);
     }
 
     public static class Base extends SpritePanel<Base> {

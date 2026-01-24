@@ -11,7 +11,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
-import wfg.native_ui.ui.panels.CustomPanel.HasTooltip;
+import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.util.RenderUtils;
 
 public class PieChart extends CustomPanel<PieChart> implements

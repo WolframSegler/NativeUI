@@ -105,7 +105,7 @@ public class RenderUtils {
     }
 
     public static void drawSpriteOutline(SpriteAPI sprite, Color color, float x, float y, float w, float h,
-        float alphaMult, float radius) {
+        float alpha, float radius) {
 
         if (color == null || sprite == null) {
             return;
@@ -125,8 +125,7 @@ public class RenderUtils {
         quadWithBlend(x - w / 2f, y - h / 2f, w * 2.0F, h * 2.0F, new Color(0, 0, 0, 0), 0.0F);
 
         sprite.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-        sprite.setAlphaMult(alphaMult * 0.75f);
-        sprite.setColor(Color.white);
+        sprite.setAlphaMult(alpha * 0.75f);
 
 
         for(float angle = 0; angle < 360; angle += 30) {
@@ -139,16 +138,16 @@ public class RenderUtils {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_ALPHA);
 
-        quadNoBlend(x - w / 2f + 1, y - h / 2f + 1, w * 2 - 2, h * 2 - 2, Color.white, alphaMult);
-        quadNoBlend(x - w / 2f + 1, y - h / 2f + 1, w * 2 - 2, h * 2 - 2, Color.white, alphaMult);
+        quadNoBlend(x - w / 2f + 1, y - h / 2f + 1, w * 2 - 2, h * 2 - 2, Color.white, alpha);
+        quadNoBlend(x - w / 2f + 1, y - h / 2f + 1, w * 2 - 2, h * 2 - 2, Color.white, alpha);
         GL11.glColorMask(true, true, true, true);
         GL11.glBlendFunc(GL11.GL_DST_ALPHA, GL11.GL_ONE_MINUS_DST_ALPHA);
-        quadNoBlend(x - w / 2f + 1, y - h / 2f + 1, w * 2 - 2, h * 2 - 2, color, alphaMult);
+        quadNoBlend(x - w / 2f + 1, y - h / 2f + 1, w * 2 - 2, h * 2 - 2, color, alpha);
 
         GL11.glPopMatrix();
         GL11.glPopAttrib();
 
-        sprite.setAlphaMult(1);
+        sprite.setAlphaMult(1f);
         sprite.setNormalBlend();
     }
 

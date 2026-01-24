@@ -5,37 +5,37 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.util.FaderUtil.State;
 
 import wfg.native_ui.ui.components.HoverGlowComp;
-import wfg.native_ui.ui.components.InputSnapshot;
+import wfg.native_ui.ui.components.InputSnapshotComp;
 import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
+import wfg.native_ui.ui.components.UIComponentContainer;
 import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.components.HoverGlowComp.GlowType;
 import wfg.native_ui.ui.panels.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
 
-public final class HoverGlowSystem<
-    PanelType extends CustomPanel<PanelType>
-> extends BaseSystem<PanelType> {
+public final class HoverGlowSystem extends BaseSystem {
 
-    private final HoverGlowComp glow;
-    private final UIContextComp context;
-    private final LayoutOffsetComp offset;
+    private static final HoverGlowSystem INSTANCE = new HoverGlowSystem();
+    public static HoverGlowSystem get() { return INSTANCE;}
+    private HoverGlowSystem() {}
 
-    public HoverGlowSystem(PanelType panel) {
-        super(panel);
-
-        final var comp = panel.comp();
+    @Override
+    public void init(CustomPanel<?> element) {
+        final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.HOVER_GLOW, new HoverGlowComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
         comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
-
-        glow = comp.get(NativeComponents.HOVER_GLOW);
-        context = comp.get(NativeComponents.UI_CONTEXT);
-        offset = comp.get(NativeComponents.LAYOUT_OFFSET);
+        element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
     }
 
     @Override
-    public final void advance(float amount, InputSnapshot input) {
+    public final void advance(final CustomPanel<?> element, float amount) {
+        final var comp = element.comp();
+        final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
+        final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
+        final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
+
         if (!glow.enabled || !glow.isFaderOwner) return;
 
         State target = input.hoveredLastFrame ? State.IN : State.OUT;
@@ -49,12 +49,16 @@ public final class HoverGlowSystem<
     }
 
     @Override
-    public final void renderBelow(float alphaMult, InputSnapshot input) {
+    public final void renderBelow(final CustomPanel<?> element, float alpha) {
+        final var comp = element.comp();
+        final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
+        final LayoutOffsetComp offset = comp.get(NativeComponents.LAYOUT_OFFSET);
+        final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
         if (glow.fader.getBrightness() <= 0f) return;
 
         switch (glow.type) {
             case UNDERLAY:
-                drawGlowLayer(alphaMult, input);
+                drawGlowLayer(alpha, input, glow, offset, element);
                 break;
 
             default: break;
@@ -63,12 +67,16 @@ public final class HoverGlowSystem<
     }
 
     @Override
-    public final void render(float alpha, InputSnapshot input) {
+    public final void render(final CustomPanel<?> element, float alpha) {
+        final var comp = element.comp();
+        final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
+        final LayoutOffsetComp offset = comp.get(NativeComponents.LAYOUT_OFFSET);
+        final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
         if (glow.fader.getBrightness() <= 0) return;
 
         switch (glow.type) {
         case OVERLAY:
-            drawGlowLayer(alpha, input);
+            drawGlowLayer(alpha, input, glow, offset, element);
             break;
 
         case ADDITIVE:
@@ -77,13 +85,13 @@ public final class HoverGlowSystem<
             if (sprite != null) {
                 RenderUtils.drawAdditiveGlow(
                     sprite,
-                    panel.getPos().getX(),
-                    panel.getPos().getY(),
+                    element.getPos().getX(),
+                    element.getPos().getY(),
                     glow.color,
                     glowAmount
                 );
             } else {
-                drawGlowLayer(alpha, input);
+                drawGlowLayer(alpha, input, glow, offset, element);
             }
             break;
             
@@ -91,43 +99,24 @@ public final class HoverGlowSystem<
         }
     }
 
-    private final void drawGlowLayer(float alpha, InputSnapshot input) {
-        final float glowAmount = glow.overlayBrightness * glow.fader.getBrightness() * alpha;
-        final float[] verts = glow.faderMaskVertices;
+    private final void drawGlowLayer(float alpha, InputSnapshotComp input, HoverGlowComp glow,
+        LayoutOffsetComp offset, CustomPanel<?> element
+    ) {
+
+        final float effectiveAlpha = glow.overlayBrightness * glow.fader.getBrightness() * alpha;
+        final float brightness = input.hasLMBClickedBefore ? effectiveAlpha * 1.5f : effectiveAlpha;
+        final float[] verts = glow.faderMaskVertices != null ? glow.faderMaskVertices.clone() : null;
 
         if (verts != null) {
-            for (int i = 0; i < verts.length; i += 2) {
-                verts[i] = verts[i] + offset.x;
-                verts[i + 1] = verts[i + 1] + offset.y;
-            }
-        }   
-
-        if (verts != null) {
-            RenderUtils.drawPolygon(verts, glow.color, glowAmount);
+            RenderUtils.drawPolygon(verts, glow.color, brightness);
         } else {
-            final PositionAPI pos = panel.getPos();
+            final PositionAPI pos = element.getPos();
             RenderUtils.drawQuad(
                 pos.getX() + offset.x,
                 pos.getY() + offset.y,
                 pos.getWidth() + offset.w,
                 pos.getHeight() + offset.h,
-                glow.color, glowAmount, glow.type == GlowType.ADDITIVE
-            );
-        }
-
-        if (!input.hasLMBClickedBefore) return;
-        
-        if (verts != null) {
-            RenderUtils.drawPolygon(verts, glow.color, glowAmount / 2f);
-        } else {
-            final PositionAPI pos = panel.getPos();
-            RenderUtils.drawQuad(
-                pos.getX() + offset.x,
-                pos.getY() + offset.y,
-                pos.getWidth() + offset.w,
-                pos.getHeight() + offset.h,
-                glow.color,
-                glowAmount / 2f, glow.type == GlowType.ADDITIVE
+                glow.color, brightness, glow.type == GlowType.ADDITIVE
             );
         }
     }

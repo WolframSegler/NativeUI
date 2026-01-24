@@ -8,9 +8,9 @@ import wfg.native_ui.ui.components.AudioFeedbackComp;
 import wfg.native_ui.ui.components.HoverGlowComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
-import wfg.native_ui.ui.panels.CustomPanel.HasAudioFeedback;
-import wfg.native_ui.ui.panels.CustomPanel.HasHoverGlow;
-import wfg.native_ui.ui.panels.CustomPanel.HasTooltip;
+import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
+import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 
 /**
  * A sprite panel with tooltip, hover glow, and audio feedback support.

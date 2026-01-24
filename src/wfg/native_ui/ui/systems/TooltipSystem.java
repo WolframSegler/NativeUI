@@ -9,15 +9,26 @@ import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.ComponentFactory;
-import wfg.native_ui.ui.components.InputSnapshot;
+import wfg.native_ui.ui.components.InputSnapshotComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
+import wfg.native_ui.ui.components.UIComponentContainer;
 import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.panels.CustomPanel;
 
-public final class TooltipSystem<
-    PanelType extends CustomPanel<PanelType>
-> extends BaseSystem<PanelType> {
+public final class TooltipSystem extends BaseSystem {
+
+    private static final TooltipSystem INSTANCE = new TooltipSystem();
+    public static TooltipSystem get() { return INSTANCE;}
+    private TooltipSystem() {}
+
+    @Override
+    public void init(CustomPanel<?> element) {
+        final UIComponentContainer comp = element.comp();
+        comp.setIfNotPresent(NativeComponents.TOOLTIP, new TooltipComp());
+        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
+    }
 
     public static final CustomPanelAPI customPanel = Global.getSettings().createCustom(pad, pad, null);
     public static final Object scrollPanelConstr;
@@ -46,40 +57,31 @@ public final class TooltipSystem<
         );
     }
 
-    private final TooltipComp spec;
-    private final UIContextComp context;
-
-    public TooltipSystem(PanelType panel) {
-        super(panel);
-
-        final var comp = panel.comp();
-        comp.setIfNotPresent(NativeComponents.TOOLTIP, new TooltipComp());
-        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
-
-        spec = comp.get(NativeComponents.TOOLTIP);
-        context = comp.get(NativeComponents.UI_CONTEXT);
-    }
-
     @Override
-    public final void advance(float delta, InputSnapshot input) {
+    public final void advance(final CustomPanel<?> element, float delta) {
+        final var comp = element.comp();
+        final TooltipComp spec = comp.get(NativeComponents.TOOLTIP);
+        final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
+        final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
+
         if (!spec.enabled || !context.isValid()) {
             spec.hoverTime_internal = 0f;
-            hideTooltip();
+            hideTooltip(spec);
             return;
         }
 
         if (input.hoveredLastFrame && !input.hasLMBClickedBefore && spec.builder != null) {
             spec.hoverTime_internal += delta;
             if (spec.hoverTime_internal >= spec.delay) {
-                showTooltip();
+                showTooltip(spec);
             }
         } else {
             spec.hoverTime_internal = 0f;
-            hideTooltip();
+            hideTooltip(spec);
         }
     }
 
-    private final void showTooltip() {
+    private final void showTooltip(TooltipComp spec) {
         if (spec.tp_internal != null) return;
 
         final var tp = createTp(spec);
@@ -91,7 +93,7 @@ public final class TooltipSystem<
         spec.parent.bringComponentToTop(tp);
     }
 
-    private final void hideTooltip() {
+    private final void hideTooltip(TooltipComp spec) {
         if (spec.tp_internal != null) {
             spec.parent.removeComponent(spec.tp_internal);
             spec.tp_internal = null;

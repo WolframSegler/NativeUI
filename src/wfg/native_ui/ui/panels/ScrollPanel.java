@@ -14,16 +14,18 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.components.BackgroundComp;
+import wfg.native_ui.ui.components.InputSnapshotComp;
 import wfg.native_ui.ui.components.NativeComponents;
-import wfg.native_ui.ui.panels.CustomPanel.HasBackground;
-
+import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
+import wfg.native_ui.ui.core.UIElementFlags.HasInputSnapshot;
 /**
  * Do not add children directly to ScrollPanel, but to the contentPanel
  */
 public class ScrollPanel extends CustomPanel<ScrollPanel>
-    implements HasBackground
+    implements HasBackground, HasInputSnapshot
 {
     public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
+    protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);
 
     public enum ScrollType { HORIZONTAL, VERTICAL, BOTH }
     public ScrollType scrollType = ScrollType.VERTICAL;
@@ -69,7 +71,7 @@ public class ScrollPanel extends CustomPanel<ScrollPanel>
     @Override
     public void processInput(List<InputEventAPI> events) {
         super.processInput(events);
-        if (!inputSnapshot.hoveredLastFrame) return;
+        if (!input.hoveredLastFrame) return;
         
         int scrollValue = 0;
         boolean shiftDown = false;

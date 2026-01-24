@@ -20,11 +20,11 @@ import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
 import wfg.native_ui.ui.components.UIContextComp;
-import wfg.native_ui.ui.panels.CustomPanel.HasHoverGlow;
-import wfg.native_ui.ui.panels.CustomPanel.HasInteraction;
-import wfg.native_ui.ui.panels.CustomPanel.HasLayoutOffset;
-import wfg.native_ui.ui.panels.CustomPanel.HasTooltip;
-import wfg.native_ui.ui.panels.CustomPanel.HasUIContext;
+import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
+import wfg.native_ui.ui.core.UIElementFlags.HasLayoutOffset;
+import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
+import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
 import wfg.native_ui.util.CallbackRunnable;
 import wfg.native_ui.util.RenderUtils;
 
