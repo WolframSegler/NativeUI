@@ -176,12 +176,12 @@ public class ComponentFactory {
                 RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setUseSimpleShadowsMethod, scrollPanel,
                     true
                 );
-                scrollPanel.addComponent(tp).inTL(0f, 0f);
+                scrollPanel.addComponent(tooltip).inTL(0f, 0f);
                 tooltip.setExternalScroller(scrollPanel);
                 return parent.addComponent(scrollPanel);
             } else {
-                tp.setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
-                return parent.addComponent(tp);
+                tooltip.getPosition().setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
+                return parent.addComponent(tooltip);
             }
         } else {
             throw new IllegalArgumentException(
