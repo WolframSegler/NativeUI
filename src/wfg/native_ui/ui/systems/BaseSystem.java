@@ -31,6 +31,6 @@ public abstract class BaseSystem {
 
     public void processInput(final CustomPanel<?> element, final List<InputEventAPI> events) {}
     public void advance(final CustomPanel<?> element, float amount) {}
-    public void renderBelow(final CustomPanel<?> element, float alphaMult) {}
-    public void render(final CustomPanel<?> element, float alphaMult) {}
+    public void renderBelow(final CustomPanel<?> element, float alpha) {}
+    public void render(final CustomPanel<?> element, float alpha) {}
 }

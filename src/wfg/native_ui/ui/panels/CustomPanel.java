@@ -152,25 +152,25 @@ public abstract class CustomPanel<
     }
 
     public void render(float alpha) {
-        for (BaseSystem system : systemContainer.getAll()) {
+        for (BaseSystem system : system().getAll()) {
             system.render(this, alpha);
         }
     }
 
     public void renderBelow(float alpha) {
-        for (BaseSystem system : systemContainer.getAll()) {
+        for (BaseSystem system : system().getAll()) {
             system.renderBelow(this, alpha);
         }
     }
 
     public void advance(float delta) {
-        for (BaseSystem system : systemContainer.getAll()) {
+        for (BaseSystem system : system().getAll()) {
             system.advance(this, delta);
         }
     }
 
     public void processInput(List<InputEventAPI> events) {
-        for (BaseSystem system : systemContainer.getAll()) {
+        for (BaseSystem system : system().getAll()) {
             system.processInput(this, events);
         }
     }

@@ -3,7 +3,7 @@ package wfg.native_ui.ui.events;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fs.starfarer.api.ui.UIPanelAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 
 public final class UIEventBus {
     private static final UIEventBus INSTANCE = new UIEventBus();
@@ -24,28 +24,28 @@ public final class UIEventBus {
         listeners.remove(l);
     }
 
-    public final void fireAttached(UIPanelAPI panel) {
+    public final void fireAttached(UIComponentAPI panel) {
         final String id = extractId(panel);
         for (UILifecycleListener l : listeners) {
             l.panelAttached(panel, id);
         }
     }
 
-    public final void fireDetached(UIPanelAPI panel) {
+    public final void fireDetached(UIComponentAPI panel) {
         final String id = extractId(panel);
         for (UILifecycleListener l : listeners) {
             l.panelDetached(panel, id);
         }
     }
 
-    public final void fireRefreshed(UIPanelAPI panel) {
+    public final void fireRefreshed(UIComponentAPI panel) {
         final String id = extractId(panel);
         for (UILifecycleListener l : listeners) {
             l.panelRefreshed(panel, id);
         }
     }
 
-    private static final String extractId(UIPanelAPI panel) {
+    private static final String extractId(UIComponentAPI panel) {
         if (panel instanceof IdentifiedPanel ip) {
             return ip.getPanelId();
         }

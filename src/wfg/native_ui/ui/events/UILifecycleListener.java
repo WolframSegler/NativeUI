@@ -1,9 +1,9 @@
 package wfg.native_ui.ui.events;
 
-import com.fs.starfarer.api.ui.UIPanelAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 
 public interface UILifecycleListener {
-    void panelAttached(UIPanelAPI panel, String panelId);
-    void panelDetached(UIPanelAPI panel, String panelId);
-    default void panelRefreshed(UIPanelAPI panel, String panelId) {}
+    void panelAttached(UIComponentAPI comp, String compID);
+    void panelDetached(UIComponentAPI comp, String compID);
+    default void panelRefreshed(UIComponentAPI comp, String compID) {}
 }
