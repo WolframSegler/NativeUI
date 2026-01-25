@@ -100,7 +100,10 @@ import wfg.native_ui.util.NativeUiUtils.AnchorType;
  * This component supports tooltips both for headers and rows via {@link TooltipBuilder}.
  * <p>
  */
-public class SortableTable extends CustomPanel<SortableTable> {
+public class SortableTable extends CustomPanel<SortableTable> implements HasOutline {
+
+    public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
+    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
     public boolean showSortIcon = true;
     public boolean sortingEnabled = true;
@@ -112,7 +115,6 @@ public class SortableTable extends CustomPanel<SortableTable> {
     private final int HEADER_HEIGHT;
     private final int ROW_HEIGHT;
 
-    private int prevSelectedSortColumnIndex = -1;
     private int selectedSortColumnIndex = -1;
     private boolean ascending = true;
 
@@ -148,6 +150,9 @@ public class SortableTable extends CustomPanel<SortableTable> {
         super(parent, width, height);
         HEADER_HEIGHT = headerHeight;
         ROW_HEIGHT = rowHeight;
+
+        outline.enabled = false;
+        context.ignore = true;
     }
 
     public void createPanel() {
@@ -610,12 +615,18 @@ public class SortableTable extends CustomPanel<SortableTable> {
     }
 
     public void sortRows(int index) {
-        if (m_rows.isEmpty()) return;
-
-        selectedSortColumnIndex = index;
-        if (index == prevSelectedSortColumnIndex) {
+        if (index == selectedSortColumnIndex) {
             ascending = !ascending;
         }
+
+        sortRows(index, ascending);
+    }
+
+    public void sortRows(int index, boolean ascending) {
+        if (m_rows.isEmpty()) return;
+
+        this.ascending = ascending;
+        selectedSortColumnIndex = index;
 
         final Object value = m_rows.get(0).getSortValue(index);
 
@@ -635,8 +646,6 @@ public class SortableTable extends CustomPanel<SortableTable> {
                 "'. Supported types are String and Number."
             );
         }
-
-        prevSelectedSortColumnIndex = index;
 
         createPanel(); // Refresh the table
     }

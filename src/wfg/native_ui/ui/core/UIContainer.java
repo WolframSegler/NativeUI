@@ -3,11 +3,13 @@ package wfg.native_ui.ui.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.events.IdentifiedPanel;
+import wfg.native_ui.ui.systems.BaseSystem;
 
 public class UIContainer extends UIElement implements UIContainerAPI {
     private final List<UIComponentAPI> children = new ArrayList<>();
@@ -105,5 +107,34 @@ public class UIContainer extends UIElement implements UIContainerAPI {
         if (children.remove(element)) {
             children.add(0, element);
         }
+    }
+
+    @Override
+    public final void render(float alpha) {
+        for (BaseSystem system : system().getAll()) {
+            // system.renderBelow(this, alpha);
+        }
+        renderBelowImpl(alpha);
+
+        children.forEach(c -> c.render(alpha));
+
+        for (BaseSystem system : system().getAll()) {
+            // system.render(this, alpha);
+        }
+        renderAboveImpl(alpha);
+    }
+
+    @Override
+    public final void advance(float delta) {
+        super.advance(delta);
+        advanceImpl(delta);
+        children.forEach(c -> c.advance(delta));
+    }
+
+    @Override
+    public final void processInput(List<InputEventAPI> events) {
+        super.processInput(events);
+        processInputImpl(events);
+        children.forEach(c -> c.processInput(events));
     }
 }

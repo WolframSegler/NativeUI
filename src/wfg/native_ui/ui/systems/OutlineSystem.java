@@ -8,7 +8,6 @@ import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.OutlineComp;
 import wfg.native_ui.ui.components.UIContextComp;
-import wfg.native_ui.ui.components.OutlineComp.OutlineType;
 import wfg.native_ui.ui.components.UIComponentContainer;
 import wfg.native_ui.ui.panels.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
@@ -34,7 +33,7 @@ public final class OutlineSystem extends BaseSystem {
         final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
         final LayoutOffsetComp offset = comp.get(NativeComponents.LAYOUT_OFFSET);
 
-        if (!outline.enabled || outline.type == OutlineType.NONE || !context.isValid()) return;
+        if (!outline.enabled || !context.isValid()) return;
 
         final PositionAPI pos = element.getPos();
 

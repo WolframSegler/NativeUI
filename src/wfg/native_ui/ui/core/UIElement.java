@@ -78,13 +78,10 @@ public abstract class UIElement implements UIElementAPI {
         return pos;
     }
 
-    public void renderBelow(float alpha) {
+    public void render(float alpha) {
         for (BaseSystem system : system().getAll()) {
             // system.renderBelow(this, alpha);
         }
-    }
-
-    public void render(float alpha) {
         for (BaseSystem system : system().getAll()) {
             // system.render(this, alpha);
         }

@@ -9,7 +9,6 @@ public final class OutlineComp extends BaseComponent {
     public Color color = dark;
 
     public static enum OutlineType {
-        NONE,
         LINE,
         VERY_THIN,
         THIN,
