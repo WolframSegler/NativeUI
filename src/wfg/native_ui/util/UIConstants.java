@@ -3,6 +3,7 @@ package wfg.native_ui.util;
 import java.awt.Color;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
 
 public class UIConstants {
@@ -14,7 +15,9 @@ public class UIConstants {
     public static final Color negative = Misc.getNegativeHighlightColor();
     public static final Color base = Misc.getBasePlayerColor();
     public static final Color dark = Misc.getDarkPlayerColor();
+    public static final Color grid = Global.getSettings().getFactionSpec(Factions.PLAYER).getGridUIColor();
     public static final Color gray = Misc.getGrayColor();
+    public static final Color glowHighlight = Misc.getTooltipTitleAndLightHighlightColor();
 
     public static final Color btnTxtColor = Misc.getButtonTextColor();
     public static final Color btnBgColorDark = Global.getSettings().getColor("buttonBgDark");

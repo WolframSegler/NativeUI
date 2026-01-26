@@ -10,12 +10,12 @@ import java.util.List;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
+import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.api.util.Misc;
 
 import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.components.AudioFeedbackComp;
@@ -105,40 +105,27 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
-    public boolean showSortIcon = true;
-    public boolean sortingEnabled = true;
-
     private final List<ColumnManager> m_columns = new ArrayList<>();
     private final List<RowPanel> m_rows = new ArrayList<>();
-    private RowPanel pendingRow = null;
 
     private final int HEADER_HEIGHT;
     private final int ROW_HEIGHT;
 
+
+    public boolean showSortIcon = true;
+    public boolean sortingEnabled = true;
+
     private int selectedSortColumnIndex = -1;
     private boolean ascending = true;
-
+    private RowPanel pendingRow = null;
     private RowPanel m_selectedRow;
-    private UIPanelAPI m_headerContainer = null;
-    private UIPanelAPI m_rowContainer = null;
 
-    public RowPanel getPendingRow() {
-        return pendingRow;
-    }
+    public RowPanel getPendingRow() { return pendingRow;}
+    public RowPanel getSelectedRow() { return m_selectedRow;}
+    public List<ColumnManager> getColumns() { return m_columns;}
+    public List<RowPanel> getRows() { return m_rows;}
 
-    public List<ColumnManager> getColumns() {
-        return m_columns;
-    }
-
-    public List<RowPanel> getRows() {
-        return m_rows;
-    }
-
-    public RowPanel getSelectedRow() {
-        return m_selectedRow;
-    }
-
-    public final static int headerTooltipWidth = 250;
+    public final static int headerTooltipWidth = 260;
 
     public final static String sortIconPath = Global.getSettings().getSpriteName("ui", "sortIcon");
 
@@ -156,100 +143,68 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
     }
 
     public void createPanel() {
-        getPanel().removeComponent(m_headerContainer);
-        getPanel().removeComponent(m_rowContainer);
+        clearChildren();
 
-        // Create headers
-        m_headerContainer = Global.getSettings().createCustom(
-            pos.getWidth(),
-            HEADER_HEIGHT,
-            null
-        );
-
+        // create columns
         int cumulativeXOffset = 0;
         for (int i = 0; i < m_columns.size(); i++) {
-            ColumnManager column = m_columns.get(i);
+            final ColumnManager column = m_columns.get(i);
+            if (column.isMerged && !column.isParent) continue;
 
-            int lastHeaderPad = i + 1 == m_columns.size() ? pad*3 : 0;
-
-            HeaderPanel panel = null;
-
-            // Merged headers
+            final int width;
+            final int padOffset;
             if (column.isMerged) {
-                int setID = column.mergeSetID;
+                int mergedW = 0;
+                int lastIndex = -1;
 
-                if (!column.isParent) {
-                    continue;
-                }
-                // Calculate total width of all merged columns in this set
-                int mergedWidth = lastHeaderPad;
-                for (ColumnManager col : m_columns) {
-                    if (col.isMerged && col.mergeSetID == setID) {
-                        mergedWidth += col.width;
+                for (int j = 0; j < m_columns.size(); j++) {
+                    final ColumnManager col = m_columns.get(j);
+                    if (col.isMerged && col.mergeSetID == column.mergeSetID) {
+                        mergedW += col.width; lastIndex = j;
                     }
                 }
 
-                if (column.tooltip == null) {
-                    panel = new HeaderPanel(
-                        getPanel(), mergedWidth - pad, HEADER_HEIGHT, column, i
-                    );
-                } else {
-                    panel = new HeaderPanelWithTooltip(
-                        getPanel(), mergedWidth - pad, HEADER_HEIGHT, column, i
-                    );
-                }
+                width = mergedW;
+                padOffset = (lastIndex == m_columns.size() - 1) ? 0 : 5;
 
-                m_headerContainer.addComponent(panel.getPanel()).inBL(cumulativeXOffset, 0);
-
-                cumulativeXOffset += mergedWidth;
-
-            // Standalone header
             } else {
-                if (column.tooltip == null) {
-                    panel = new HeaderPanel(
-                        getPanel(), column.width + lastHeaderPad - pad, HEADER_HEIGHT,
-                        column, i
-                    );
-                } else {
-                    panel = new HeaderPanelWithTooltip(
-                        getPanel(), column.width + lastHeaderPad - pad, HEADER_HEIGHT,
-                        column, i
-                    );
-                }
-
-                m_headerContainer.addComponent(panel.getPanel()).inBL(cumulativeXOffset, 0);
-
-                cumulativeXOffset += column.width;
+                width = column.width;
+                padOffset = (i == m_columns.size() - 1) ? 0 : 5;
             }
 
+            final HeaderPanel panel;
+            if (column.tooltip == null) {
+                panel = new HeaderPanel(m_panel, width - padOffset,
+                    HEADER_HEIGHT, column, i
+                );
+            } else {
+                panel = new HeaderPanelWithTooltip(m_panel, width - padOffset,
+                    HEADER_HEIGHT, column, i
+                );
+            }
             column.headerPanel = panel;
+
+            add(panel).inTL(cumulativeXOffset, 0f);
+            cumulativeXOffset += width;
         }
 
-        getPanel().addComponent(m_headerContainer).inTL(0,0);
 
-        // Create rows
-        m_rowContainer = Global.getSettings().createCustom(
-            pos.getWidth(),
-            pos.getHeight() - (HEADER_HEIGHT + pad),
-            null
-        );
-
+        // create rows
         final TooltipMakerAPI tp = ComponentFactory.createTooltip(
             pos.getWidth() + pad, true
         );
 
         int cumulativeYOffset = pad;
         for (RowPanel row : m_rows) {
-            tp.addComponent(row.getPanel()).inTL(pad, cumulativeYOffset);
+            tp.addComponent(row.getPanel()).inTL(opad + pad, cumulativeYOffset);
 
-            cumulativeYOffset += pad + ROW_HEIGHT;
+            cumulativeYOffset += ROW_HEIGHT;
         }
 
         tp.setHeightSoFar(cumulativeYOffset);
         ComponentFactory.addTooltip(tp, pos.getHeight() - (HEADER_HEIGHT + pad),
-            true, m_rowContainer
-        ).inTL(-pad, 0);
-        add(m_rowContainer).inTL(0, HEADER_HEIGHT + pad);
+            true, m_panel
+        ).inTL(-opad, HEADER_HEIGHT + pad);
     }
 
     private class HeaderPanel extends CustomPanel<HeaderPanel> implements
@@ -278,34 +233,27 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
                 SortableTable.this.sortRows(listIndex);
             };
 
-            glow.color = Misc.getTooltipTitleAndLightHighlightColor();
+            glow.color = glowHighlight;
 
-            outline.color = Global.getSector().getPlayerFaction().getGridUIColor();
+            outline.color = grid;
 
             createPanel();
         }
 
         @Override
         public void createPanel() {
-            final SettingsAPI settings = Global.getSettings();
-            final LabelAPI lbl = settings.createLabel(column.title, Fonts.ORBITRON_12);
-            lbl.setColor(settings.getBasePlayerColor());
-            final float lblWidth = lbl.computeTextWidth(lbl.getText());
+            final LabelAPI lbl = Global.getSettings().createLabel(column.title, Fonts.ORBITRON_12);
+            lbl.autoSizeToWidth(pos.getWidth());
+            lbl.setColor(base);
+            lbl.setAlignment(Alignment.MID);
             final float lblHeight = lbl.computeTextHeight(lbl.getText());
 
-            lbl.getPosition().inTL(
-                (pos.getWidth() / 2f) - (lblWidth / 2f),
-                (pos.getHeight() / 2f) - (lblHeight / 2f) 
-            );
-            add(lbl);
+            add(lbl).inBL(0f, (pos.getHeight() - lblHeight) / 2f );
 
             if (showSortIcon) {
                 final Base sortIcon = new Base(
-                    getPanel(),
-                    HEADER_HEIGHT - 2, HEADER_HEIGHT,
-                    sortIconPath,
-                    settings.getBasePlayerColor(),
-                    null
+                    m_panel, HEADER_HEIGHT - 2, HEADER_HEIGHT,
+                    sortIconPath, base, null
                 );
     
                 add(sortIcon).inBR(1, 0);
@@ -388,6 +336,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
 
             glow.color = dark;
             glow.type = GlowType.UNDERLAY;
+            glow.overlayBrightness = 0.5f;
 
             interaction.onClicked = (source, isLeftClick) -> {
                 SortableTable.this.selectRow(this);
@@ -396,42 +345,34 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         }
 
         public void createPanel() {
+            final SettingsAPI settings = Global.getSettings();
 
             int cumulativeXOffset = 0;
-            
             for (int i = 0; i < m_cellData.size(); i++) {
-                Object cell = m_cellData.get(i);
-                cellAlg alignment = m_cellAlignment.get(i);
-                Color useColor = m_useColor.get(i);
-                float colWidth = getColumns().get(i).width;
+                final Object cell = m_cellData.get(i);
+                final cellAlg alignment = m_cellAlignment.get(i);
+                final Color useColor = m_useColor.get(i);
+                final float colWidth = getColumns().get(i).width;
 
                 UIComponentAPI comp;
                 float compWidth;
                 float compHeight;
 
                 if (cell instanceof Number) {
-                    LabelAPI label = Global.getSettings().createLabel(String.valueOf(cell), Fonts.DEFAULT_SMALL);
+                    final LabelAPI label = settings.createLabel(String.valueOf(cell), Fonts.DEFAULT_SMALL);
                     comp = (UIComponentAPI) label;
                     compWidth = label.computeTextWidth(label.getText());
                     compHeight = label.computeTextHeight(label.getText());
 
-                    if (useColor != null) {
-                        label.setColor(useColor);
-                    } else {
-                        label.setColor(textColor);
-                    }
+                    label.setColor(useColor != null ? useColor : textColor);
 
                 } else if (cell instanceof String txt) {
-                    LabelAPI label = Global.getSettings().createLabel(txt, Fonts.DEFAULT_SMALL);
+                    final LabelAPI label = settings.createLabel(txt, Fonts.DEFAULT_SMALL);
                     comp = (UIComponentAPI) label;
                     compWidth = label.computeTextWidth(label.getText());
                     compHeight = label.computeTextHeight(label.getText());
 
-                    if (useColor != null) {
-                        label.setColor(useColor);
-                    } else {
-                        label.setColor(textColor);
-                    }
+                    label.setColor(useColor != null ? useColor : textColor);
 
                 } else if (cell instanceof SpritePanel sprite) {
                     comp = (UIComponentAPI) sprite.getPanel();
@@ -448,19 +389,15 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
                     compWidth = label.computeTextWidth(label.getText());
                     compHeight = label.computeTextHeight(label.getText());
 
-                    if (useColor != null) {
-                        label.setColor(useColor);
-                    } else {
-                        label.setColor(textColor);
-                    }
+                    label.setColor(useColor != null ? useColor : textColor);
 
                 } else {
                     throw new IllegalArgumentException("Unsupported cell type: " + cell.getClass());
                 }
 
-                float xOffset = calcXOffset(cumulativeXOffset, colWidth, compWidth, alignment);
-                float yOffset = (ROW_HEIGHT/2) - (compHeight/2);
-                m_panel.addComponent(comp).inBL(xOffset, yOffset);
+                final float xOffset = calcXOffset(cumulativeXOffset, colWidth, compWidth, alignment);
+                final float yOffset = (ROW_HEIGHT - compHeight) / 2f;
+                add(comp).inBL(xOffset, yOffset);
 
                 cumulativeXOffset += colWidth;
             }
@@ -565,13 +502,13 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
     /**
      * The call order of addCell must match the order of Columns.
      * Supports the following types:
-     * String, LabelAPI, {@link SpritePanel}, (? extends UIComponentAPI)
+     * String, LabelAPI, {@link SpritePanel}, {@link UIComponentAPI}
      */
     public void addCell(Object cell, cellAlg alg, Object sortValue, Color textColor) {
         if (pendingRow == null) {
             pendingRow = new RowPanel(
-                getParent(),
-                (int) pos.getWidth() - 2,
+                m_panel,
+                (int) pos.getWidth(),
                 ROW_HEIGHT
             );
         }
@@ -650,7 +587,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         createPanel(); // Refresh the table
     }
 
-    private Comparator<RowPanel> stringComparator = (a, b) -> {
+    private final Comparator<RowPanel> stringComparator = (a, b) -> {
         String valA = (String) a.getSortValue(selectedSortColumnIndex);
         String valB = (String) b.getSortValue(selectedSortColumnIndex);
 
@@ -658,7 +595,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         return ascending ? cmp : -cmp;
     };
 
-    private Comparator<RowPanel> numberComparator = (a, b) -> {
+    private final Comparator<RowPanel> numberComparator = (a, b) -> {
         Number valA = (Number) a.getSortValue(selectedSortColumnIndex);
         Number valB = (Number) b.getSortValue(selectedSortColumnIndex);
 
