@@ -90,49 +90,50 @@ public class BorderRenderer {
 
     public void render(float x, float y, float alpha) {
         {
-            bottom_left.setAlphaMult(alpha);
-            bottom_right.setAlphaMult(alpha);
-            top_left.setAlphaMult(alpha);
-            top_right.setAlphaMult(alpha);
-            left_mid.setAlphaMult(alpha);
-            right_mid.setAlphaMult(alpha);
-            top_mid.setAlphaMult(alpha);
-            bottom_mid.setAlphaMult(alpha);
+        bottom_left.setAlphaMult(alpha);
+        bottom_right.setAlphaMult(alpha);
+        top_left.setAlphaMult(alpha);
+        top_right.setAlphaMult(alpha);
+        left_mid.setAlphaMult(alpha);
+        right_mid.setAlphaMult(alpha);
+        top_mid.setAlphaMult(alpha);
+        bottom_mid.setAlphaMult(alpha);
         }
 
         final boolean hideLeft = hiddenSides.contains(BorderSide.LEFT);
         final boolean hideRight = hiddenSides.contains(BorderSide.RIGHT);
         final boolean hideTop = hiddenSides.contains(BorderSide.TOP);
         final boolean hideBottom = hiddenSides.contains(BorderSide.BOTTOM);
+
+        final float leftOffset  = (compensateForHiddenSides && hideLeft)  ? -corner_width : 0f;
+        final float bottomOffset= (compensateForHiddenSides && hideBottom)? -corner_width : 0f;
+
+        if (renderCenter) {
+            center.setAlphaMult(alpha);
+            final float fudge = 1f;
+            final float cx = x + corner_width + leftOffset;
+            final float cy = y + corner_width + bottomOffset;
+            final float cw = tilesWide + ((compensateForHiddenSides) ? ((hideLeft?1f:0f) +
+                (hideRight?1f:0f)) : 0f);
+            final float ch = tilesHigh + ((compensateForHiddenSides) ? ((hideBottom?1f:0f) +
+                (hideTop?1f:0f)) : 0f);
+            center.renderRegion(cx - fudge*5, cy - fudge*5, 0f, 0f, cw + fudge, ch + fudge);
+        }
         
         if (!hideBottom && !hideLeft) bottom_left.render(x, y);
         if (!hideBottom && !hideRight) bottom_right.render(x + width - corner_width, y);
         if (!hideTop && !hideLeft) top_left.render(x, y + height - corner_width);
         if (!hideTop && !hideRight) top_right.render(x + width - corner_width, y + height - corner_width);
 
-        if (!hideLeft) left_mid.renderRegion(x, y + corner_width, 0f, 0f, 1f, tilesHigh);
-        if (!hideRight) right_mid.renderRegion(x + width - corner_width, y + corner_width, 0f, 0f, 1f, tilesHigh);
+        final float verticalY  = y + corner_width + bottomOffset;
+        final float verticalH  = tilesHigh + ((compensateForHiddenSides) ? ((hideBottom?1f:0f) + (hideTop?1f:0f)) : 0f);
+        final float horizontalX = x + corner_width + leftOffset;
+        final float horizontalW = tilesWide + ((compensateForHiddenSides) ? ((hideLeft?1f:0f) + (hideRight?1f:0f)) : 0f);
 
-        if (!hideTop) top_mid.renderRegion(x + corner_width, y + height - corner_width, 0f, 0f, tilesWide, 1f);
+        if (!hideLeft) left_mid.renderRegion(x, verticalY, 0f, 0f, 1f, verticalH);
+        if (!hideRight) right_mid.renderRegion(x + width - corner_width, verticalY, 0f, 0f, 1f, verticalH);
 
-        if (!hideBottom) bottom_mid.renderRegion(x + corner_width, y, 0f, 0f, tilesWide, 1f);
-
-        if (renderCenter) {
-            center.setAlphaMult(alpha);
-
-            float cx = x + corner_width;
-            float cy = y + corner_width;
-            float cw = tilesWide;
-            float ch = tilesHigh;
-
-            if (compensateForHiddenSides) {
-                if (hiddenSides.contains(BorderSide.LEFT))   { cx -= corner_width; cw += 1f; }
-                if (hiddenSides.contains(BorderSide.RIGHT))  { cw += 1f; }
-                if (hiddenSides.contains(BorderSide.BOTTOM)) { cy -= corner_width; ch += 1f; }
-                if (hiddenSides.contains(BorderSide.TOP))    { ch += 1f; }
-            }
-
-            center.renderRegion(cx, cy, 0f, 0f, cw, ch);
-        }
+        if (!hideTop) top_mid.renderRegion(horizontalX, y + height - corner_width, 0f, 0f, horizontalW, 1f);
+        if (!hideBottom) bottom_mid.renderRegion(horizontalX, y, 0f, 0f, horizontalW, 1f);
     }
 }

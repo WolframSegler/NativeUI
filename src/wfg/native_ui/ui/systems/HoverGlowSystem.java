@@ -6,7 +6,6 @@ import com.fs.starfarer.api.util.FaderUtil.State;
 
 import wfg.native_ui.ui.components.HoverGlowComp;
 import wfg.native_ui.ui.components.InputSnapshotComp;
-import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.UIComponentContainer;
 import wfg.native_ui.ui.components.UIContextComp;
@@ -25,7 +24,6 @@ public final class HoverGlowSystem extends BaseSystem {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.HOVER_GLOW, new HoverGlowComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
-        comp.setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
         element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
     }
 
@@ -52,13 +50,12 @@ public final class HoverGlowSystem extends BaseSystem {
     public final void renderBelow(final CustomPanel<?> element, float alpha) {
         final var comp = element.comp();
         final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
-        final LayoutOffsetComp offset = comp.get(NativeComponents.LAYOUT_OFFSET);
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
         if (glow.fader.getBrightness() <= 0f) return;
 
         switch (glow.type) {
             case UNDERLAY:
-                drawGlowLayer(alpha, input, glow, offset, element);
+                drawGlowLayer(alpha, input, glow, element);
                 break;
 
             default: break;
@@ -70,13 +67,12 @@ public final class HoverGlowSystem extends BaseSystem {
     public final void render(final CustomPanel<?> element, float alpha) {
         final var comp = element.comp();
         final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
-        final LayoutOffsetComp offset = comp.get(NativeComponents.LAYOUT_OFFSET);
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
         if (glow.fader.getBrightness() <= 0) return;
 
         switch (glow.type) {
         case OVERLAY:
-            drawGlowLayer(alpha, input, glow, offset, element);
+            drawGlowLayer(alpha, input, glow, element);
             break;
 
         case ADDITIVE:
@@ -91,7 +87,7 @@ public final class HoverGlowSystem extends BaseSystem {
                     glowAmount
                 );
             } else {
-                drawGlowLayer(alpha, input, glow, offset, element);
+                drawGlowLayer(alpha, input, glow, element);
             }
             break;
             
@@ -100,7 +96,7 @@ public final class HoverGlowSystem extends BaseSystem {
     }
 
     private final void drawGlowLayer(float alpha, InputSnapshotComp input, HoverGlowComp glow,
-        LayoutOffsetComp offset, CustomPanel<?> element
+        CustomPanel<?> element
     ) {
 
         final float effectiveAlpha = glow.overlayBrightness * glow.fader.getBrightness() * alpha;
@@ -112,10 +108,10 @@ public final class HoverGlowSystem extends BaseSystem {
         } else {
             final PositionAPI pos = element.getPos();
             RenderUtils.drawQuad(
-                pos.getX() + offset.x,
-                pos.getY() + offset.y,
-                pos.getWidth() + offset.w,
-                pos.getHeight() + offset.h,
+                pos.getX() + glow.offset.x,
+                pos.getY() + glow.offset.y,
+                pos.getWidth() + glow.offset.w,
+                pos.getHeight() + glow.offset.h,
                 glow.color, brightness, glow.type == GlowType.ADDITIVE
             );
         }

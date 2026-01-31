@@ -2,14 +2,19 @@ package wfg.native_ui.ui.panels;
 
 import static wfg.native_ui.util.UIConstants.pad;
 
+import java.util.List;
+
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.internal.util.BorderRenderer.BorderSide;
 import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.util.NativeUiUtils;
 
 public abstract class DockPanel extends CustomPanel<DockPanel> {
     
@@ -17,11 +22,17 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
         LEFT, RIGHT, TOP, BOTTOM
     }
 
-    public boolean isOpen = false;
-    public float durIn, durOut = 0.3f;
+    public boolean removeWhenClosed = false;
+    public boolean loseAttention = true;
+    public float durIn = 0.3f;
+    public float durOut = 0.3f;
+    public float bgAlpha = 0.85f;
+
+    protected boolean isOpen = false;
 
     protected DockDirection dockDir = DockDirection.LEFT;
-    protected float offsetX, offsetY = 0f;
+    protected float offsetX = 0f;
+    protected float offsetY = 0f;
     
     protected Vector2f targetPos;
     protected float progress = 0f;
@@ -29,14 +40,28 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
     protected BorderRenderer border;
     protected String borderPrefix = "ui_border1";
 
-    public DockPanel(final int width, final int height, final DockDirection dir) {
-        super(Attachments.getScreenPanel(), width, height);
-        Attachments.getScreenPanel().addComponent(m_panel);
+    public DockPanel(int width, int height, final DockDirection dir) {
+        this(Attachments.getScreenPanel(), width, height, dir);
+    }
+
+    public DockPanel(final UIPanelAPI parent, int width, int height, final DockDirection dir) {
+        super(parent, width, height);
+        parent.addComponent(m_panel);
 
         border = new BorderRenderer(borderPrefix, width, height, BorderSide.LEFT);
         targetPos = calculateTargetPos();
+        updatePosition();
     }
     public void createPanel() {}
+
+    public boolean isOpen() { return isOpen;}
+    public void close() { isOpen = false;}
+    public void open() { open(false);}
+    public void open(boolean guardIfProgressHigh) {
+        if (guardIfProgressHigh && progress > 0.6f) return;
+        isOpen = true;
+        m_parent.bringComponentToTop(m_panel);
+    }
 
     public void changeOffset(final float x, final float y) {
         offsetX = x; offsetY = y;
@@ -70,6 +95,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
 
     @Override
     public void advance(final float delta) {
+        super.advance(delta);
         final float target = isOpen ? 1f : 0f;
         final float speed = isOpen ?
             (durIn > 0f ? 1f / durIn : Float.POSITIVE_INFINITY) :
@@ -81,15 +107,40 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
 
             updatePosition();
         }
+
+        if (!isOpen && removeWhenClosed && progress < 0.005f) {
+            m_parent.removeComponent(m_panel);
+        }
     }
 
     @Override
     public void renderBelow(final float alpha) {
         super.renderBelow(alpha);
-        final PositionAPI pos = getPos();
 
         if (border != null) {
-            border.render(pos.getX() - pad, pos.getY() - pad, alpha);
+            border.render(pos.getX() - pad, pos.getY() - pad, alpha * bgAlpha);
+        }
+    }
+
+    @Override
+    public void processInput(List<InputEventAPI> events) {
+        super.processInput(events);
+
+        for (InputEventAPI event : events) {
+            if (!event.isMouseEvent() || !pos.containsEvent(event)) continue;
+
+            event.consume();
+        }
+
+        if (!loseAttention || (!isOpen && removeWhenClosed)) return;
+
+        for (InputEventAPI event : events) {
+            if ((event.isKeyDownEvent() && !event.isModifierKey()) ||
+                (event.isMouseUpEvent()) && !event.isConsumed()
+            ) { close(); break; }
+        }
+        if (NativeUiUtils.isMouseDown() && !NativeUiUtils.containsMouse(pos)) {
+            close();
         }
     }
 

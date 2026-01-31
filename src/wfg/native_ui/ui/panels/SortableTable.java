@@ -114,6 +114,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
 
     public boolean showSortIcon = true;
     public boolean sortingEnabled = true;
+    public int columnGap = 5;
 
     private int selectedSortColumnIndex = -1;
     private boolean ascending = true;
@@ -138,6 +139,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         HEADER_HEIGHT = headerHeight;
         ROW_HEIGHT = rowHeight;
 
+        outline.color = NativeUiUtils.adjustBrightness(new Color(grid.getRed(), grid.getGreen(), grid.getBlue()), 0.3f);
         outline.enabled = false;
         context.ignore = true;
     }
@@ -165,11 +167,11 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
                 }
 
                 width = mergedW;
-                padOffset = (lastIndex == m_columns.size() - 1) ? 0 : 5;
+                padOffset = (lastIndex == m_columns.size() - 1) ? 0 : columnGap;
 
             } else {
                 width = column.width;
-                padOffset = (i == m_columns.size() - 1) ? 0 : 5;
+                padOffset = (i == m_columns.size() - 1) ? 0 : columnGap;
             }
 
             final HeaderPanel panel;
@@ -191,12 +193,12 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
 
         // create rows
         final TooltipMakerAPI tp = ComponentFactory.createTooltip(
-            pos.getWidth() + pad, true
+            pos.getWidth(), true
         );
 
-        int cumulativeYOffset = pad;
+        int cumulativeYOffset = 0;
         for (RowPanel row : m_rows) {
-            tp.addComponent(row.getPanel()).inTL(opad + pad, cumulativeYOffset);
+            tp.addComponent(row.getPanel()).inTL(pad, cumulativeYOffset);
 
             cumulativeYOffset += ROW_HEIGHT;
         }
@@ -204,7 +206,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         tp.setHeightSoFar(cumulativeYOffset);
         ComponentFactory.addTooltip(tp, pos.getHeight() - (HEADER_HEIGHT + pad),
             true, m_panel
-        ).inTL(-opad, HEADER_HEIGHT + pad);
+        ).inTL(0f, HEADER_HEIGHT + pad);
     }
 
     private class HeaderPanel extends CustomPanel<HeaderPanel> implements
@@ -235,7 +237,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
 
             glow.color = glowHighlight;
 
-            outline.color = grid;
+            outline.color = NativeUiUtils.adjustBrightness(new Color(grid.getRed(), grid.getGreen(), grid.getBlue()), 0.3f);
 
             createPanel();
         }
@@ -252,11 +254,11 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
 
             if (showSortIcon) {
                 final Base sortIcon = new Base(
-                    m_panel, HEADER_HEIGHT - 2, HEADER_HEIGHT,
+                    m_panel, HEADER_HEIGHT - 3, HEADER_HEIGHT - 3,
                     sortIconPath, base, null
                 );
     
-                add(sortIcon).inBR(1, 0);
+                add(sortIcon).inTR(2, 1);
             }
         }
     }
@@ -352,7 +354,8 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
                 final Object cell = m_cellData.get(i);
                 final cellAlg alignment = m_cellAlignment.get(i);
                 final Color useColor = m_useColor.get(i);
-                final float colWidth = getColumns().get(i).width;
+                final float logicalW = getColumns().get(i).width;
+                final float visualW = logicalW - (i == m_cellData.size() - 1 ? 0 : columnGap);
 
                 UIComponentAPI comp;
                 float compWidth;
@@ -395,11 +398,11 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
                     throw new IllegalArgumentException("Unsupported cell type: " + cell.getClass());
                 }
 
-                final float xOffset = calcXOffset(cumulativeXOffset, colWidth, compWidth, alignment);
+                final float xOffset = calcXOffset(cumulativeXOffset, visualW, compWidth, alignment);
                 final float yOffset = (ROW_HEIGHT - compHeight) / 2f;
                 add(comp).inBL(xOffset, yOffset);
 
-                cumulativeXOffset += colWidth;
+                cumulativeXOffset += logicalW;
             }
         }
 
@@ -508,7 +511,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         if (pendingRow == null) {
             pendingRow = new RowPanel(
                 m_panel,
-                (int) pos.getWidth(),
+                (int) pos.getWidth() - pad*2,
                 ROW_HEIGHT
             );
         }

@@ -28,6 +28,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     public float borderThickness = 7f;
     public float noiseAlpha = 0.7f;
 
+    private float innerOffset = 0f;
     private UIComponentAPI currentPanel;
     private UIComponentAPI nextPanel;
     private BorderRenderer borderRenderer;
@@ -35,19 +36,18 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     private PanelFillRenderer foregroundLayer;
     private NoiseRenderer noiseRenderer;
     private final FaderUtil fader = new FaderUtil(1f, 0f);
-    private final int sizeOffset;
     private int backgroundAlphaMin = 125;
     private int backgroundAlphaMax = 175;
 
     public FoldingPanel(UIPanelAPI parent, int width, int height, String borderPrefix,
         int borderThickness
     ) {
-        super(parent, width + borderThickness * 2 + pad*2, height + borderThickness * 2 + pad*2);
-
-        sizeOffset = borderThickness * 2 + pad*2;
+        super(parent, width + (borderThickness + opad)*2, height + (borderThickness + opad)*2);
         
         this.borderThickness = borderThickness;
-        borderRenderer = new BorderRenderer(borderPrefix, width, height);
+        innerOffset = borderThickness + opad;
+
+        borderRenderer = new BorderRenderer(borderPrefix, width + innerOffset * 2f, height + innerOffset * 2f);
         initializeBackground();
         noiseRenderer.fadeOut(0.4f);
     }
@@ -71,7 +71,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     public void createPanel() {}
 
     public void setBorder(String prefix) {
-        borderRenderer = new BorderRenderer(prefix, getPos().getWidth(), getPos().getHeight());
+        borderRenderer = new BorderRenderer(prefix, pos.getWidth(), pos.getHeight());
     }
 
     public void setBackgroundAlpha(int min, int max) {
@@ -81,10 +81,12 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     }
 
     private void initializeBackground() {
-        final PositionAPI pos = getPos();
         final SettingsAPI settings = Global.getSettings();
+        final float width = pos.getWidth() - borderThickness * 2f;
+        final float height = pos.getHeight() - borderThickness * 2f;
+
         backgroundLayer = new PanelFillRenderer(settings.getSprite("ui", "scanline11"),
-            pos.getWidth() - pad * 3, pos.getHeight() - pad * 3
+            width, height
         );
         backgroundLayer.setColors(
             new Color(0, 0, 0, 125), new Color(0, 0, 0, backgroundAlphaMin));
@@ -92,15 +94,15 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
             new Color(0, 0, 0, 175), new Color(0, 0, 0, backgroundAlphaMax));
 
         backgroundLayer.useAdditiveBlend = false;
-        backgroundLayer.edgeSize = 7f;
+        backgroundLayer.edgeSize = borderThickness;
 
         foregroundLayer = new PanelFillRenderer(settings.getSprite("ui", "scanline11"),
-            pos.getWidth() - pad * 3, pos.getHeight() - pad * 3
+            width, height
         );
         foregroundLayer.useAdditiveBlend = true;
         foregroundLayer.setColors(new Color(10, 38, 44, 0), new Color(10, 38, 44, 0));
         noiseRenderer = new NoiseRenderer(settings.getSprite("ui", "noise"),
-            pos.getWidth() - pad * 3, pos.getHeight() - pad * 3
+            width, height
         );
     }
 
@@ -132,7 +134,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
         final float h = getContentHeight();
         remove(currentPanel);
         comp.getPosition().setSize(w, h);
-        addPositionOnly(comp).inTL(borderThickness, borderThickness);
+        addPositionOnly(comp).inBL(innerOffset, innerOffset);
         if (!transitionEnabled) {
             currentPanel = nextPanel;
             nextPanel = null;
@@ -141,23 +143,23 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     }
 
     public PositionAPI setSize(float width, float height) {
+        pos.setSize(width, height);
+        initializeBackground();
+
         if (currentPanel != null) {
             currentPanel.getPosition().setSize(
-                width - sizeOffset, height - sizeOffset
+                getContentWidth(), getContentHeight()
             );
         }
-
-        final PositionAPI pos = getPos().setSize(width, height);
-        initializeBackground();
         return pos;
     }
 
     public float getContentWidth() {
-        return getPos().getWidth() - sizeOffset;
+        return pos.getWidth() - innerOffset * 2f;
     }
 
     public float getContentHeight() {
-        return getPos().getHeight() - sizeOffset;
+        return pos.getHeight() - innerOffset * 2f;
     }
 
     public void flickerNoise(float inDuration, float outDuration) {
@@ -207,33 +209,39 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
         final float heightScale = Math.min(1f, brightness / 0.75f);
         final float transitionAlpha = Math.max(0f, (brightness - 0.75f) / 0.25f);
         final float borderAlphaFactor = Math.min(1f, brightness / 0.25f);
-        final float panelWidth = pos.getWidth();
-        final float panelHeight = pos.getHeight() * heightScale;
+
+        final float maxH = pos.getHeight();
+        final float w = pos.getWidth();
+        final float h = (maxH * heightScale);
 
         final float x = pos.getX();
-        final float y = pos.getY() + pos.getHeight() / 2f - panelHeight / 2f;
+        final float y = (pos.getY() + (maxH - h) / 2f);
+        final float bx = x + borderThickness;
+        final float by = y + borderThickness;
+
+        final float scale = Global.getSettings().getScreenScaleMult();
+        final int scissorX = (int) ((x + innerOffset) * scale);
+        final int scissorY = (int) ((y + innerOffset) * scale);
+        final int scissorW = (int) ((w - innerOffset * 2f) * scale);
+        final int scissorH = (int) ((h - innerOffset * 2f) * scale);
+
         if (renderBackground) {
-            borderRenderer.setSize(panelWidth, panelHeight);
+            borderRenderer.setSize(w, h);
             borderRenderer.render(x, y, brightness * borderAlphaFactor);
         }
 
         if (brightness != 1f || isAlwaysScissor) {
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            
-            final float scale = Global.getSettings().getScreenScaleMult();
-            final int scissorX = (int) (x + borderThickness * scale);
-            final int scissorY = (int) (y + borderThickness * scale);
-            final int scissorW = (int) ((panelWidth - sizeOffset) * scale);
-            final int scissorH = (int) ((panelHeight - sizeOffset) * scale);
-            GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
         }
 
+        GL11.glScissor((int) x, (int) y, (int) w, (int) h);
         if (renderBackground) {
-            backgroundLayer.renderVerticalGradient(pos.getX() + pad, pos.getY() + pad,
+            backgroundLayer.renderVerticalGradient(bx, by,
                 brightness * borderAlphaFactor
             );
         }
 
+        GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
         if (currentPanel != null) {
             if (transitionEnabled && renderBackground) {
             currentPanel.render(transitionAlpha * brightness * (1f - noiseRenderer.getBrightness()));
@@ -242,11 +250,12 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
             }
         }
 
+        GL11.glScissor((int) x, (int) y, (int) w, (int) h);
         if (renderBackground) {
-            foregroundLayer.renderVerticalGradient(pos.getX() + pad, pos.getY() + pad, 
+            foregroundLayer.renderVerticalGradient(bx, by,
                 brightness * borderAlphaFactor
             );
-            noiseRenderer.render(pos.getX() + pad, pos.getY() + pad,
+            noiseRenderer.render(bx, by,
                 brightness * noiseAlpha
             );
         }

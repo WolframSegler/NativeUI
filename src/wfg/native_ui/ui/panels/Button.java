@@ -16,13 +16,11 @@ import com.fs.starfarer.api.util.FaderUtil;
 
 import wfg.native_ui.ui.components.HoverGlowComp;
 import wfg.native_ui.ui.components.InteractionComp;
-import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
 import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
-import wfg.native_ui.ui.core.UIElementFlags.HasLayoutOffset;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
 import wfg.native_ui.util.CallbackRunnable;
@@ -45,11 +43,10 @@ import wfg.native_ui.util.RenderUtils;
  * </p>
  */
 public class Button extends CustomPanel<Button> implements 
-    HasHoverGlow, HasInteraction, HasTooltip, HasUIContext, HasLayoutOffset
+    HasHoverGlow, HasInteraction, HasTooltip, HasUIContext
 {
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
-    public final LayoutOffsetComp offset = comp().get(NativeComponents.LAYOUT_OFFSET); 
     protected final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
     protected final InteractionComp<Button> interaction = comp().get(NativeComponents.INTERACTION);
 
@@ -253,10 +250,10 @@ public class Button extends CustomPanel<Button> implements
     public void renderBelow(float alpha) {
         super.renderBelow(alpha);
         
-        final float x = pos.getX() + offset.x;
-        final float y = pos.getY() + offset.y;
-        final float w = pos.getWidth() + offset.w;
-        final float h = pos.getHeight() + offset.h;
+        final float x = pos.getX();
+        final float y = pos.getY();
+        final float w = pos.getWidth();
+        final float h = pos.getHeight();
         final float cutSize = computeCut((int) w, (int) h);
 
         final float[] cuts = cutStyle.toVector4();
@@ -296,10 +293,10 @@ public class Button extends CustomPanel<Button> implements
         for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
 
         return RenderUtils.buildCornersVertices(
-            pos.getX() + offset.x,
-            pos.getY() + offset.y,
-            pos.getWidth() + offset.w,
-            pos.getHeight() + offset.h,
+            pos.getX(),
+            pos.getY(),
+            pos.getWidth(),
+            pos.getHeight(),
             cuts
         );
     }

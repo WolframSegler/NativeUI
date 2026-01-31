@@ -4,6 +4,7 @@ import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
@@ -45,9 +46,9 @@ public class NativeUiUtils {
      * values below 1 lower brightness. Values above 1 increase it.
      */
     public static final Color adjustBrightness(Color base, float factor) {
-        int r = Math.min(255, (int) (base.getRed()   * factor));
+        int r = Math.min(255, (int) (base.getRed() * factor));
         int g = Math.min(255, (int) (base.getGreen() * factor));
-        int b = Math.min(255, (int) (base.getBlue()  * factor));
+        int b = Math.min(255, (int) (base.getBlue() * factor));
         
         return new Color(r, g, b, base.getAlpha());
     }
@@ -311,7 +312,7 @@ public class NativeUiUtils {
     /**
      * Positions the tooltip at a corner of the mouse.
      */
-    public static void mouseCornerPos(TooltipMakerAPI tooltip, int opad) {
+    public static final void mouseCornerPos(TooltipMakerAPI tooltip, int opad) {
         final int mouseSize = 40;
         final float correction = 8f;
 
@@ -351,5 +352,20 @@ public class NativeUiUtils {
 
         pos.setXAlignOffset(offsetX);
         pos.setYAlignOffset(offsetY);
+    }
+
+    public static final boolean containsMouse(final PositionAPI pos) {
+        final float x = pos.getX();
+        final float y = pos.getY();
+        final float w = pos.getWidth();
+        final float h = pos.getHeight();
+        final float mx = Mouse.getX();
+        final float my = Mouse.getY();
+
+        return mx >= x && mx <= x + w && my >= y && my <= y + h;
+    }
+
+    public static final boolean isMouseDown() {
+        return Mouse.isButtonDown(0) || Mouse.isButtonDown(1);
     }
 }

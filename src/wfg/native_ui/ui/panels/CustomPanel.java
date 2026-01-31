@@ -13,7 +13,6 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.components.UIComponentContainer;
-import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.core.UIElementFlags;
@@ -102,10 +101,6 @@ public abstract class CustomPanel<
     }
 
     protected void initSystems() {
-        if (this instanceof UIElementFlags.HasLayoutOffset) {
-            comp().setIfNotPresent(NativeComponents.LAYOUT_OFFSET, new LayoutOffsetComp());
-        }
-
         if (this instanceof UIElementFlags.HasUIContext) {
             comp().setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
         }

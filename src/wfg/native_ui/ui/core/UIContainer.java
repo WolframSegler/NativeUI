@@ -80,6 +80,15 @@ public class UIContainer extends UIElement implements UIContainerAPI {
     public PositionAPI addComponent(UIComponentAPI var1) { return add(var1);}
     public void removeComponent(UIComponentAPI var1) { remove(var1); }
 
+    public PositionAPI addPos(UIComponentAPI element) {
+        // pos.addChild(element.getPosition());
+        return element.getPosition();
+    }
+
+    public void removePos(UIComponentAPI element) {
+        // pos.removeChild(element.getPosition());
+    }
+
     public void bringComponentToTop(UIComponentAPI element) { bringToTop(element);}
     public void bringToTop(UIComponentAPI element) {
         if (children.remove(element)) {

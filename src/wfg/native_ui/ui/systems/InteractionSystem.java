@@ -50,6 +50,7 @@ public final class InteractionSystem extends BaseSystem {
                     event.getEventValue() == listen.shortcut
                 ) {
                     listen.onShortcutPressed.run(element);
+                    event.consume();
                     break;
                 }
             }

@@ -1,3 +1,9 @@
+v0.3.1-beta
+- Fixed issues with Dock Panel
+- Fixed alignment issues with SortableTable
+- Each component now has its own offset.
+- Interaction shortcuts are now consumed
+
 v0.3.0-beta
 - Modified HasTooltip to reduce boilerplate.
 - Turned all the interfaces of CustomPanel to components.

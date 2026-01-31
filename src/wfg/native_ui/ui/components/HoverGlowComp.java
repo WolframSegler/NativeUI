@@ -22,6 +22,7 @@ public final class HoverGlowComp extends BaseComponent {
     public float additiveBrightness = 0.6f;
     public Color color = Color.WHITE;
     public SpriteAPI additiveSprite = null;
+    public final LayoutOffset offset = new LayoutOffset();
 
     /**
      * The polygon vertices of the background shape in CCW order.

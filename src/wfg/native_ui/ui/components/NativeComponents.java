@@ -7,7 +7,6 @@ package wfg.native_ui.ui.components;
  */
 public enum NativeComponents {
     INPUT_SNAPSHOT,
-    LAYOUT_OFFSET,
     UI_CONTEXT,
     AUDIO_FEEDBACK,
     BACKGROUND,

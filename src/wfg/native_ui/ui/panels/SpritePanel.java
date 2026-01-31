@@ -7,7 +7,6 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import wfg.native_ui.ui.components.LayoutOffsetComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.OutlineComp;
 import wfg.native_ui.ui.components.UIContextComp;
@@ -48,7 +47,6 @@ public class SpritePanel<
 > extends CustomPanel<PanelType> implements HasOutline, HasUIContext {
 
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
-    public final LayoutOffsetComp offset = comp().get(NativeComponents.LAYOUT_OFFSET);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
     public boolean drawTextureHalo = false;
