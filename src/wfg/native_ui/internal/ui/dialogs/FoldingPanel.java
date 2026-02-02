@@ -27,6 +27,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     public boolean isAlwaysScissor = false;
     public float borderThickness = 7f;
     public float noiseAlpha = 0.7f;
+    public float borderAlpha = 1f;
 
     private float innerOffset = 0f;
     private UIComponentAPI currentPanel;
@@ -94,7 +95,6 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
             new Color(0, 0, 0, 175), new Color(0, 0, 0, backgroundAlphaMax));
 
         backgroundLayer.useAdditiveBlend = false;
-        backgroundLayer.edgeSize = borderThickness;
 
         foregroundLayer = new PanelFillRenderer(settings.getSprite("ui", "scanline11"),
             width, height
@@ -227,7 +227,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
 
         if (renderBackground) {
             borderRenderer.setSize(w, h);
-            borderRenderer.render(x, y, brightness * borderAlphaFactor);
+            borderRenderer.render(x, y, brightness * borderAlphaFactor * borderAlpha);
         }
 
         if (brightness != 1f || isAlwaysScissor) {
