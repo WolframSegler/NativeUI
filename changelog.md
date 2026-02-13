@@ -3,6 +3,8 @@ v0.3.1-beta
 - Fixed alignment issues with SortableTable
 - Each component now has its own offset.
 - Interaction shortcuts are now consumed
+- Fixed table column tooltips
+- Added outside click detector
 
 v0.3.0-beta
 - Modified HasTooltip to reduce boilerplate.

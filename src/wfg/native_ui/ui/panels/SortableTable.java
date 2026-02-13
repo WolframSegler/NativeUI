@@ -236,6 +236,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
             };
 
             glow.color = glowHighlight;
+            glow.offset.setOffset(1, 1, -2, -2);
 
             outline.color = NativeUiUtils.adjustBrightness(new Color(grid.getRed(), grid.getGreen(), grid.getBlue()), 0.3f);
 
@@ -282,7 +283,6 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
                     column.tooltip.getClass()
                 );
             }
-
             tooltip.positioner = (tooltip, expanded) -> {
                 NativeUiUtils.anchorPanelWithBounds(tooltip, m_panel, AnchorType.TopLeft, 0);
             };
@@ -331,8 +331,6 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
 
         public RowPanel(UIPanelAPI parent, int width, int height) {
             super(parent, width, height);
-
-            tooltip.parent = SortableTable.this.m_panel;
             context.ignore = true;
             outline.enabled = false;
 

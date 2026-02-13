@@ -35,6 +35,7 @@ public class RawInputSystem extends BaseSystem {
         final float h = pos.getHeight();
 
         for (InputEventAPI event : events) {
+            if (event.isConsumed()) continue;
             
             if (event.isMouseMoveEvent()) {
                 input.mouseEvent = event;

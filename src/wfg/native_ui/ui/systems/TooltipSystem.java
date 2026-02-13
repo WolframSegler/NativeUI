@@ -5,15 +5,14 @@ import static wfg.native_ui.util.UIConstants.pad;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import rolflectionlib.util.RolfLectionUtil;
-import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.components.InputSnapshotComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
 import wfg.native_ui.ui.components.UIComponentContainer;
 import wfg.native_ui.ui.components.UIContextComp;
+import wfg.native_ui.ui.core.UITooltip;
 import wfg.native_ui.ui.panels.CustomPanel;
 
 public final class TooltipSystem extends BaseSystem {
@@ -65,44 +64,43 @@ public final class TooltipSystem extends BaseSystem {
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
 
         if (!spec.enabled || !context.isValid()) {
-            spec.hoverTime_internal = 0f;
+            spec.internal_hoverTime = 0f;
             hideTooltip(spec);
             return;
         }
 
         if (input.hoveredLastFrame && !input.hasLMBClickedBefore && spec.builder != null) {
-            spec.hoverTime_internal += delta;
-            if (spec.hoverTime_internal >= spec.delay) {
+            spec.internal_hoverTime += delta;
+            if (spec.internal_hoverTime >= spec.delay) {
                 showTooltip(spec);
             }
         } else {
-            spec.hoverTime_internal = 0f;
+            spec.internal_hoverTime = 0f;
             hideTooltip(spec);
         }
     }
 
     private final void showTooltip(TooltipComp spec) {
-        if (spec.tp_internal != null) return;
+        if (spec.internal_tp != null) return;
 
         final var tp = createTp(spec);
         tp.createImpl(false);
-        spec.tp_internal = tp;
+        spec.internal_tp = tp;
 
-        ComponentFactory.addTooltip(tp, 0f, spec.useScroller, spec.parent);
+        tp.attach();
         spec.positioner.position(tp, false);
-        spec.parent.bringComponentToTop(tp);
     }
 
     private final void hideTooltip(TooltipComp spec) {
-        if (spec.tp_internal != null) {
-            spec.parent.removeComponent(spec.tp_internal);
-            spec.tp_internal = null;
+        if (spec.internal_tp != null) {
+            spec.internal_tp.detach();
+            spec.internal_tp = null;
         }
     }
 
-    private static final StandardTooltipV2Expandable createTp(TooltipComp spec) {
-        final StandardTooltipV2Expandable tp = new StandardTooltipV2Expandable(
-            spec.width - 10f - (spec.useScroller ? 5f : 0f), spec.expandable
+    private static final UITooltip createTp(TooltipComp spec) {
+        final UITooltip tp = new UITooltip(
+            spec.width - 10f, spec.expandable, spec.useScroller
         ) {
             @Override
             public void createImpl(boolean expanded) {

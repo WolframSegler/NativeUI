@@ -15,7 +15,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.codex2.CodexDialog;
 
-import wfg.native_ui.internal.ui.plugins.ModalInterceptorPlugin;
+import wfg.native_ui.internal.ui.panel.ModalInterceptor;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panels.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
@@ -54,10 +54,7 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
         super(parent, width, height);
 
         delegate = dialogDismissed;
-        inputInterceptor = Global.getSettings().createCustom(
-            Global.getSettings().getScreenWidth(), Global.getSettings().getScreenHeight(),
-            new ModalInterceptorPlugin(this)
-        );
+        inputInterceptor = new ModalInterceptor(m_parent, this).getPanel();
     }
 
     public void createPanel() {}

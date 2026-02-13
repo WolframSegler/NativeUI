@@ -11,12 +11,13 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import wfg.native_ui.internal.ui.panel.OutsideEventDetector;
+import wfg.native_ui.internal.ui.panel.OutsideEventDetector.OutisdeEventListener;
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.internal.util.BorderRenderer.BorderSide;
 import wfg.native_ui.ui.Attachments;
-import wfg.native_ui.util.NativeUiUtils;
 
-public abstract class DockPanel extends CustomPanel<DockPanel> {
+public abstract class DockPanel extends CustomPanel<DockPanel> implements OutisdeEventListener {
     
     public static enum DockDirection {
         LEFT, RIGHT, TOP, BOTTOM
@@ -40,12 +41,15 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
     protected BorderRenderer border;
     protected String borderPrefix = "ui_border1";
 
+    protected final OutsideEventDetector detector;
+
     public DockPanel(int width, int height, final DockDirection dir) {
         this(Attachments.getScreenPanel(), width, height, dir);
     }
 
     public DockPanel(final UIPanelAPI parent, int width, int height, final DockDirection dir) {
         super(parent, width, height);
+        detector = new OutsideEventDetector(this);
         parent.addComponent(m_panel);
 
         border = new BorderRenderer(borderPrefix, width, height, BorderSide.LEFT);
@@ -60,6 +64,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
     public void open(boolean guardIfProgressHigh) {
         if (guardIfProgressHigh && progress > 0.6f) return;
         isOpen = true;
+        detector.attach();
         m_parent.bringComponentToTop(m_panel);
     }
 
@@ -123,6 +128,15 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
     }
 
     @Override
+    public final void outsideClicked(boolean isLeft) {
+        close();
+    }
+    @Override
+    public final void buttonPressed(int lwjgl_key) {
+        close();
+    }
+
+    @Override
     public void processInput(List<InputEventAPI> events) {
         super.processInput(events);
 
@@ -130,17 +144,6 @@ public abstract class DockPanel extends CustomPanel<DockPanel> {
             if (!event.isMouseEvent() || !pos.containsEvent(event)) continue;
 
             event.consume();
-        }
-
-        if (!loseAttention || (!isOpen && removeWhenClosed)) return;
-
-        for (InputEventAPI event : events) {
-            if ((event.isKeyDownEvent() && !event.isModifierKey()) ||
-                (event.isMouseUpEvent()) && !event.isConsumed()
-            ) { close(); break; }
-        }
-        if (NativeUiUtils.isMouseDown() && !NativeUiUtils.containsMouse(pos)) {
-            close();
         }
     }
 

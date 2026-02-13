@@ -3,9 +3,8 @@ package wfg.native_ui.ui.components;
 import static wfg.native_ui.util.UIConstants.opad;
 
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.ui.core.UITooltip;
 import wfg.native_ui.ui.systems.TooltipSystem;
 import wfg.native_ui.util.NativeUiUtils;
 
@@ -15,7 +14,6 @@ public final class TooltipComp extends BaseComponent {
     public float bgAlpha = 1f;
     public boolean expandable = false;
     public boolean useScroller = false;
-    public UIPanelAPI parent = Attachments.getScreenPanel();
     public String codexID = null;
     public String expandTxt = null;
     public String unexpandTxt = null;
@@ -28,9 +26,9 @@ public final class TooltipComp extends BaseComponent {
 
 
     /** Internal: only used by {@link TooltipSystem}, do not access */
-    public TooltipMakerAPI tp_internal;
+    public UITooltip internal_tp;
     /** Internal: only used by {@link TooltipSystem}, do not access */
-    public float hoverTime_internal = 0f;
+    public float internal_hoverTime = 0f;
 
     
     @FunctionalInterface
