@@ -5,6 +5,9 @@ v0.3.1-beta
 - Interaction shortcuts are now consumed
 - Fixed table column tooltips
 - Added outside click detector
+- Fixed lack of MouseMoveEvent not updating the mouse position
+- Fixed text padding inside DialogPanel
+- Fixed invisible panels getting a tooltip
 
 v0.3.0-beta
 - Modified HasTooltip to reduce boilerplate.

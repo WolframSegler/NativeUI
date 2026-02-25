@@ -1,6 +1,7 @@
 package wfg.native_ui.ui.core;
 
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
@@ -35,7 +36,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutisdeEve
         parent.bringComponentToTop(this);
     }
 
-    public PositionAPI getPos() { return getPosition(); }
+    public PositionAPI getPos() { return ((UIComponentAPI)this).getPosition(); }
     public void buttonPressed(int lwjgl_key) {
         detach();
     }

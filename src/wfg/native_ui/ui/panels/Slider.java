@@ -730,7 +730,7 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
         super.processInput(events);
         if (!userAdjustable && barHighlightFader == null) return;
 
-        final InputEventAPI event = input.mouseEvent;
+        final InputEventAPI event = input.mouseMoveEvent;
         if (event == null) return;
 
         if (barHighlightFader != null) {

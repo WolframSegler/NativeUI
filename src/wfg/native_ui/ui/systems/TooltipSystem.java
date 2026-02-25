@@ -56,6 +56,7 @@ public final class TooltipSystem extends BaseSystem {
         );
     }
 
+    // TODO fix bug causing tooltip to be visible even when its owner is invisible
     @Override
     public final void advance(final CustomPanel<?> element, float delta) {
         final var comp = element.comp();
@@ -69,7 +70,7 @@ public final class TooltipSystem extends BaseSystem {
             return;
         }
 
-        if (input.hoveredLastFrame && !input.hasLMBClickedBefore && spec.builder != null) {
+        if (spec.builder != null && input.hoveredLastFrame && !input.hasLMBClickedBefore) {
             spec.internal_hoverTime += delta;
             if (spec.internal_hoverTime >= spec.delay) {
                 showTooltip(spec);

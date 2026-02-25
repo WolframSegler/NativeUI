@@ -11,7 +11,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import wfg.native_ui.ui.events.IdentifiedPanel;
 import wfg.native_ui.ui.systems.BaseSystem;
 
-public class UIContainer extends UIElement implements UIContainerAPI {
+public class UIContainer extends UIEntity implements UIContainerAPI {
     private final List<UIComponentAPI> children = new ArrayList<>();
 
     public UIContainer(PositionAPI pos) {
@@ -26,7 +26,7 @@ public class UIContainer extends UIElement implements UIContainerAPI {
             // comp.getPosition().setParent(pos);
             // comp.setParent(this);
 
-            if (comp instanceof UIElementAPI element) {
+            if (comp instanceof UIEntityAPI element) {
                 element.reportAttached();
             }
         }
@@ -39,7 +39,7 @@ public class UIContainer extends UIElement implements UIContainerAPI {
             // comp.getPosition().setParent(null);
             // comp.setParent(null);
 
-            if (comp instanceof UIElementAPI element) {
+            if (comp instanceof UIEntityAPI element) {
                 element.reportDetached();
             }
         }

@@ -7,7 +7,7 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-public interface UIContainerAPI extends UIElementAPI, UIPanelAPI {
+public interface UIContainerAPI extends UIEntityAPI, UIPanelAPI {
     PositionAPI add(UIComponentAPI element);
     void remove(UIComponentAPI element);
 

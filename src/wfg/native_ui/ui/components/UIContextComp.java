@@ -8,6 +8,6 @@ public final class UIContextComp extends BaseComponent {
     public boolean ignore = false;
 
     public final boolean isValid() {
-        return ignore || UIContext.is(target);
+        return (ignore || UIContext.is(target)) && enabled;
     }
 }

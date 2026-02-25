@@ -131,9 +131,9 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
             innerPanel.addComponent((UIComponentAPI)txtLbl);
             txtLbl.setColor(btnTxtColor);
             txtLbl.getPosition().setSize(
-                innerPos.getWidth() - opad*2,
-                innerPos.getHeight() - BUTTON_H - opad*2
-            ).inTL(opad, opad);
+                innerPos.getWidth(),
+                innerPos.getHeight() - BUTTON_H
+            ).inTL(0f, 0f);
             txtLbl.setAlignment(Alignment.TL);
         }
 

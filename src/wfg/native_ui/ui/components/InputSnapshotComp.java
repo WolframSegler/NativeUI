@@ -16,7 +16,7 @@ public class InputSnapshotComp extends BaseComponent {
     public boolean hoverEnded = false;
     public boolean isActive = false;
 
-    public InputEventAPI mouseEvent = null;
+    public InputEventAPI mouseMoveEvent = null;
 
     public void resetFrameFlags() {
         LMBDownLastFrame = false;

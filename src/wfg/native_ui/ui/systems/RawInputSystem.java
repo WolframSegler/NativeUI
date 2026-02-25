@@ -28,17 +28,20 @@ public class RawInputSystem extends BaseSystem {
 
         input.resetFrameFlags();
 
-        final PositionAPI pos = element.getPos();
-        final float x = pos.getX();
-        final float y = pos.getY();
-        final float w = pos.getWidth();
-        final float h = pos.getHeight();
+        boolean mouseMovePresent = false;
 
         for (InputEventAPI event : events) {
             if (event.isConsumed()) continue;
             
             if (event.isMouseMoveEvent()) {
-                input.mouseEvent = event;
+                final PositionAPI pos = element.getPos();
+                final float x = pos.getX();
+                final float y = pos.getY();
+                final float w = pos.getWidth();
+                final float h = pos.getHeight();
+
+                mouseMovePresent = true;
+                input.mouseMoveEvent = event;
 
                 final float mouseX = event.getX();
                 final float mouseY = event.getY();
@@ -48,7 +51,7 @@ public class RawInputSystem extends BaseSystem {
                 input.hoveredLastFrame = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
 
                 input.hoverStarted = input.hoveredLastFrame && !hoveredBefore;
-                input.hoverEnded   = !input.hoveredLastFrame && hoveredBefore;
+                input.hoverEnded = !input.hoveredLastFrame && hoveredBefore;
             }
 
             if (event.isLMBDownEvent() && input.hoveredLastFrame) {
@@ -72,6 +75,11 @@ public class RawInputSystem extends BaseSystem {
                 if (input.hasRMBClickedBefore) input.RMBUpLastFrame = true;
                 input.hasRMBClickedBefore = false;
             }
+        }
+
+        if (!mouseMovePresent) {
+            input.hoveredLastFrame = false;
+            input.mouseMoveEvent = null;
         }
     }
 }

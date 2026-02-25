@@ -2,6 +2,7 @@ package wfg.native_ui.ui.panels;
 
 import java.util.List;
 
+import com.fs.graphics.util.Fader;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
@@ -52,9 +53,11 @@ public abstract class CustomPanel<
     public static final Object clearChildrenMethod;
     public static final Object getChildrenCopyMethod;
     public static final Object getChildrenNonCopyMethod;
+    public static final Object getFaderMethod;
     public static final Object addToPositionMethod;
     public static final Object removeFromPositionMethod;
     public static final Object positionSetParentMethod;
+    public static final Object isSlidOutMethod;
 
     static {
         final UIPanelAPI panelIns = Global.getSettings().createCustom(0, 0, null);
@@ -67,6 +70,8 @@ public abstract class CustomPanel<
             "getChildrenCopy", panelClazz);
         getChildrenNonCopyMethod = RolfLectionUtil.getMethod(
             "getChildrenNonCopy", panelClazz);
+        getFaderMethod = RolfLectionUtil.getMethod("getFader", panelClazz);
+        isSlidOutMethod = RolfLectionUtil.getMethod("isSlidOut", panelClazz);
         addToPositionMethod = RolfLectionUtil.getMethod("add", posClazz, 1);
         removeFromPositionMethod = RolfLectionUtil.getMethod("remove", posClazz, 1);
         positionSetParentMethod = RolfLectionUtil.getMethod("setParent", posClazz, 1);
@@ -203,6 +208,14 @@ public abstract class CustomPanel<
 
     public final void remove(UIComponentAPI a) {
         m_panel.removeComponent(a);
+    }
+
+    public final Fader getPanelFader() {
+        return (Fader) RolfLectionUtil.invokeMethodDirectly(getFaderMethod, m_panel);
+    }
+
+    public final boolean isSlidOut() {
+        return (boolean) RolfLectionUtil.invokeMethodDirectly(isSlidOutMethod, m_panel);
     }
 
     public PositionAPI addPositionOnly(UIComponentAPI comp) {

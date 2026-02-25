@@ -30,7 +30,7 @@ public abstract class BaseSystem {
     public void onRemove(final CustomPanel<?> element) {}
 
     public void processInput(final CustomPanel<?> element, final List<InputEventAPI> events) {}
-    public void advance(final CustomPanel<?> element, float amount) {}
+    public void advance(final CustomPanel<?> element, float delta) {}
     public void renderBelow(final CustomPanel<?> element, float alpha) {}
     public void render(final CustomPanel<?> element, float alpha) {}
 }
