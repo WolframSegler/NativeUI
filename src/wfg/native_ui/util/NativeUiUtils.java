@@ -153,7 +153,7 @@ public class NativeUiUtils {
 
         if (panel instanceof TooltipMakerAPI tp) {
             if (tp.getCodexEntryId() != null) {
-                heightCompensation += APICodexHeight / 2f;
+                heightCompensation = APICodexHeight / 2;
             }
         } 
 
@@ -163,7 +163,7 @@ public class NativeUiUtils {
         switch (type) {
         case LeftTop:
             offsetX = anchorX - panelX - panelW - gap + widthCompensation;
-            offsetY = anchorY + anchorH - panelY - panelH - heightCompensation;
+            offsetY = anchorY + anchorH - panelY - panelH;
             break;
 
         case LeftMid:
@@ -178,7 +178,7 @@ public class NativeUiUtils {
 
         case RightTop:
             offsetX = anchorX + anchorW - panelX + gap - widthCompensation;
-            offsetY = anchorY + anchorH - panelY - panelH - heightCompensation;
+            offsetY = anchorY + anchorH - panelY - panelH;
             break;
 
         case RightMid:

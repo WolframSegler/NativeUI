@@ -1,3 +1,6 @@
+v0.3.2-beta
+- Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils
+
 v0.3.1-beta
 - Fixed issues with Dock Panel
 - Fixed alignment issues with SortableTable

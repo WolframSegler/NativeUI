@@ -1,6 +1,5 @@
 # WrapUI
-A composition-oriented UI framework I created while working with Starsector's UI. Not feature-complete.  
-Feel free to create forks or contribute. Bug reports are also appreciated.
+Composition-oriented UI framework with direct use of panels instead of custom plugins.
 
 # Features
 - [`CustomPanel`](src/wfg/native_ui/ui/panels/CustomPanel.java) for clean injection into vanilla UI hierarchies
