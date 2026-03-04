@@ -69,8 +69,6 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
         this(100, 100, "ui_border1", 7);
     }
 
-    public void createPanel() {}
-
     public void setBorder(String prefix) {
         borderRenderer = new BorderRenderer(prefix, pos.getWidth(), pos.getHeight());
     }

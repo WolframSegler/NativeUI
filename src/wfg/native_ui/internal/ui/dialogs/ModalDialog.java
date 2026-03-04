@@ -57,8 +57,6 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
         inputInterceptor = new ModalInterceptor(m_parent, this).getPanel();
     }
 
-    public void createPanel() {}
-
     public UIPanelAPI getInterceptor() { return inputInterceptor; }
 
     public void outsideClickAbsorbed(InputEventAPI event) {}

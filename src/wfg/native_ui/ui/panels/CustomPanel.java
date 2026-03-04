@@ -84,16 +84,6 @@ public abstract class CustomPanel<
     protected final UIPanelAPI m_panel;
     protected final PositionAPI pos;
 
-    /**
-     * Ownership and lifecycle rules for child panels:
-     * <ul>
-     *   <li>The child <b>MUST NOT</b> add itself to the parent.
-     *       This prevents the child from being responsible for its own positioning,
-     *       since each panel handles positioning its children separately.</li>
-     *   <li>The parent <b>MUST NOT</b> call <code>{@link #createPanel()}</code>.
-     *      This ensures that the child’s members are fully initialized before panel creation.</li>
-     * </ul>
-     */
     public CustomPanel(UIPanelAPI parent, int width, int height) {
         m_parent = parent;
 
@@ -247,9 +237,4 @@ public abstract class CustomPanel<
     public final void setHeight(int height) {
         pos.setSize(pos.getWidth(), height);
     }
-
-    /**
-     * The method for populating the panel. Can be left empty.
-     */
-    public abstract void createPanel();
 }

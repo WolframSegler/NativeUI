@@ -29,6 +29,7 @@ import wfg.native_ui.ui.components.UIContextComp;
 import wfg.native_ui.ui.components.HoverGlowComp.GlowType;
 import wfg.native_ui.ui.components.InteractionComp.ClickHandler;
 import wfg.native_ui.ui.components.TooltipComp.TooltipBuilder;
+import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
 import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
 import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
@@ -91,17 +92,18 @@ import wfg.native_ui.util.NativeUiUtils.AnchorType;
  *
  * // Add table to UI panel and initialize it
  * parentPanel.addComponent(table.getPanel()).inTL(0, 0);
- * table.createPanel();
+ * table.buildUI();
  *
- * // Enable sorting by a particular column index. Calls createPanel() internally
+ * // Enable sorting by a particular column index. Calls buildUI() internally
  * table.sortRows(columnIndex);
  * }</pre>
  * <p>
  * This component supports tooltips both for headers and rows via {@link TooltipBuilder}.
  * <p>
  */
-public class SortableTable extends CustomPanel<SortableTable> implements HasOutline {
-
+public class SortableTable extends CustomPanel<SortableTable> implements
+    UIBuildableAPI, HasOutline
+{
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
@@ -144,7 +146,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         context.ignore = true;
     }
 
-    public void createPanel() {
+    public void buildUI() {
         clearChildren();
 
         // create columns
@@ -209,7 +211,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         ).inTL(0f, HEADER_HEIGHT + pad);
     }
 
-    private class HeaderPanel extends CustomPanel<HeaderPanel> implements
+    private class HeaderPanel extends CustomPanel<HeaderPanel> implements UIBuildableAPI,
         HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction, HasUIContext
     {
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
@@ -240,11 +242,11 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
 
             outline.color = NativeUiUtils.adjustBrightness(new Color(grid.getRed(), grid.getGreen(), grid.getBlue()), 0.3f);
 
-            createPanel();
+            buildUI();
         }
 
         @Override
-        public void createPanel() {
+        public void buildUI() {
             final LabelAPI lbl = Global.getSettings().createLabel(column.title, Fonts.ORBITRON_12);
             lbl.autoSizeToWidth(pos.getWidth());
             lbl.setColor(base);
@@ -311,8 +313,8 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         }
     }
 
-    public class RowPanel extends CustomPanel<RowPanel> 
-        implements HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
+    public class RowPanel extends CustomPanel<RowPanel> implements UIBuildableAPI,
+        HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
     {
         public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
         public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
@@ -344,7 +346,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
             };
         }
 
-        public void createPanel() {
+        public void buildUI() {
             final SettingsAPI settings = Global.getSettings();
 
             int cumulativeXOffset = 0;
@@ -546,7 +548,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
         if (onRowClicked != null) pendingRow.interaction.onClicked = onRowClicked;
         if (tp != null) pendingRow.tooltip.builder = tp;
         
-        pendingRow.createPanel();
+        pendingRow.buildUI();
         m_rows.add(pendingRow);
 
         pendingRow = null;
@@ -585,7 +587,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements HasOutl
             );
         }
 
-        createPanel(); // Refresh the table
+        buildUI();
     }
 
     private final Comparator<RowPanel> stringComparator = (a, b) -> {

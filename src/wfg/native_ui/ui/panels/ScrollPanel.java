@@ -51,7 +51,6 @@ public class ScrollPanel extends CustomPanel<ScrollPanel>
         contentPanel = Global.getSettings().createCustom(viewportWidth, viewportHeight, null);
         add(contentPanel).inBL(0, 0);
     }
-    public void createPanel() {}
 
     public UIPanelAPI getContentPanel() { return contentPanel; }
     public void addToContent(UIComponentAPI comp) {

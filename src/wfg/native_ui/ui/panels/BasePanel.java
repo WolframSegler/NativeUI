@@ -15,5 +15,4 @@ public class BasePanel extends CustomPanel<BasePanel> implements HasBackground {
     public BasePanel(UIPanelAPI parent, int width, int height) {
         super(parent, width, height);
     }
-    public void createPanel() {}
 }

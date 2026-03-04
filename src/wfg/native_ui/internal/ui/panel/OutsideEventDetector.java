@@ -25,7 +25,6 @@ public class OutsideEventDetector extends CustomPanel<OutsideEventDetector> {
         );
         listener = owner;
     }
-    public void createPanel() {};
 
     public final void attach() {
         m_parent.addComponent(m_panel);

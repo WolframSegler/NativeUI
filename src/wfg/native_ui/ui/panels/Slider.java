@@ -107,8 +107,6 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
 
         createLabel(null);
     }
-    
-    public void createPanel() {}
 
     private void createLabel(String fontInput) {
         final String font = fontInput == null ? Fonts.DEFAULT_SMALL : fontInput;

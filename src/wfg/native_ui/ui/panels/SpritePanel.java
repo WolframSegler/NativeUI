@@ -70,7 +70,6 @@ public class SpritePanel<
         if (color != null) texColor = color;
 
     }
-    public void createPanel() {}
 
     @Override
     public void positionChanged(PositionAPI position) {

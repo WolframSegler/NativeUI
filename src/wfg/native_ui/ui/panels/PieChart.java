@@ -30,8 +30,6 @@ public class PieChart extends CustomPanel<PieChart> implements
         this.data = data;
     }
 
-    public void createPanel() {}
-
     @Override
     public void render(float alpha) {
         super.render(alpha);

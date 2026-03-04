@@ -20,6 +20,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.internal.ui.dialogs.FoldingPanel;
 import wfg.native_ui.internal.ui.dialogs.ModalDialog;
+import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.panels.Button;
 import wfg.native_ui.ui.panels.Button.CutStyle;
 import wfg.native_ui.util.CallbackRunnable;
@@ -61,7 +62,7 @@ dlg.show(0.5f, 0.5f);
 
 <p><strong>Subclassing / customization</strong></p>
 <ul>
-<li>Subclass and populate {@link DialogPanel#innerPanel} in {@link #createPanel()}, add labels, tables or other components, and register buttons in {@link DialogPanel#optionsMap}.</li>
+<li>Subclass and populate {@link DialogPanel#innerPanel} in {@link #buildUI()}, add labels, tables or other components, and register buttons in {@link DialogPanel#optionsMap}.</li>
 <li>Override {@link #outsideClickAbsorbed(InputEventAPI)} to provide custom functionality.</li>
 
 </ul>
@@ -73,7 +74,7 @@ dlg.show(0.5f, 0.5f);
     }
 
     &#64;Override
-    public void createPanel() {
+    public void rebuildUI() {
         final LabelAPI text2 = Global.getSettings().createLabel(
             "Extra info", Fonts.INSIGNIA_LARGE
         );
@@ -87,7 +88,7 @@ dlg.show(0.5f, 0.5f);
 }
 </code></pre>
 */
-public class DialogPanel extends ModalDialog implements CallbackRunnable<Button> {
+public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>, UIBuildableAPI {
     public boolean noiseOnConfirmDismiss = true;
     public final UIPanelAPI innerPanel;
     public final FoldingPanel holo;
@@ -160,7 +161,8 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
         }
     }
 
-    public void createPanel() {}
+    /** Override */
+    public void buildUI() {}
 
     public PositionAPI setSize(float w, float h) {
         holo.setSize(w, h);

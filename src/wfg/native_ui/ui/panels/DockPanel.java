@@ -16,8 +16,11 @@ import wfg.native_ui.internal.ui.panel.OutsideEventDetector.OutisdeEventListener
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.internal.util.BorderRenderer.BorderSide;
 import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.ui.core.UIBuildableAPI;
 
-public abstract class DockPanel extends CustomPanel<DockPanel> implements OutisdeEventListener {
+public abstract class DockPanel extends CustomPanel<DockPanel> implements
+    OutisdeEventListener, UIBuildableAPI
+{
     
     public static enum DockDirection {
         LEFT, RIGHT, TOP, BOTTOM
@@ -56,7 +59,6 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements Outisd
         targetPos = calculateTargetPos();
         updatePosition();
     }
-    public void createPanel() {}
 
     public boolean isOpen() { return isOpen;}
     public void close() { isOpen = false;}

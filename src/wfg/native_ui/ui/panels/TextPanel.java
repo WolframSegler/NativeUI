@@ -8,6 +8,7 @@ import wfg.native_ui.ui.components.AudioFeedbackComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
 import wfg.native_ui.ui.components.UIContextComp;
+import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
@@ -16,7 +17,7 @@ import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
  * A text-based UI panel with tooltip, audio feedback, and UI context support.
  *
  * <p>This panel is intended to be subclassed anonymously for ad-hoc UI creation. 
- * Subclasses override {@link #createPanel()} to define UI elements and layout. 
+ * Subclasses override {@link #buildUI()} to define UI elements and layout. 
  * Internal fields (checkbox, labels, text positions) are exposed publicly so that 
  * external code can read panel state from the anonymous subclass.</p>
  *
@@ -24,7 +25,7 @@ import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
  * <pre>{@code
  * TextPanel panel = new TextPanel(parent, 300, 50) {
  *     @Override
- *     public void createPanel() {
+ *     public void buildUI() {
  *         m_checkbox = addCheckbox("Enable", 10, 10);
  *         label1 = addLabel("Hello", 20, 10);
  *         textX1 = 0; textY1 = 0; textW1 = 100; textH1 = 20;
@@ -41,8 +42,8 @@ import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
  * );
  * }</pre>
  */
-public class TextPanel extends CustomPanel<TextPanel> implements
-    HasTooltip, HasAudioFeedback, HasUIContext
+public abstract class TextPanel extends CustomPanel<TextPanel> implements
+    HasTooltip, HasAudioFeedback, HasUIContext, UIBuildableAPI
 {
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
@@ -59,7 +60,6 @@ public class TextPanel extends CustomPanel<TextPanel> implements
         super(parent, width, height);
 
         context.ignore = true;
-        createPanel();
+        buildUI();
     }
-    public void createPanel() {}
 }

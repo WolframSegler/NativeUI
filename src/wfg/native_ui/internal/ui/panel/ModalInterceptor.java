@@ -16,7 +16,6 @@ public class ModalInterceptor extends CustomPanel<ModalInterceptor> {
         super(parent, (int) Global.getSettings().getScreenWidth(), (int) Global.getSettings().getScreenHeight());
         this.dialog = dialog;
     }
-    public void createPanel() {}
 
     @Override
     public void processInput(List<InputEventAPI> events) {

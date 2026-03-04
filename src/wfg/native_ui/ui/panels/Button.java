@@ -19,6 +19,7 @@ import wfg.native_ui.ui.components.InteractionComp;
 import wfg.native_ui.ui.components.NativeComponents;
 import wfg.native_ui.ui.components.TooltipComp;
 import wfg.native_ui.ui.components.UIContextComp;
+import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
@@ -42,7 +43,7 @@ import wfg.native_ui.util.RenderUtils;
  * freely read component data.
  * </p>
  */
-public class Button extends CustomPanel<Button> implements 
+public class Button extends CustomPanel<Button> implements UIBuildableAPI,
     HasHoverGlow, HasInteraction, HasTooltip, HasUIContext
 {
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
@@ -124,7 +125,7 @@ public class Button extends CustomPanel<Button> implements
             label.flash(0.2f, 1f);
         };
 
-        createPanel();
+        buildUI();
     }
 
     public void recreateLabel() {
@@ -146,7 +147,7 @@ public class Button extends CustomPanel<Button> implements
         add(label).inBL(0f, 0f);
     }
 
-    public void createPanel() {
+    public void buildUI() {
         if (label != null) remove(label);
 
         final String finalText = !appendShortcutToText ? labelText :

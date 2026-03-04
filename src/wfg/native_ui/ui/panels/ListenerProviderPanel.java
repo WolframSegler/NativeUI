@@ -15,5 +15,4 @@ public class ListenerProviderPanel extends CustomPanel<ListenerProviderPanel> im
     public ListenerProviderPanel(UIPanelAPI parent, int width, int height) {
         super(parent, width, height);
     }
-    public void createPanel() {}
 }
