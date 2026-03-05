@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
@@ -22,6 +23,10 @@ import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panels.CustomPanel;
 
 public class FoldingPanel extends CustomPanel<FoldingPanel> {
+    private static final SettingsAPI settings = Global.getSettings();
+    private static final SpriteAPI SCANLINE_11 = settings.getSprite("ui", "scanline11");
+    private static final SpriteAPI NOISE = settings.getSprite("ui", "noise");
+
     public boolean renderBackground = true;
     public boolean transitionEnabled = true;
     public boolean isAlwaysScissor = false;
@@ -80,13 +85,10 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     }
 
     private void initializeBackground() {
-        final SettingsAPI settings = Global.getSettings();
         final float width = pos.getWidth() - borderThickness * 2f;
         final float height = pos.getHeight() - borderThickness * 2f;
 
-        backgroundLayer = new PanelFillRenderer(settings.getSprite("ui", "scanline11"),
-            width, height
-        );
+        backgroundLayer = new PanelFillRenderer(SCANLINE_11, width, height);
         backgroundLayer.setColors(
             new Color(0, 0, 0, 125), new Color(0, 0, 0, backgroundAlphaMin));
         backgroundLayer.setOverlayColors(
@@ -94,14 +96,10 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
 
         backgroundLayer.useAdditiveBlend = false;
 
-        foregroundLayer = new PanelFillRenderer(settings.getSprite("ui", "scanline11"),
-            width, height
-        );
+        foregroundLayer = new PanelFillRenderer(SCANLINE_11, width, height);
         foregroundLayer.useAdditiveBlend = true;
         foregroundLayer.setColors(new Color(10, 38, 44, 0), new Color(10, 38, 44, 0));
-        noiseRenderer = new NoiseRenderer(settings.getSprite("ui", "noise"),
-            width, height
-        );
+        noiseRenderer = new NoiseRenderer(NOISE, width, height);
     }
 
     public void foldOut(float dur) {
@@ -217,7 +215,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
         final float bx = x + borderThickness;
         final float by = y + borderThickness;
 
-        final float scale = Global.getSettings().getScreenScaleMult();
+        final float scale = settings.getScreenScaleMult();
         final int scissorX = (int) ((x + innerOffset) * scale);
         final int scissorY = (int) ((y + innerOffset) * scale);
         final int scissorW = (int) ((w - innerOffset * 2f) * scale);

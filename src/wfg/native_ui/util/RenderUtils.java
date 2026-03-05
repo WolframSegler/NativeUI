@@ -4,11 +4,15 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import java.awt.Color;
 
 public class RenderUtils {
+    private static final SettingsAPI settings = Global.getSettings();
+    private static final SpriteAPI LINE_TEX = settings.getSprite("graphics/hud/line4x4.png");
+
     /**
      * @param x = posX
      * @param y = posY
@@ -158,10 +162,8 @@ public class RenderUtils {
         Color color, boolean additive,
         float alphaStart, float alphaMiddle, float alphaEnd
     ) {
-        final SpriteAPI sprite = Global.getSettings().getSprite("graphics/hud/line4x4.png");
-
         drawGradientSprite(
-            sprite, x1, y1, x2, y2, gradientWidth, color, additive, alphaStart, alphaMiddle, alphaEnd
+            LINE_TEX, x1, y1, x2, y2, gradientWidth, color, additive, alphaStart, alphaMiddle, alphaEnd
         );
     }
 
@@ -355,15 +357,15 @@ public class RenderUtils {
     public static final void drawRoundedBorder(float x, float y, float width, float height,
         float alpha, String borderPrefix, int textureSize, Color color
     ) {
-        final SpriteAPI nw = Global.getSettings().getSprite("ui", borderPrefix + "_top_left");
-        final SpriteAPI ne = Global.getSettings().getSprite("ui", borderPrefix + "_top_right");
-        final SpriteAPI sw = Global.getSettings().getSprite("ui", borderPrefix + "_bot_left");
-        final SpriteAPI se = Global.getSettings().getSprite("ui", borderPrefix + "_bot_right");
+        final SpriteAPI nw = settings.getSprite("ui", borderPrefix + "_top_left");
+        final SpriteAPI ne = settings.getSprite("ui", borderPrefix + "_top_right");
+        final SpriteAPI sw = settings.getSprite("ui", borderPrefix + "_bot_left");
+        final SpriteAPI se = settings.getSprite("ui", borderPrefix + "_bot_right");
 
-        final SpriteAPI n = Global.getSettings().getSprite("ui", borderPrefix + "_top");
-        final SpriteAPI s = Global.getSettings().getSprite("ui", borderPrefix + "_bot");
-        final SpriteAPI w = Global.getSettings().getSprite("ui", borderPrefix + "_left");
-        final SpriteAPI e = Global.getSettings().getSprite("ui", borderPrefix + "_right");
+        final SpriteAPI n = settings.getSprite("ui", borderPrefix + "_top");
+        final SpriteAPI s = settings.getSprite("ui", borderPrefix + "_bot");
+        final SpriteAPI w = settings.getSprite("ui", borderPrefix + "_left");
+        final SpriteAPI e = settings.getSprite("ui", borderPrefix + "_right");
 
         for (SpriteAPI sprite : new SpriteAPI[] { nw, ne, sw, se, n, s, w, e }) {
             sprite.setAlphaMult(alpha);

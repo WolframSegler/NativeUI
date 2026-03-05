@@ -104,6 +104,8 @@ import wfg.native_ui.util.NativeUiUtils.AnchorType;
 public class SortableTable extends CustomPanel<SortableTable> implements
     UIBuildableAPI, HasOutline
 {
+    private final static String sortIconPath = Global.getSettings().getSpriteName("ui", "sortIcon");
+
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
@@ -112,7 +114,6 @@ public class SortableTable extends CustomPanel<SortableTable> implements
 
     private final int HEADER_HEIGHT;
     private final int ROW_HEIGHT;
-
 
     public boolean showSortIcon = true;
     public boolean sortingEnabled = true;
@@ -127,10 +128,6 @@ public class SortableTable extends CustomPanel<SortableTable> implements
     public RowPanel getSelectedRow() { return m_selectedRow;}
     public List<ColumnManager> getColumns() { return m_columns;}
     public List<RowPanel> getRows() { return m_rows;}
-
-    public final static int headerTooltipWidth = 260;
-
-    public final static String sortIconPath = Global.getSettings().getSpriteName("ui", "sortIcon");
 
     public SortableTable(UIPanelAPI parent, int width, int height) {
         this(parent, width, height, 20, 28);
@@ -273,6 +270,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements
             ColumnManager column, int listIndex) {
             super(parent, width, height, column, listIndex);
 
+            tooltip.width = 300;
             if (column.tooltip instanceof TooltipBuilder builder) {
                 tooltip.builder = builder;
             } else if (column.tooltip instanceof String text) {

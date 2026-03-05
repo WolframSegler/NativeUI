@@ -1,3 +1,6 @@
+v0.3.3-beta
+- Optimize some code by making the sprites a private static member.
+
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.
 - Replaced createPanel() with buildUI().

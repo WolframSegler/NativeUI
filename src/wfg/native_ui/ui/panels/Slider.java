@@ -27,6 +27,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
+    private static final SettingsAPI settings = Global.getSettings();
 
     protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);
 
@@ -50,7 +51,7 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
     public boolean showLabelOnly = false;
     public boolean roundBarValue = false;
     public int roundingIncrement = 1;
-    public Color widgetColor;
+    public Color widgetColor = settings.getColor("widgetBorderColorBright");
     public boolean showAdjustableIndicator = false;
     /**
      * Optional supplier that dynamically provides the label's text.
@@ -74,11 +75,11 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
     private float cachedPotentialDecreaseAmount = 0f;
     private float CachedShowNotchOnIfBelowProgress = -3.4028235E38f;
     private float showNotchOnIfBelowProgress = -3.4028235E38f;
-    private SpriteAPI lineTexture;
+    private SpriteAPI lineTexture = settings.getSprite("graphics/hud/line4x4.png");
     private FaderUtil barHighlightFader = null;
     private boolean userAdjustable = false;
-    private Color barColor;
-    private Color barColorOverflow;
+    private Color barColor = settings.getColor("progressBarStandardColor");
+    private Color barColorOverflow = settings.getColor("progressBarOverflowColor");
     private boolean shouldInterpolateCachedValues = false;
     private FaderUtil flashOnOverflowFader = null;
     private GLListToken GLListToken;
@@ -93,12 +94,6 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
         int height
     ) {
         super(parent, width, height);
-        final SettingsAPI settings = Global.getSettings();
-
-        barColor = settings.getColor("progressBarStandardColor");
-        barColorOverflow = settings.getColor("progressBarOverflowColor");
-        widgetColor = settings.getColor("widgetBorderColorBright");
-        lineTexture = settings.getSprite("graphics/hud/line4x4.png");
 
         this.labelText = initialText;
         this.minRange = minRange;

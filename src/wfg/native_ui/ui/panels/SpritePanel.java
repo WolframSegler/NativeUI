@@ -3,6 +3,7 @@ package wfg.native_ui.ui.panels;
 import java.awt.Color;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -45,6 +46,7 @@ import wfg.native_ui.util.RenderUtils;
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
 > extends CustomPanel<PanelType> implements HasOutline, HasUIContext {
+    private static final SettingsAPI settings = Global.getSettings();
 
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
@@ -64,7 +66,7 @@ public class SpritePanel<
         outline.enabled = false;
         outline.type = OutlineType.VERY_THIN;
 
-        m_sprite = Global.getSettings().getSprite(spriteID);
+        m_sprite = settings.getSprite(spriteID);
         this.fillColor = fillColor;
 
         if (color != null) texColor = color;
@@ -108,7 +110,7 @@ public class SpritePanel<
         m_sprite = sprite;
     }
     public void setSprite(String spriteID) {
-        m_sprite = Global.getSettings().getSprite(spriteID);
+        m_sprite = settings.getSprite(spriteID);
     }
 
     public static class Base extends SpritePanel<Base> {
