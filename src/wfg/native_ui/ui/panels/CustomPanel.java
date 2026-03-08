@@ -32,20 +32,27 @@ import wfg.native_ui.ui.systems.UISystemContainer;
 
 /**
  * Represents the visual and layout container for a set of components.
- *
+ * 
  * <p><strong>Design principles:</strong></p>
  * <ul>
- *   <li>The panel owns all <em>UI-specific</em> state like background color, position,
- *       dimensions, layout offsets, and other visual properties.</li>
- *   <li>Panels are responsible for creating, registering, and wiring their components.</li>
  *   <li>Systems operate primarily on components; direct panel access is secondary and
  *       reserved for panel-defined behavior.</li>
  *   <li>Capability interfaces (such as {@link HasBackground}) register systems that may add their required components.</li>
- *   <li>Panels may expose selected components as <code>public final</code> fields.
- *       Such components are part of the panel’s public contract. Components not exposed
- *       this way are internal and must be accessed only through panel APIs.</li>
- *   <li>The associated plugin is a thin forwarder and does not own state or behavior.</li>
  * </ul>
+ * 
+ * <p><strong>Component access policy:</strong></p>
+ * <ul>
+ *   <li><b>Public components</b> expose supported customization points and may be read or modified
+ *       directly by external code.</li>
+ *   <li><b>Protected components</b> are internal implementation details and must only be accessed
+ *       by this class or subclasses.</li>
+ *   <li>If a panel provides a setter for a value that affects component state, that setter
+ *       <b>must be used</b> instead of mutating the component directly.</li>
+ * </ul>
+ * <p>
+ * This distinction makes supported extension points explicit while allowing systems to
+ * freely read component data.
+ * </p>
  */
 public abstract class CustomPanel<
     PanelType extends CustomPanel<PanelType>

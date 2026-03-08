@@ -28,20 +28,27 @@ import wfg.native_ui.util.CallbackRunnable;
 import wfg.native_ui.util.RenderUtils;
 
 /**
- * <p><strong>Component access policy:</strong></p>
+ * UI button component with label, tooltip, hover glow and interaction support.
+ *
  * <ul>
- *   <li><b>Public components</b> expose supported customization points and may be read or modified
- *       directly by external code.</li>
- *   <li><b>Protected components</b> are internal implementation details and must only be accessed
- *       by this class or subclasses.</li>
- *   <li>If a panel provides a setter for a value that affects component state, that setter
- *       <b>must be used</b> instead of mutating the component directly.</li>
+ *   <li>An optional text label; the label is rebuilt when text/font/shortcut changes (see {@link #recreateLabel}).</li>
+ *   <li>Plays mouseover/click sounds and fires an action callback when activated.</li>
+ *   <li>If {@code onClicked} is null the button will toggle its internal {@code checked} state when activated; if a callback
+ *   is provided the callback is invoked instead and the button will NOT toggle automatically.</li>
+ *   <li>Supports keyboard shortcut display (via {@link #setShortcut}) and can append the shortcut string to the label.</li>
+ *   <li>Supports a persistent hover/glow state (driven by {@link #checked}, {@link #quickMode} and {@link #disabled}).</li>
+ *   <li>Use {@link #setEnabled} to enable/disable the button. Disabled buttons use {@link #bgDisabledColor}/{@link #bgDisabledAlpha}.</li>
+ *   <li>If {@code disabledWhileInvisible} is false the button can still be activated while fully transparent; otherwise it is inert.</li>
+ *   <li>{@link #setShowTooltipWhileInactive} controls whether the tooltip is shown when the button is disabled.</li>
  * </ul>
  *
- * <p>
- * This distinction makes supported extension points explicit while allowing systems to
- * freely read component data.
- * </p>
+ * <p>Interaction details & caveats
+ * <ul>
+ *   <li>Click handling is routed through the internal {@code InteractionComp}. Calling {@link #click(boolean)} with
+ *   {@code ignoreState=true} invokes the activation handler regardless of {@code clickable/disabled} state.</li>
+ *   <li>Right-click behavior is opt-in via {@code rightClicksOkWhenDisabled} and obeys {@code clickable}.</li>
+ *   <li>Providing an {@code onClicked} callback means you are responsible for changing {@code checked} if you want toggle semantics.</li>
+ * </ul>
  */
 public class Button extends CustomPanel<Button> implements UIBuildableAPI,
     HasHoverGlow, HasInteraction, HasTooltip, HasUIContext
@@ -122,7 +129,7 @@ public class Button extends CustomPanel<Button> implements UIBuildableAPI,
                 onClicked.run(this);
             } else if (!quickMode) checked = !checked;
 
-            label.flash(0.2f, 1f);
+            label.flash(0.2f, 0.2f);
         };
 
         buildUI();
@@ -236,7 +243,7 @@ public class Button extends CustomPanel<Button> implements UIBuildableAPI,
 
     public void setAlignment(Alignment alg) {
         this.alg = alg;
-        recreateLabel();
+        label.setAlignment(alg);
     }
 
     @Override

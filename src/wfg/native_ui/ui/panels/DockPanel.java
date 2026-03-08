@@ -11,21 +11,39 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.panel.OutsideEventDetector;
 import wfg.native_ui.internal.ui.panel.OutsideEventDetector.OutisdeEventListener;
 import wfg.native_ui.internal.util.BorderRenderer;
-import wfg.native_ui.internal.util.BorderRenderer.BorderSide;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 
+/**
+ * A reusable dockable panel that slides on/off screen from one of the four sides.
+ *
+ * <ul>
+ *   <li>The constructor attaches the panel to the given parent immediately — you do not need (and
+ *   should not) add it again. The panel calculates its open position via {@link #calculateTargetPos()}
+ *   and computes the closed (off-screen) position based on the chosen {@code Side}.</li>
+ *   <li>Open/close is driven by {@link #open()} / {@link #close()}. The animated visibility progress
+ *   value (0..1) is stored in {@code progress}; animation timing is controlled by {@code durIn}
+ *   and {@code durOut}.</li>
+ *   <li>Call {@link #changeOffset(float,float)} to nudge the final anchored position, or
+ *   {@link #changeDirection(Side)} to change the dock side at runtime (the border will be updated).</li>
+ * </ul>
+ *
+ * <p>Behavior & lifecycle caveats
+ * <ul>
+ *   <li>By default the panel attaches an {@link OutsideEventDetector} when opened and closes when
+ *   an outside click or the cancel button is pressed. Override {@link #outsideClicked} / {@link #buttonPressed}
+ *   only if you intend to change that behavior.</li>
+ *   <li>If {@code removeWhenClosed} is true the panel will remove itself from the parent when its
+ *   close animation finishes.</li>
+ * </ul>
+ */
 public abstract class DockPanel extends CustomPanel<DockPanel> implements
     OutisdeEventListener, UIBuildableAPI
 {
-    
-    public static enum DockDirection {
-        LEFT, RIGHT, TOP, BOTTOM
-    }
-
     public boolean removeWhenClosed = false;
     public boolean loseAttention = true;
     public float durIn = 0.3f;
@@ -34,7 +52,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
 
     protected boolean isOpen = false;
 
-    protected DockDirection dockDir = DockDirection.LEFT;
+    protected Side dockDir = Side.LEFT;
     protected float offsetX = 0f;
     protected float offsetY = 0f;
     
@@ -46,16 +64,18 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
 
     protected final OutsideEventDetector detector;
 
-    public DockPanel(int width, int height, final DockDirection dir) {
+    public DockPanel(int width, int height, final Side dir) {
         this(Attachments.getScreenPanel(), width, height, dir);
     }
 
-    public DockPanel(final UIPanelAPI parent, int width, int height, final DockDirection dir) {
+    public DockPanel(final UIPanelAPI parent, int width, int height, final Side dir) {
         super(parent, width, height);
         detector = new OutsideEventDetector(this);
         parent.addComponent(m_panel);
 
-        border = new BorderRenderer(borderPrefix, width, height, BorderSide.LEFT);
+        dockDir = dir;
+
+        border = new BorderRenderer(borderPrefix, width, height, dir);
         targetPos = calculateTargetPos();
         updatePosition();
     }
@@ -75,23 +95,30 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
         targetPos = calculateTargetPos();
     }
 
-    public void changeDirection(final DockDirection dir) {
+    public void changeDirection(final Side dir) {
         dockDir = dir;
         targetPos = calculateTargetPos();
         border.hiddenSides.clear();
-
-        switch (dir) {
-        case LEFT: border.hiddenSides.add(BorderSide.LEFT); break;
-        case RIGHT: border.hiddenSides.add(BorderSide.RIGHT); break;
-        case TOP: border.hiddenSides.add(BorderSide.TOP); break;
-        case BOTTOM: border.hiddenSides.add(BorderSide.BOTTOM); break;
-        }
+        border.hiddenSides.add(dir);
     }
 
+    /**
+     * The texture size should match the actual size of the sprites.
+     * <pre>
+     * Available prefixes:
+     * "ui_border1"
+     * "ui_border2"
+     * "ui_border3"
+     * "ui_border4"
+     * </pre>
+     */
     public void setBorder(String prefix) {
         borderPrefix = prefix;
         border = new BorderRenderer(prefix);
         setSize(pos.getWidth(), pos.getHeight());
+
+        border.hiddenSides.clear();
+        border.hiddenSides.add(dockDir);
     }
 
     public PositionAPI setSize(final float w, final float h) {

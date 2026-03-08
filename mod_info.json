@@ -2,8 +2,8 @@
 	"id":"wfg_native_ui",
 	"name":"WrapUI",
 	"author":"WolframSegler",
-	"version": "0.3.3",
-	"description":"Pillars and marble walls carrying the castle",
+	"version": "0.3.2",
+	"description":"Pillars and marble walls carrying the citadel",
 	"gameVersion":"0.98a-RC8",
 	"utility": true,
 	"jars": [

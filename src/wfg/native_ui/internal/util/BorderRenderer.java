@@ -7,14 +7,12 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
-public class BorderRenderer {
-    public enum BorderSide {
-        LEFT, RIGHT, TOP, BOTTOM
-    }
+import wfg.native_ui.internal.ui.Side;
 
+public class BorderRenderer {
     public boolean renderCenter = true;
     public boolean compensateForHiddenSides = true;
-    public final EnumSet<BorderSide> hiddenSides = EnumSet.noneOf(BorderSide.class);
+    public final EnumSet<Side> hiddenSides = EnumSet.noneOf(Side.class);
 
     private final SpriteAPI bottom_left;
     private final SpriteAPI bottom_right;
@@ -73,7 +71,7 @@ public class BorderRenderer {
      * "ui_border4"
      * </pre>
      */
-    public BorderRenderer(String prefix, float w, float h, BorderSide... hidden) {
+    public BorderRenderer(String prefix, float w, float h, Side... hidden) {
         this(prefix);
         this.setSize(w, h);
         if (hidden != null) {
@@ -100,10 +98,10 @@ public class BorderRenderer {
         bottom_mid.setAlphaMult(alpha);
         }
 
-        final boolean hideLeft = hiddenSides.contains(BorderSide.LEFT);
-        final boolean hideRight = hiddenSides.contains(BorderSide.RIGHT);
-        final boolean hideTop = hiddenSides.contains(BorderSide.TOP);
-        final boolean hideBottom = hiddenSides.contains(BorderSide.BOTTOM);
+        final boolean hideLeft = hiddenSides.contains(Side.LEFT);
+        final boolean hideRight = hiddenSides.contains(Side.RIGHT);
+        final boolean hideTop = hiddenSides.contains(Side.TOP);
+        final boolean hideBottom = hiddenSides.contains(Side.BOTTOM);
 
         final float leftOffset  = (compensateForHiddenSides && hideLeft)  ? -corner_width : 0f;
         final float bottomOffset= (compensateForHiddenSides && hideBottom)? -corner_width : 0f;

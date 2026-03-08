@@ -18,10 +18,15 @@ import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.panels.Button;
+import wfg.native_ui.ui.panels.CheckboxButton;
 import wfg.native_ui.ui.systems.TooltipSystem;
 import wfg.native_ui.util.CallbackRunnable;
 
 public class ComponentFactory {
+
+    /**
+     * Use {@link CheckboxButton} if you want the checkbox sprite.
+     */
     public static final Button createCheckboxWithText(
         UIPanelAPI parent, int btnSize, String text, String font, CallbackRunnable<Button> onClick, 
         Color txtColor, int textAndBtnGap

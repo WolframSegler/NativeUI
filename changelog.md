@@ -1,9 +1,11 @@
-v0.3.3-beta
-- Optimize some code by making the sprites a private static member.
-
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.
 - Replaced createPanel() with buildUI().
+- Optimize some code by making the sprites a private static member.
+- Added CheckboxButton Panel.
+- Fixed DockPanel side not being applied at the constructor.
+- Added some more documentation.
+- Added an array map to utilities.
 
 v0.3.1-beta
 - Fixed issues with Dock Panel.
