@@ -37,4 +37,4 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
     - Because [`CustomPanel`](src/wfg/native_ui/ui/panels/CustomPanel.java) is a wrapper for `CustomPanelAPI` and is itself not the actual panel.
 
 - How do I see the java documentation for classes?
-    - Make sure to include the src file as a depenency. The JAR file does not contain the documentation.
+    - Make sure to include the src file as a dependency. The JAR file does not contain the documentation.

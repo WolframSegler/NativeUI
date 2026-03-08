@@ -23,6 +23,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -77,7 +78,7 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
     private float showNotchOnIfBelowProgress = -3.4028235E38f;
     private SpriteAPI lineTexture = settings.getSprite("graphics/hud/line4x4.png");
     private FaderUtil barHighlightFader = null;
-    private boolean userAdjustable = false;
+    private boolean userAdjustable = true;
     private Color barColor = settings.getColor("progressBarStandardColor");
     private Color barColorOverflow = settings.getColor("progressBarOverflowColor");
     private boolean shouldInterpolateCachedValues = false;
@@ -723,9 +724,6 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
         super.processInput(events);
         if (!userAdjustable && barHighlightFader == null) return;
 
-        final InputEventAPI event = input.mouseMoveEvent;
-        if (event == null) return;
-
         if (barHighlightFader != null) {
             if (input.isActive || input.hoveredLastFrame) {
                 barHighlightFader.fadeIn();
@@ -734,11 +732,12 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
             }
         }
 
-        if (!userAdjustable || event.isConsumed()) return;
+        final InputEventAPI event = input.mouseMoveEvent;
+        if (event == null || event.isConsumed()) return;
 
-        if ((input.isActive)) {
-            mapInputToProgress(event);
-            event.consume();
+        if (input.isActive && userAdjustable) {
+            mapInputToProgress();
+            if (event != null) event.consume();
         }
     }
 
@@ -903,9 +902,9 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
         }
     }
 
-    protected float mapInputToProgress(InputEventAPI inputEvent) {
-        final float mouseX = inputEvent.getX();
-        final float mouseY = inputEvent.getY();
+    protected float mapInputToProgress() {
+        final float mouseX = Mouse.getX();
+        final float mouseY = Mouse.getY();
         if (mouseX < 0 || mouseX > windowWidth || mouseY < 0 || mouseY > windowHeight) {
             return progressValue;
         }

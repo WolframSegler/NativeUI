@@ -50,9 +50,6 @@ public class RadioPanel extends CustomPanel<RadioPanel> implements UIBuildableAP
     public String font = Fonts.DEFAULT_SMALL;
     public UICheckboxSize checkboxType = UICheckboxSize.SMALL;
 
-    /** Used for horizontal buttons */
-    public int buttonHeight = 32;
-
     public RadioPanel(UIPanelAPI parent, int width, int height, LayoutMode mode) {
         super(parent, width, height);
 
@@ -114,7 +111,7 @@ public class RadioPanel extends CustomPanel<RadioPanel> implements UIBuildableAP
             final int buttonWidth = (int) (available / count);
 
             for (int i = 0; i < count; i++) {
-                final Button button = new Button(m_panel, buttonWidth, checkboxSize,
+                final Button button = new Button(m_panel, buttonWidth, (int) pos.getHeight(),
                     optionTexts.get(i), font, run
                 );
 
