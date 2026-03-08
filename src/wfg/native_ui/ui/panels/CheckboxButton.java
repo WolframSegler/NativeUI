@@ -51,7 +51,7 @@ public class CheckboxButton extends Button {
     public CheckboxButton(UIPanelAPI parent, int btnSize, String text, String font,
         CallbackRunnable<Button> onClick, UICheckboxSize type, boolean useGlowTex
     ) {
-        super(parent, btnSize, btnSize, text, font, null);
+        super(parent, btnSize, btnSize, text, font, onClick);
         bgAlpha = 0f;
         bgDisabledAlpha = 0f;
         glow.overlayBrightness = 0f;
@@ -75,11 +75,6 @@ public class CheckboxButton extends Button {
         }
 
         checkboxSize = btnSize;
-
-        onClicked = (btn) -> {
-            if (onClick != null) onClick.run(btn);
-            setChecked(!isChecked());
-        };
 
         customLblMods();
     }

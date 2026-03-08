@@ -11,6 +11,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 # UI Elements
 - [`Button`](src/wfg/native_ui/ui/panels/Button.java) implementation similar to vanilla, without using `ButtonAPI`.
 - [`CheckboxButton`](src/wfg/native_ui/ui/panels/CheckboxButton.java) subclassing Button and using the checkbox sprite.
+- [`RadioPanel`](src/wfg/native_ui/ui/panels/RadioPanel.java) for having a list of mutually exclusive options to choose from.
 - Simple [`PieChart`](src/wfg/native_ui/ui/panels/PieChart.java).
 - Carbon copy of the vanilla [`Slider`](src/wfg/native_ui/ui/panels/Slider.java) used in settings (the blue one).
 - [`SortableTable`](src/wfg/native_ui/ui/panels/SortableTable.java) similar to `UITable` in functionality, avoiding the obfuscated vanilla table.

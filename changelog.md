@@ -6,6 +6,7 @@ v0.3.2-beta
 - Fixed DockPanel side not being applied at the constructor.
 - Added some more documentation.
 - Added an array map to utilities.
+- Added a RadioPanel.
 
 v0.3.1-beta
 - Fixed issues with Dock Panel.
