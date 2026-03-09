@@ -7,7 +7,8 @@ v0.3.2-beta
 - Added some more documentation.
 - Added an array map to utilities.
 - Added a RadioPanel.
-- The slider is now user adjustable by default.  
+- The slider is now user adjustable by default.
+- Added onRemoved runnable to DockPanel.
 
 v0.3.1-beta
 - Fixed issues with Dock Panel.
