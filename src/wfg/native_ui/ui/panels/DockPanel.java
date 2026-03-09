@@ -17,6 +17,7 @@ import wfg.native_ui.internal.ui.panel.OutsideEventDetector.OutisdeEventListener
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.core.UIBuildableAPI;
+import wfg.native_ui.util.CallbackRunnable;
 
 /**
  * A reusable dockable panel that slides on/off screen from one of the four sides.
@@ -49,6 +50,8 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
     public float durIn = 0.3f;
     public float durOut = 0.3f;
     public float bgAlpha = 0.85f;
+
+    public CallbackRunnable<DockPanel> onRemoved = null;
 
     protected boolean isOpen = false;
 
@@ -144,6 +147,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
 
         if (!isOpen && removeWhenClosed && progress < 0.005f) {
             m_parent.removeComponent(m_panel);
+            if (onRemoved != null) onRemoved.run(this);
         }
     }
 
