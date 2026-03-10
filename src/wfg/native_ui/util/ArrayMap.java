@@ -16,11 +16,14 @@
 package wfg.native_ui.util;
 
 import java.util.AbstractCollection;
+import java.util.AbstractMap;
 import java.util.AbstractSet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -963,68 +966,10 @@ public final class ArrayMap<K, V> implements Map<K, V> {
         return removedAny;
     }
 
-    private transient Set<Map.Entry<K, V>> entrySetView;
     private transient Set<K> keySetView;
     private transient Collection<V> valuesView;
-
-    @Override
-    public Set<Map.Entry<K, V>> entrySet() {
-        if (entrySetView == null) {
-        entrySetView = new AbstractSet<>() {
-            @Override
-            public final Iterator<Map.Entry<K, V>> iterator() {
-                return new Iterator<>() {
-                    int index = 0;
-                    int expectedSize = mSize;
-                    boolean canRemove = false;
-                    final MapEntry entry = new MapEntry();
-
-                    @Override
-                    public final boolean hasNext() {
-                        return index < mSize;
-                    }
-
-                    @Override
-                    public final Map.Entry<K, V> next() {
-                        if (expectedSize != mSize) throw new ConcurrentModificationException();
-                        if (index >= mSize) throw new NoSuchElementException();
-                        entry.index = index++;
-                        canRemove = true;
-                        return entry;
-                    }
-
-                    @Override
-                    public final void remove() {
-                        if (!canRemove) throw new IllegalStateException();
-                        if (expectedSize != mSize) throw new ConcurrentModificationException();
-                        ArrayMap.this.removeAt(--index);
-                        expectedSize = mSize;
-                        canRemove = false;
-                    }
-                };
-            }
-
-            @Override
-            public final int size() {
-                return mSize;
-            }
-
-            @Override
-            public final boolean contains(Object o) {
-                if (!(o instanceof Map.Entry)) return false;
-                final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-                final int i = indexOfKey(e.getKey());
-                return i >= 0 && Objects.equals(mArray[(i << 1) + 1], e.getValue());
-            }
-
-            @Override
-            public final void clear() {
-                ArrayMap.this.clear();
-            }
-        };
-        }
-        return entrySetView;
-    }
+    private transient Set<Map.Entry<K, V>> singleEntrySetView;
+    private transient Set<Map.Entry<K, V>> entrySetLiveView;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -1132,8 +1077,207 @@ public final class ArrayMap<K, V> implements Map<K, V> {
         return valuesView;
     }
 
+    /**
+     * Default live entry set: returns independent Entry objects per element.
+     * Each Entry's getValue() reflects the current map value for that key,
+     * and setValue() updates the underlying map.
+     *
+     * This behaves like standard Java Map.entrySet() but avoids the "reused
+     * entry" pitfalls for callers that keep Entry references.
+     */
+    @Override
     @SuppressWarnings("unchecked")
-    final class MapEntry implements Map.Entry<K, V> {
+    public Set<Map.Entry<K, V>> entrySet() {
+        if (entrySetLiveView == null) {
+            entrySetLiveView = new AbstractSet<>() {
+                @Override
+                public Iterator<Map.Entry<K, V>> iterator() {
+                    return new Iterator<>() {
+                        int index = 0;
+                        int expectedSize = mSize;
+                        boolean canRemove = false;
+
+                        @Override
+                        public boolean hasNext() {
+                            return index < mSize;
+                        }
+
+                        @Override
+                        public Map.Entry<K, V> next() {
+                            if (expectedSize != mSize) throw new ConcurrentModificationException();
+                            if (index >= mSize) throw new NoSuchElementException();
+                            final K key = (K) mArray[index << 1];
+                            index++;
+                            canRemove = true;
+                            return new LiveEntry(key);
+                        }
+
+                        @Override
+                        public void remove() {
+                            if (!canRemove) throw new IllegalStateException();
+                            if (expectedSize != mSize) throw new ConcurrentModificationException();
+                            ArrayMap.this.removeAt(--index);
+                            expectedSize = mSize;
+                            canRemove = false;
+                        }
+                    };
+                }
+
+                @Override
+                public int size() {
+                    return mSize;
+                }
+
+                @Override
+                public boolean contains(Object o) {
+                    if (!(o instanceof Map.Entry)) return false;
+                    final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+                    final int i = indexOfKey(e.getKey());
+                    return i >= 0 && Objects.equals(mArray[(i << 1) + 1], e.getValue());
+                }
+
+                @Override
+                public void clear() {
+                    ArrayMap.this.clear();
+                }
+            };
+        }
+        return entrySetLiveView;
+    }
+
+    /**
+     * Snapshot copy: returns an independent set of SimpleEntry objects
+     * representing the map state at the time of the call. Mutating these
+     * entries does NOT affect the underlying map.
+     */
+    @SuppressWarnings("unchecked")
+    public Set<Map.Entry<K, V>> entrySetCopy() {
+        final List<Map.Entry<K, V>> snapshot = new ArrayList<>(mSize);
+        for (int i = 0; i < mSize; i++) {
+            final K key = (K) mArray[i << 1];
+            final V value = (V) mArray[(i << 1) + 1];
+            snapshot.add(new AbstractMap.SimpleEntry<>(key, value));
+        }
+
+        return new AbstractSet<>() {
+            @Override
+            public Iterator<Map.Entry<K, V>> iterator() {
+                return snapshot.iterator();
+            }
+
+            @Override
+            public int size() {
+                return snapshot.size();
+            }
+
+            @Override
+            public boolean contains(Object o) {
+                return snapshot.contains(o);
+            }
+
+            @Override
+            public void clear() {
+                ArrayMap.this.clear();
+            }
+        };
+    }
+
+    /**
+     * Low-allocation entrySet: returns a live view that reuses a single
+     * MapEntry instance while iterating. Extremely allocation-friendly,
+     * but callers MUST NOT store or copy the returned Map.Entry objects.
+     */
+    public Set<Map.Entry<K, V>> singleEntrySet() {
+        if (singleEntrySetView == null) {
+            singleEntrySetView = new AbstractSet<>() {
+                @Override
+                public final Iterator<Map.Entry<K, V>> iterator() {
+                    return new Iterator<>() {
+                        int expectedSize = mSize;
+                        int index = 0;
+                        int lastReturned = -1;
+                        final IndexEntry entry = new IndexEntry();
+
+                        @Override
+                        public final boolean hasNext() {
+                            return index < mSize;
+                        }
+
+                        @Override
+                        public final Map.Entry<K, V> next() {
+                            if (expectedSize != mSize) throw new ConcurrentModificationException();
+                            if (index >= mSize) throw new NoSuchElementException();
+                            lastReturned = index;
+                            entry.index = lastReturned;
+                            index++;
+                            return entry;
+                        }
+
+                        @Override
+                        public final void remove() {
+                            if (lastReturned < 0) throw new IllegalStateException();
+                            if (expectedSize != mSize) throw new ConcurrentModificationException();
+                            ArrayMap.this.removeAt(lastReturned);
+                            index = lastReturned;
+                            expectedSize = mSize;
+                            lastReturned = -1;
+                        }
+                    };
+                }
+
+                @Override
+                public final int size() {
+                    return mSize;
+                }
+
+                @Override
+                public final boolean contains(Object o) {
+                    if (!(o instanceof Map.Entry)) return false;
+                    final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+                    final int i = indexOfKey(e.getKey());
+                    return i >= 0 && Objects.equals(mArray[(i << 1) + 1], e.getValue());
+                }
+
+                @Override
+                public final void clear() {
+                    ArrayMap.this.clear();
+                }
+            };
+        }
+        return singleEntrySetView;
+    }
+
+    private final class LiveEntry implements Map.Entry<K, V> {
+        private final K key;
+        LiveEntry(K key) { this.key = key; }
+
+        @Override public K getKey() { return key; }
+
+        @Override
+        public V getValue() {
+            return ArrayMap.this.get(key);
+        }
+
+        @Override
+        public V setValue(V value) {
+            return ArrayMap.this.put(key, value);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Map.Entry)) return false;
+            Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+            return Objects.equals(key, e.getKey()) && Objects.equals(getValue(), e.getValue());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(key) ^ Objects.hashCode(getValue());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private final class IndexEntry implements Map.Entry<K, V> {
         int index;
 
         @Override

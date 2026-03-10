@@ -9,6 +9,8 @@ v0.3.2-beta
 - Added a RadioPanel.
 - The slider is now user adjustable by default.
 - Added onRemoved runnable to DockPanel.
+- Tooltip system hide/show tooltip methods now public.
+- Added tests for ArrayMap
 
 v0.3.1-beta
 - Fixed issues with Dock Panel.

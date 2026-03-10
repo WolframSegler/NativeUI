@@ -81,7 +81,7 @@ public final class TooltipSystem extends BaseSystem {
         }
     }
 
-    private final void showTooltip(TooltipComp spec) {
+    public final void showTooltip(TooltipComp spec) {
         if (spec.internal_tp != null) return;
 
         final var tp = createTp(spec);
@@ -92,7 +92,7 @@ public final class TooltipSystem extends BaseSystem {
         spec.positioner.position(tp, false);
     }
 
-    private final void hideTooltip(TooltipComp spec) {
+    public final void hideTooltip(TooltipComp spec) {
         if (spec.internal_tp != null) {
             spec.internal_tp.detach();
             spec.internal_tp = null;
