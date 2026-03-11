@@ -1,2 +1,4 @@
 ### Getting Started
-- Running tests: `mvn clean test -Dsurefire.useFile=false`
+Running tests:
+  ```bash
+  mvn clean test -Dsurefire.useFile=false
