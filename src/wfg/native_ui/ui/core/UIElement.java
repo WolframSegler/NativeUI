@@ -7,7 +7,7 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
-import wfg.native_ui.ui.events.UIEventBus;
+import wfg.native_ui.ui.event.UIEventBus;
 
 public class UIElement implements UIElementAPI {
     protected PositionAPI pos;

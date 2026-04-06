@@ -8,8 +8,8 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import wfg.native_ui.ui.events.IdentifiedPanel;
-import wfg.native_ui.ui.systems.BaseSystem;
+import wfg.native_ui.ui.event.IdentifiedPanel;
+import wfg.native_ui.ui.system.BaseSystem;
 
 public class UIContainer extends UIEntity implements UIContainerAPI {
     private final List<UIComponentAPI> children = new ArrayList<>();

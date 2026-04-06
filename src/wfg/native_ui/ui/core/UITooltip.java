@@ -5,8 +5,8 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
-import wfg.native_ui.internal.ui.panel.OutsideEventDetector;
-import wfg.native_ui.internal.ui.panel.OutsideEventDetector.OutisdeEventListener;
+import wfg.native_ui.internal.ui.functional.OutsideEventDetector;
+import wfg.native_ui.internal.ui.functional.OutsideEventDetector.OutisdeEventListener;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.ComponentFactory;
 

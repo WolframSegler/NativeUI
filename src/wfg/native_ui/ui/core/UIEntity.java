@@ -5,9 +5,9 @@ import java.util.List;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 
-import wfg.native_ui.ui.components.UIComponentContainer;
-import wfg.native_ui.ui.systems.BaseSystem;
-import wfg.native_ui.ui.systems.UISystemContainer;
+import wfg.native_ui.ui.component.UIComponentContainer;
+import wfg.native_ui.ui.system.BaseSystem;
+import wfg.native_ui.ui.system.UISystemContainer;
 
 public abstract class UIEntity extends UIElement implements UIEntityAPI {
 

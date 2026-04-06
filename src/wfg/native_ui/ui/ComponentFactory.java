@@ -17,9 +17,9 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import rolflectionlib.util.RolfLectionUtil;
-import wfg.native_ui.ui.panels.Button;
-import wfg.native_ui.ui.panels.CheckboxButton;
-import wfg.native_ui.ui.systems.TooltipSystem;
+import wfg.native_ui.ui.functional.Button;
+import wfg.native_ui.ui.functional.CheckboxButton;
+import wfg.native_ui.ui.system.TooltipSystem;
 import wfg.native_ui.util.CallbackRunnable;
 
 public class ComponentFactory {

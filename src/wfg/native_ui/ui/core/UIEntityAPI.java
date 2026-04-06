@@ -1,7 +1,7 @@
 package wfg.native_ui.ui.core;
 
-import wfg.native_ui.ui.components.UIComponentContainer;
-import wfg.native_ui.ui.systems.UISystemContainer;
+import wfg.native_ui.ui.component.UIComponentContainer;
+import wfg.native_ui.ui.system.UISystemContainer;
 
 public interface UIEntityAPI extends UIElementAPI {
 
