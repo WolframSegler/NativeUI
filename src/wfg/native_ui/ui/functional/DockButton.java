@@ -6,7 +6,6 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.container.DockPanel;
 
-// TODO move to NativeUI
 public class DockButton<T extends DockPanel> extends Button {
     private T dock;
     private final Supplier<T> dockFactory;

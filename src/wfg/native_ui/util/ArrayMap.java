@@ -55,6 +55,10 @@ import java.util.function.BiFunction;
  * explicit call to set the capacity should turn off this aggressive shrinking behavior.</p>
  *
  * <p>This structure is <b>NOT</b> thread-safe.</p>
+ * 
+ * <p><strong>Note:</strong> This version of ArrayMap has been modified to remove the static
+ * array caching used in the Android implementation. The caching was originally intended to reduce
+ * GC pressure for UI frameworks, but it caused serialization issues with XStream in Starsector.
  */
 public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
     /**
@@ -76,32 +80,10 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
     private static final int BASE_SIZE = 4;
 
     /**
-     * Maximum number of entries to have in array caches.
-     */
-    private static final int CACHE_SIZE = 10;
-
-    /**
      * Special hash array value that indicates the container is immutable.
      */
     private static final int[] EMPTY_IMMUTABLE_INTS = new int[0];
 
-    /**
-     * Caches of small array objects to avoid spamming garbage. The cache
-     * Object[] variable is a pointer to a linked list of array objects.
-     * The first entry in the array is a pointer to the next array in the
-     * list; the second entry is a pointer to the int[] hash code array for it.
-     */
-    private static Object[] mBaseCache;
-    private static int mBaseCacheSize;
-    private static Object[] mTwiceBaseCache;
-    private static int mTwiceBaseCacheSize;
-
-    /**
-     * Separate locks for each cache since each can be accessed independently of the other without
-     * risk of a deadlock.
-     */
-    private static final Object sBaseCacheLock = new Object();
-    private static final Object sTwiceBaseCacheLock = new Object();
     private final boolean mIdentityHashCode;
     int[] mHashes;
     Object[] mArray;
@@ -182,77 +164,8 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
         if (mHashes == EMPTY_IMMUTABLE_INTS) {
             throw new UnsupportedOperationException("ArrayMap is immutable");
         }
-        if (size == (BASE_SIZE*2)) {
-            synchronized (sTwiceBaseCacheLock) {
-                if (mTwiceBaseCache != null) {
-                    final Object[] array = mTwiceBaseCache;
-                    mArray = array;
-
-                    mTwiceBaseCache = (Object[]) array[0];
-                    mHashes = (int[]) array[1];
-                    if (mHashes != null) {
-                        array[0] = array[1] = null;
-                        mTwiceBaseCacheSize--;
-                        return;
-                    }
-
-                    mTwiceBaseCache = null;
-                    mTwiceBaseCacheSize = 0;
-                }
-            }
-        } else if (size == BASE_SIZE) {
-            synchronized (sBaseCacheLock) {
-                if (mBaseCache != null) {
-                    final Object[] array = mBaseCache;
-                    mArray = array;
-
-                    mBaseCache = (Object[]) array[0];
-                    mHashes = (int[]) array[1];
-                    if (mHashes != null) {
-                        array[0] = array[1] = null;
-                        mBaseCacheSize--;
-                        return;
-                    }
-
-                    mBaseCache = null;
-                    mBaseCacheSize = 0;
-                }
-            }
-        }
         mHashes = new int[size];
         mArray = new Object[size<<1];
-    }
-
-    /**
-     * Make sure <b>NOT</b> to call this method with arrays that can still be modified. In other
-     * words, don't pass mHashes or mArray in directly.
-     */
-    private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
-        if (hashes.length == (BASE_SIZE*2)) {
-            synchronized (sTwiceBaseCacheLock) {
-                if (mTwiceBaseCacheSize < CACHE_SIZE) {
-                    array[0] = mTwiceBaseCache;
-                    array[1] = hashes;
-                    for (int i=(size<<1)-1; i>=2; i--) {
-                        array[i] = null;
-                    }
-                    mTwiceBaseCache = array;
-                    mTwiceBaseCacheSize++;
-                }
-            }
-        } else if (hashes.length == BASE_SIZE) {
-            synchronized (sBaseCacheLock) {
-                if (mBaseCacheSize < CACHE_SIZE) {
-                    array[0] = mBaseCache;
-                    array[1] = hashes;
-                    for (int i=(size<<1)-1; i>=2; i--) {
-                        array[i] = null;
-                    }
-                    mBaseCache = array;
-                    mBaseCacheSize++;
-                }
-            }
-        }
     }
 
     /**
@@ -304,13 +217,9 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
     @Override
     public void clear() {
         if (mSize > 0) {
-            final int[] ohashes = mHashes;
-            final Object[] oarray = mArray;
-            final int oldSize = mSize;
             mHashes = EMPTY_INT_ARRAY;
             mArray = EMPTY_OBJECT_ARRAY;
             mSize = 0;
-            freeArrays(ohashes, oarray, oldSize);
 
             if (CONCURRENT_MODIFICATION_EXCEPTIONS && mSize > 0) {
                 throw new ConcurrentModificationException();
@@ -347,7 +256,6 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
                 System.arraycopy(ohashes, 0, mHashes, 0, osize);
                 System.arraycopy(oarray, 0, mArray, 0, osize<<1);
             }
-            freeArrays(ohashes, oarray, osize);
         }
         if (CONCURRENT_MODIFICATION_EXCEPTIONS && mSize != osize) {
             throw new ConcurrentModificationException();
@@ -538,7 +446,6 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
                 System.arraycopy(ohashes, 0, mHashes, 0, ohashes.length);
                 System.arraycopy(oarray, 0, mArray, 0, oarray.length);
             }
-            freeArrays(ohashes, oarray, osize);
         }
         if (index < osize) {
             System.arraycopy(mHashes, index, mHashes, index + 1, osize - index);
@@ -672,11 +579,8 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
         final int nsize;
         if (osize <= 1) {
             // Now empty.
-            final int[] ohashes = mHashes;
-            final Object[] oarray = mArray;
             mHashes = EMPTY_INT_ARRAY;
             mArray = EMPTY_OBJECT_ARRAY;
-            freeArrays(ohashes, oarray, osize);
             nsize = 0;
         } else {
             nsize = osize - 1;
@@ -981,7 +885,7 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
             public Iterator<K> iterator() {
                 return new Iterator<>() {
                     int index = 0;
-                    int expectedSize = mSize;
+                    int expectedSize = ArrayMap.this.mSize;
 
                     @Override
                     public final boolean hasNext() {
@@ -990,23 +894,23 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
 
                     @Override
                     public final K next() {
-                        if (expectedSize != mSize) throw new ConcurrentModificationException();
+                        if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
                         return (K) mArray[index++ << 1];
                     }
 
                     @Override
                     public final void remove() {
                         if (index == 0) throw new IllegalStateException();
-                        if (expectedSize != mSize) throw new ConcurrentModificationException();
+                        if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
                         ArrayMap.this.removeAt(--index);
-                        expectedSize = mSize;
+                        expectedSize = ArrayMap.this.mSize;
                     }
                 };
             }
 
             @Override
             public final int size() {
-                return mSize;
+                return ArrayMap.this.mSize;
             }
 
             @Override
@@ -1031,19 +935,19 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
             public Iterator<V> iterator() {
                 return new Iterator<>() {
                     int index = 0;
-                    int expectedSize = mSize;
+                    int expectedSize = ArrayMap.this.mSize;
                     boolean canRemove = false;
 
                     @Override
                     public final boolean hasNext() {
-                        return index < mSize;
+                        return index < ArrayMap.this.mSize;
                     }
 
                     @SuppressWarnings("unchecked")
                     @Override
                     public final V next() {
-                        if (expectedSize != mSize) throw new ConcurrentModificationException();
-                        if (index >= mSize) throw new NoSuchElementException();
+                        if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
+                        if (index >= ArrayMap.this.mSize) throw new NoSuchElementException();
                         canRemove = true;
                         return (V) mArray[(index++ << 1) + 1];
                     }
@@ -1051,9 +955,9 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
                     @Override
                     public final void remove() {
                         if (!canRemove) throw new IllegalStateException();
-                        if (expectedSize != mSize) throw new ConcurrentModificationException();
+                        if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
                         ArrayMap.this.removeAt(--index);
-                        expectedSize = mSize;
+                        expectedSize = ArrayMap.this.mSize;
                         canRemove = false;
                     }
                 };
@@ -1061,7 +965,7 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
 
             @Override
             public final int size() {
-                return mSize;
+                return ArrayMap.this.mSize;
             }
 
             @Override
@@ -1095,18 +999,18 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
                 public Iterator<Map.Entry<K, V>> iterator() {
                     return new Iterator<>() {
                         int index = 0;
-                        int expectedSize = mSize;
+                        int expectedSize = ArrayMap.this.mSize;
                         boolean canRemove = false;
 
                         @Override
                         public boolean hasNext() {
-                            return index < mSize;
+                            return index < ArrayMap.this.mSize;
                         }
 
                         @Override
                         public Map.Entry<K, V> next() {
-                            if (expectedSize != mSize) throw new ConcurrentModificationException();
-                            if (index >= mSize) throw new NoSuchElementException();
+                            if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
+                            if (index >= ArrayMap.this.mSize) throw new NoSuchElementException();
                             final K key = (K) mArray[index << 1];
                             index++;
                             canRemove = true;
@@ -1116,9 +1020,9 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
                         @Override
                         public void remove() {
                             if (!canRemove) throw new IllegalStateException();
-                            if (expectedSize != mSize) throw new ConcurrentModificationException();
+                            if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
                             ArrayMap.this.removeAt(--index);
-                            expectedSize = mSize;
+                            expectedSize = ArrayMap.this.mSize;
                             canRemove = false;
                         }
                     };
@@ -1126,7 +1030,7 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
 
                 @Override
                 public int size() {
-                    return mSize;
+                    return ArrayMap.this.mSize;
                 }
 
                 @Override
@@ -1194,20 +1098,20 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
                 @Override
                 public final Iterator<Map.Entry<K, V>> iterator() {
                     return new Iterator<>() {
-                        int expectedSize = mSize;
+                        int expectedSize = ArrayMap.this.mSize;
                         int index = 0;
                         int lastReturned = -1;
                         final IndexEntry entry = new IndexEntry();
 
                         @Override
                         public final boolean hasNext() {
-                            return index < mSize;
+                            return index < ArrayMap.this.mSize;
                         }
 
                         @Override
                         public final Map.Entry<K, V> next() {
-                            if (expectedSize != mSize) throw new ConcurrentModificationException();
-                            if (index >= mSize) throw new NoSuchElementException();
+                            if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
+                            if (index >= ArrayMap.this.mSize) throw new NoSuchElementException();
                             lastReturned = index;
                             entry.index = lastReturned;
                             index++;
@@ -1217,10 +1121,10 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
                         @Override
                         public final void remove() {
                             if (lastReturned < 0) throw new IllegalStateException();
-                            if (expectedSize != mSize) throw new ConcurrentModificationException();
+                            if (expectedSize != ArrayMap.this.mSize) throw new ConcurrentModificationException();
                             ArrayMap.this.removeAt(lastReturned);
                             index = lastReturned;
-                            expectedSize = mSize;
+                            expectedSize = ArrayMap.this.mSize;
                             lastReturned = -1;
                         }
                     };
@@ -1228,7 +1132,7 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
 
                 @Override
                 public final int size() {
-                    return mSize;
+                    return ArrayMap.this.mSize;
                 }
 
                 @Override

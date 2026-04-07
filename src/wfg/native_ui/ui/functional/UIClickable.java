@@ -51,10 +51,10 @@ public class UIClickable<T extends UIClickable<T>> extends CustomPanel<UIClickab
     protected boolean checked = false;
     protected boolean quickMode = false;
 
-    public UIClickable(UIPanelAPI parent, int width, int height, CallbackRunnable<T> onClicked) {
+    public UIClickable(UIPanelAPI parent, int width, int height, CallbackRunnable<T> callback) {
         super(parent, width, height);
 
-        this.onClicked = onClicked;
+        onClicked = callback;
 
         context.ignore = true;
 
@@ -66,15 +66,13 @@ public class UIClickable<T extends UIClickable<T>> extends CustomPanel<UIClickab
             Global.getSoundPlayer().playUISound(mouseOverSound, 1, 1);
         }};
         interaction.onShortcutPressed = (source) -> {
-            if (getPanel().getOpacity() <= 0f && !disabledWhileInvisible) return;
+            if (m_panel.getOpacity() <= 0f && disabledWhileInvisible) return;
 
-            if (soundEnabled) {
-                if (disabled && !performActionWhenDisabled) {
-                    Global.getSoundPlayer().playUISound("ui_button_disabled_pressed", 1, 1);
-                    return;
-                } else {
-                    Global.getSoundPlayer().playUISound("ui_button_pressed", 1, 1);
-                }
+            if (disabled && !performActionWhenDisabled) {
+                if (soundEnabled) Global.getSoundPlayer().playUISound("ui_button_disabled_pressed", 1, 1);
+                return;
+            } else if (soundEnabled) {
+                Global.getSoundPlayer().playUISound("ui_button_pressed", 1, 1);
             }
 
             if (onClicked != null) {

@@ -70,6 +70,15 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
         glow.overlayBrightness = 0.2f;
         glow.faderMaskVertices = getFaderMaskVertices();
 
+        final CallbackRunnable<Button> uiClickableCallback = interaction.onShortcutPressed;
+        interaction.onShortcutPressed = (source) -> {
+            if (getPanel().getOpacity() > 0f) {
+                glow.fader.forceIn();
+                label.flash(0.2f, 0.2f);
+            }
+            uiClickableCallback.run(source);
+        };
+
         buildUI();
     }
 
