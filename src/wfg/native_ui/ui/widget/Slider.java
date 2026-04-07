@@ -11,7 +11,6 @@ import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
-import com.fs.starfarer.api.util.Misc;
 
 import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
@@ -19,6 +18,7 @@ import wfg.native_ui.ui.core.UIElementFlags.HasInputSnapshot;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.NumUtils;
 import wfg.native_ui.util.RenderUtils;
+import static wfg.native_ui.util.UIConstants.text_color;
 
 import java.awt.Color;
 import java.util.List;
@@ -39,8 +39,8 @@ public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
     public float maxValue = Float.MAX_VALUE;
     public LabelAPI label;
     public String labelText = null;
-    public Color labelColor = Misc.getTextColor();
-    public Color labelValueColor = Misc.getTextColor();
+    public Color labelColor = text_color;
+    public Color labelValueColor = text_color;
     public float flashOnOverflowFraction = Float.MAX_VALUE;
     public boolean showNoText = false;
     public boolean showValueOnly = false;

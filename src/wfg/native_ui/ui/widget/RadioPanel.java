@@ -65,6 +65,8 @@ public class RadioPanel extends CustomPanel<RadioPanel> implements UIBuildableAP
 
     public final RadioPanel addOption(String text, boolean selected) {
         optionTexts.add(text);
+
+        if (selected) setSelectedIndex(optionTexts.size() - 1);
         
         return this;
     }

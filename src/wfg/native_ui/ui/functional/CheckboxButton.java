@@ -1,5 +1,7 @@
 package wfg.native_ui.ui.functional;
 
+import static wfg.native_ui.util.UIConstants.hpad;
+
 import java.util.List;
 
 import com.fs.starfarer.api.Global;
@@ -35,8 +37,6 @@ public class CheckboxButton extends Button {
     private static final SpriteAPI S_TOGGLE_ON_GLOW = settings.getSprite("ui", "toggle12_on2");
     private static final SpriteAPI M_TOGGLE_ON_GLOW = settings.getSprite("ui", "toggle20_on2");
     private static final SpriteAPI L_TOGGLE_ON_GLOW = settings.getSprite("ui", "toggle40_on2");
-    
-    private static final float hpad = 5f;
 
     private final SpriteAPI TOGGLE_OFF;
     private final SpriteAPI TOGGLE_ON;

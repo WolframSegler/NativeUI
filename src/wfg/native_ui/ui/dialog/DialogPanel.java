@@ -116,7 +116,7 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
 
     public DialogPanel(UIPanelAPI parent, int w, int h, RunnableWithCode runnable,
         String txt, String... btnText
-    ) { this(parent, w, h, Color.WHITE, btnBgColorDark, runnable, txt, btnText); }
+    ) { this(parent, w, h, text_color, btnBgColorDark, runnable, txt, btnText); }
 
     public DialogPanel(UIPanelAPI parent, int w, int h, Color btnTxtColor, Color btnBgColor,
         RunnableWithCode runnable, String txt, String... btnTextArr
