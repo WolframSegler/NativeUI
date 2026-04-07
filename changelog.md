@@ -2,6 +2,7 @@ v0.4.0-beta
 - package changes.
 - Added DockButton for internal dockpanel instance handling.
 - Separated click handler from Button as UIClickable
+- Added proxy for XStream serialization to ArrayMap
 
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.

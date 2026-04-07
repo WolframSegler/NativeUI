@@ -15,6 +15,7 @@
  */
 package wfg.native_ui.util;
 
+import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -55,7 +56,7 @@ import java.util.function.BiFunction;
  *
  * <p>This structure is <b>NOT</b> thread-safe.</p>
  */
-public final class ArrayMap<K, V> implements Map<K, V> {
+public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
     /**
      * Attempt to spot concurrent modifications to this data structure.
      *
@@ -1309,5 +1310,35 @@ public final class ArrayMap<K, V> implements Map<K, V> {
         public final int hashCode() {
             return Objects.hashCode(getKey()) ^ Objects.hashCode(getValue());
         }
+    }
+
+    private static class SerializationProxy<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private final boolean mIdentityHashCode;
+        private final List<K> keys;
+        private final List<V> values;
+
+        @SuppressWarnings("unchecked")
+        SerializationProxy(final ArrayMap<K, V> map) {
+            this.mIdentityHashCode = map.mIdentityHashCode;
+            this.keys = new ArrayList<>(map.mSize);
+            this.values = new ArrayList<>(map.mSize);
+            for (int i = 0; i < map.mSize; i++) {
+                keys.add((K) map.mArray[i << 1]);
+                values.add((V) map.mArray[(i << 1) + 1]);
+            }
+        }
+
+        private final Object readResolve() {
+            final ArrayMap<K, V> map = new ArrayMap<>(keys.size(), mIdentityHashCode);
+            for (int i = 0; i < keys.size(); i++) {
+                map.put(keys.get(i), values.get(i));
+            }
+            return map;
+        }
+    }
+
+    private final Object writeReplace() {
+        return new SerializationProxy<>(this);
     }
 }
