@@ -53,7 +53,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
         this.borderThickness = borderThickness;
         innerOffset = borderThickness + opad;
 
-        borderRenderer = new BorderRenderer(borderPrefix, width + innerOffset * 2f, height + innerOffset * 2f);
+        borderRenderer = new BorderRenderer(borderPrefix, false, width + innerOffset * 2f, height + innerOffset * 2f);
         initializeBackground();
         noiseRenderer.fadeOut(0.4f);
     }
@@ -75,7 +75,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     }
 
     public void setBorder(String prefix) {
-        borderRenderer = new BorderRenderer(prefix, pos.getWidth(), pos.getHeight());
+        borderRenderer = new BorderRenderer(prefix, false, pos.getWidth(), pos.getHeight());
     }
 
     public void setBackgroundAlpha(int min, int max) {

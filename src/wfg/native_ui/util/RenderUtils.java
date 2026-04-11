@@ -20,7 +20,7 @@ public class RenderUtils {
      * @param h = height
      * @param t = thickness
      */
-    public static void drawFramedBorder(float x, float y, float w, float h, float t, Color       
+    public static final void drawFramedBorder(float x, float y, float w, float h, float t, Color       
         color, float alphaMult) {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
@@ -57,7 +57,7 @@ public class RenderUtils {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
-    public static void drawQuad(float x, float y, float w, float h, Color color, float alphaMult,
+    public static final void drawQuad(float x, float y, float w, float h, Color color, float alphaMult,
         boolean additive) {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
@@ -77,7 +77,7 @@ public class RenderUtils {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
-    public static void drawAdditiveGlow(SpriteAPI sprite, float x, float y, Color glowColor, float intensity) {
+    public static final void drawAdditiveGlow(SpriteAPI sprite, float x, float y, Color glowColor, float intensity) {
         if (sprite == null || intensity <= 0f) return;
 
         GL11.glPushMatrix();
@@ -108,7 +108,7 @@ public class RenderUtils {
         );
     }
 
-    public static void drawSpriteOutline(SpriteAPI sprite, Color color, float x, float y, float w, float h,
+    public static final void drawSpriteOutline(SpriteAPI sprite, Color color, float x, float y, float w, float h,
         float alpha, float radius) {
 
         if (color == null || sprite == null) {
@@ -155,7 +155,7 @@ public class RenderUtils {
         sprite.setNormalBlend();
     }
 
-    public static void drawGradientSprite(
+    public static final void drawGradientSprite(
         float x1, float y1,
         float x2, float y2,
         float gradientWidth,
@@ -167,7 +167,7 @@ public class RenderUtils {
         );
     }
 
-    public static void drawGradientSprite(
+    public static final void drawGradientSprite(
         SpriteAPI sprite,
         float x1, float y1,
         float x2, float y2,
@@ -189,7 +189,7 @@ public class RenderUtils {
 
         // Compute the orthogonal vector for the gradient
         final Vector2f edge = new Vector2f(x2 - x1, y2 - y1);
-        normalizeOrZero(edge);
+        normalize(edge);
         edge.set(edge.y, -edge.x);
         edge.scale(gradientWidth * 0.5f);
 
@@ -224,7 +224,7 @@ public class RenderUtils {
         GL11.glPopMatrix();
     }
 
-    public static void drawHighlightBar(
+    public static final void drawHighlightBar(
         float x, float y, float w, float h,
         Color baseColor, float alpha, float highlightIntensity, boolean darkOverlay
     ) {
@@ -284,14 +284,14 @@ public class RenderUtils {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
-    public static Color blendColors(Color c1, Color c2, float t) {
+    public static final Color blendColors(Color c1, Color c2, float t) {
         if (t <= 0f) return c1;
         if (t >= 1f) return c2;
 
-        int r = Math.min(255, Math.max(0, Math.round(c1.getRed()   + (c2.getRed()   - c1.getRed())   * t)));
-        int g = Math.min(255, Math.max(0, Math.round(c1.getGreen() + (c2.getGreen() - c1.getGreen()) * t)));
-        int b = Math.min(255, Math.max(0, Math.round(c1.getBlue()  + (c2.getBlue()  - c1.getBlue())  * t)));
-        int a = Math.min(255, Math.max(0, Math.round(c1.getAlpha() + (c2.getAlpha() - c1.getAlpha()) * t)));
+        final int r = Math.min(255, Math.max(0, Math.round(c1.getRed() + (c2.getRed() - c1.getRed()) * t)));
+        final int g = Math.min(255, Math.max(0, Math.round(c1.getGreen() + (c2.getGreen() - c1.getGreen()) * t)));
+        final int b = Math.min(255, Math.max(0, Math.round(c1.getBlue() + (c2.getBlue() - c1.getBlue()) * t)));
+        final int a = Math.min(255, Math.max(0, Math.round(c1.getAlpha() + (c2.getAlpha() - c1.getAlpha()) * t)));
 
         return new Color(r, g, b, a);
     }
@@ -417,7 +417,7 @@ public class RenderUtils {
         GL11.glEnd();
     }
 
-    private static Vector2f normalizeOrZero(Vector2f vec) {
+    private static final Vector2f normalize(Vector2f vec) {
         if (vec.lengthSquared() > Float.MIN_VALUE) {
             vec.normalise();
         }

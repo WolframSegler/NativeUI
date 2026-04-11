@@ -8,6 +8,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -34,12 +35,12 @@ public class NativeUiUtils {
      * This function assumes that the sprite is pointing right.
      * In other words, it's directed towards the positive x-axis in Hyperspace.
      */
-    public static final float rotateSprite(Vector2f origin, Vector2f target) {
-        final Vector2f delta = Vector2f.sub(target, origin, null);
+    public static final void rotateSprite(Vector2f origin, Vector2f target, SpriteAPI sprite) {
+        final float angleDegrees = (float) Math.toDegrees(Math.atan2(
+            target.x - origin.x, target.x - origin.x
+        ));
 
-        final float angleDegrees = (float) Math.toDegrees(Math.atan2(delta.y, delta.x));
-
-        return angleDegrees;
+        sprite.setAngle(angleDegrees);
     }
 
     /**

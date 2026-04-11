@@ -79,7 +79,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
 
         dockDir = dir;
 
-        border = new BorderRenderer(borderPrefix, width, height, dir);
+        border = new BorderRenderer(borderPrefix, false, width, height, dir);
         targetPos = calculateTargetPos();
         updatePosition();
     }
@@ -118,7 +118,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
      */
     public void setBorder(String prefix) {
         borderPrefix = prefix;
-        border = new BorderRenderer(prefix);
+        border = new BorderRenderer(prefix, false);
         setSize(pos.getWidth(), pos.getHeight());
 
         border.hiddenSides.clear();

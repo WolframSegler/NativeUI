@@ -1,10 +1,12 @@
 v0.4.0-beta
 - package changes.
 - Added DockButton/DockClickable for internal dockpanel instance handling.
-- Separated click handler from Button as UIClickable
-- Added proxy for XStream serialization to ArrayMap
-- Fixed a bug inside RadioPanel
-- Added to UIConstants hpad with a value of 5 and text_color for the standard text color used by vanilla
+- Separated click handler from Button as UIClickable.
+- Added proxy for XStream serialization to ArrayMap.
+- Fixed a bug inside RadioPanel.
+- Added to UIConstants "hpad" with a value of 5 and "text_color" for the standard text color used by vanilla.
+- Added a white center bg to the BorderRenderer, which allows for custom dialog background colors.
+- Changed the rotateSprite method to directly rotate the sprite instead of return the degrees
 
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.

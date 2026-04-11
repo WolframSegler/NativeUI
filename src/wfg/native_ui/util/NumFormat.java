@@ -6,7 +6,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Strings;
 
 public class NumFormat {
 
-    private static final String[] LARGE_SUFFIXES = {"", "K", "M", "B", "T", "P", "E"};
+    private static final String[] LARGE_SUFFIXES = {"", "K", "M", "B", "T", "Q", "Qu"};
     private static final String[] SMALL_SUFFIXES = {"", "m", "μ", "n", "p", "f", "a"};
 
     /**

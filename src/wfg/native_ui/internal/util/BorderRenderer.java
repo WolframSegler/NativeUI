@@ -1,5 +1,6 @@
 package wfg.native_ui.internal.util;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -9,10 +10,21 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import wfg.native_ui.internal.ui.Side;
 
+/**
+ * The texture size should match the actual size of the sprites.
+ * <pre>
+ * Available prefixes:
+ * "ui_border1"
+ * "ui_border2"
+ * "ui_border3"
+ * "ui_border4"
+ * </pre>
+ */
 public class BorderRenderer {
     public boolean renderCenter = true;
     public boolean compensateForHiddenSides = true;
     public final EnumSet<Side> hiddenSides = EnumSet.noneOf(Side.class);
+    public Color centerColor = Color.WHITE;
 
     private final SpriteAPI bottom_left;
     private final SpriteAPI bottom_right;
@@ -29,28 +41,18 @@ public class BorderRenderer {
     private float tilesWide;
     private float tilesHigh;
 
-    public BorderRenderer(String prefix, float w, float h) {
-        this(prefix);
+    public BorderRenderer(String prefix, boolean whiteCenter, float w, float h) {
+        this(prefix, whiteCenter);
         this.setSize(w, h);
     }
 
-    /**
-     * The texture size should match the actual size of the sprites.
-     * <pre>
-     * Available prefixes:
-     * "ui_border1"
-     * "ui_border2"
-     * "ui_border3"
-     * "ui_border4"
-     * </pre>
-     */
-    public BorderRenderer(String prefix) {
+    public BorderRenderer(String prefix, boolean whiteCenter) {
         final SettingsAPI settings = Global.getSettings();
 
         bottom_left = settings.getSprite("ui", prefix + "_bot_left");
         bottom_right = settings.getSprite("ui", prefix + "_bot_right");
         bottom_mid = settings.getSprite("ui", prefix + "_bot");
-        center = settings.getSprite("ui", "panel00_center");
+        center = settings.getSprite("ui", whiteCenter ? "center_white" : "panel00_center");
         left_mid = settings.getSprite("ui", prefix + "_left");
         right_mid = settings.getSprite("ui", prefix + "_right");
         top_left = settings.getSprite("ui", prefix + "_top_left");
@@ -60,19 +62,9 @@ public class BorderRenderer {
 
         center.setSize(corner_width, corner_width);
     }
-
-    /**
-     * The texture size should match the actual size of the sprites.
-     * <pre>
-     * Available prefixes:
-     * "ui_border1"
-     * "ui_border2"
-     * "ui_border3"
-     * "ui_border4"
-     * </pre>
-     */
-    public BorderRenderer(String prefix, float w, float h, Side... hidden) {
-        this(prefix);
+ 
+    public BorderRenderer(String prefix, boolean whiteCenter, float w, float h, Side... hidden) {
+        this(prefix, whiteCenter);
         this.setSize(w, h);
         if (hidden != null) {
             hiddenSides.addAll(Arrays.asList(hidden));
@@ -103,11 +95,12 @@ public class BorderRenderer {
         final boolean hideTop = hiddenSides.contains(Side.TOP);
         final boolean hideBottom = hiddenSides.contains(Side.BOTTOM);
 
-        final float leftOffset  = (compensateForHiddenSides && hideLeft)  ? -corner_width : 0f;
-        final float bottomOffset= (compensateForHiddenSides && hideBottom)? -corner_width : 0f;
+        final float leftOffset = (compensateForHiddenSides && hideLeft) ? -corner_width : 0f;
+        final float bottomOffset = (compensateForHiddenSides && hideBottom) ? -corner_width : 0f;
 
         if (renderCenter) {
             center.setAlphaMult(alpha);
+            center.setColor(Color.white);
             final float fudge = 1f;
             final float cx = x + corner_width + leftOffset;
             final float cy = y + corner_width + bottomOffset;

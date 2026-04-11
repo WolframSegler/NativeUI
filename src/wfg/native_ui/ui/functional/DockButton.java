@@ -15,6 +15,8 @@ public class DockButton<T extends DockPanel> extends Button {
         this.dockFactory = dockFactory;
         onClicked = btn -> {
             if (dock == null) createDock();
+            if (dock == null) return;
+            
             if (dock.isOpen()) dock.close();
             else dock.open(true);
         };
