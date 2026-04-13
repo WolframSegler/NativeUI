@@ -27,4 +27,9 @@ public class UIConstants {
     public static final int BUTTON_H = 25;
 
     public static final float bgAlpha = 0.85f;
+
+    public static final String UI_BORDER_1 = "ui_border1";
+    public static final String UI_BORDER_2 = "ui_border2";
+    public static final String UI_BORDER_3 = "ui_border3";
+    public static final String UI_BORDER_4 = "ui_border4";
 }

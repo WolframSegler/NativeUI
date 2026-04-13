@@ -117,11 +117,19 @@ public class NumFormat {
 		return x;
 	}
 
-    public static final String formatCredit(long number) {
-        return String.format("%,d", number) + Strings.C;
+    public static final String formatCreditAbs(double number) {
+        return formatCreditAbs((long) number);
     }
 
     public static final String formatCreditAbs(long number) {
-        return String.format("%,d", Math.abs(number)) + Strings.C;
+        return formatCredit(Math.abs(number));
+    }
+
+    public static final String formatCredit(double number) {
+        return formatCredit((long) number);
+    }
+
+    public static final String formatCredit(long number) {
+        return String.format("%,d", number) + Strings.C;
     }
 }

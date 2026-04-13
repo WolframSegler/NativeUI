@@ -19,6 +19,7 @@ import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.CallbackRunnable;
+import wfg.native_ui.util.UIConstants;
 
 /**
  * A reusable dockable panel that slides on/off screen from one of the four sides.
@@ -64,7 +65,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
     protected float progress = 0f;
 
     protected BorderRenderer border;
-    protected String borderPrefix = "ui_border1";
+    protected String borderPrefix = UIConstants.UI_BORDER_1;
 
     protected final OutsideEventDetector detector;
 
@@ -107,14 +108,13 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
     }
 
     /**
-     * The texture size should match the actual size of the sprites.
-     * <pre>
      * Available prefixes:
-     * "ui_border1"
-     * "ui_border2"
-     * "ui_border3"
-     * "ui_border4"
-     * </pre>
+     * <ul>
+     *  <li>{@link UIConstants#UI_BORDER_1}</li>
+     *  <li>{@link UIConstants#UI_BORDER_2}</li>
+     *  <li>{@link UIConstants#UI_BORDER_3}</li>
+     *  <li>{@link UIConstants#UI_BORDER_4}</li>
+     * </ul>
      */
     public void setBorder(String prefix) {
         borderPrefix = prefix;

@@ -6,7 +6,8 @@ v0.4.0-beta
 - Fixed a bug inside RadioPanel.
 - Added to UIConstants "hpad" with a value of 5 and "text_color" for the standard text color used by vanilla.
 - Added a white center bg to the BorderRenderer, which allows for custom dialog background colors.
-- Changed the rotateSprite method to directly rotate the sprite instead of return the degrees
+- Changed the rotateSprite method to directly rotate the sprite instead of return the degrees.
+- Fixed border renderer not working for other all borders.
 
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.

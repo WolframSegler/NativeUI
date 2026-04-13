@@ -37,7 +37,7 @@ public class NativeUiUtils {
      */
     public static final void rotateSprite(Vector2f origin, Vector2f target, SpriteAPI sprite) {
         final float angleDegrees = (float) Math.toDegrees(Math.atan2(
-            target.x - origin.x, target.x - origin.x
+            target.y - origin.y, target.x - origin.x
         ));
 
         sprite.setAngle(angleDegrees);
@@ -47,9 +47,9 @@ public class NativeUiUtils {
      * values below 1 lower brightness. Values above 1 increase it.
      */
     public static final Color adjustBrightness(Color base, float factor) {
-        int r = Math.min(255, (int) (base.getRed() * factor));
-        int g = Math.min(255, (int) (base.getGreen() * factor));
-        int b = Math.min(255, (int) (base.getBlue() * factor));
+        final int r = Math.min(255, (int) (base.getRed() * factor));
+        final int g = Math.min(255, (int) (base.getGreen() * factor));
+        final int b = Math.min(255, (int) (base.getBlue() * factor));
         
         return new Color(r, g, b, base.getAlpha());
     }

@@ -21,6 +21,7 @@ import wfg.native_ui.internal.util.NoiseRenderer;
 import wfg.native_ui.internal.util.PanelFillRenderer;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panel.CustomPanel;
+import static wfg.native_ui.util.UIConstants.UI_BORDER_1;
 
 public class FoldingPanel extends CustomPanel<FoldingPanel> {
     private static final SettingsAPI settings = Global.getSettings();
@@ -67,11 +68,11 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
     }
 
     public FoldingPanel(int width, int height) {
-        this(width, height, "ui_border1", 7);
+        this(width, height, UI_BORDER_1, 7);
     }
 
     public FoldingPanel() {
-        this(100, 100, "ui_border1", 7);
+        this(100, 100, UI_BORDER_1, 7);
     }
 
     public void setBorder(String prefix) {

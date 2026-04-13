@@ -44,10 +44,10 @@ public final class OutlineSystem extends BaseSystem {
             case THIN: borderThickness = 3; break;
             case MEDIUM: borderThickness = 4; break;
             case THICK: borderThickness = 8; break;
-            case TEX_VERY_THIN: textureID = "ui_border4"; break;
-            case TEX_THIN: textureID = "ui_border3"; break;
-            case TEX_MEDIUM: textureID = "ui_border1"; textureSize = 8; break;
-            case TEX_THICK: textureID = "ui_border2"; textureSize = 24; break;
+            case TEX_VERY_THIN: textureID = UI_BORDER_4; break;
+            case TEX_THIN: textureID = UI_BORDER_3; break;
+            case TEX_MEDIUM: textureID = UI_BORDER_1; textureSize = 8; break;
+            case TEX_THICK: textureID = UI_BORDER_2; textureSize = 24; break;
             default: break;
         }
 

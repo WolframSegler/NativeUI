@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.lwjgl.input.Keyboard;
 
+import static wfg.native_ui.util.UIConstants.UI_BORDER_1;
 import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
@@ -98,7 +99,7 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
         super(parent, w, h + BUTTON_H + pad + opad, runnable);
 
         holo = new FoldingPanel(m_panel, w, h + BUTTON_H + pad + opad,
-            "ui_border1", 7
+            UI_BORDER_1, 7
         );
         add(holo);
         holo.getPos().inMid();

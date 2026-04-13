@@ -345,14 +345,13 @@ public class RenderUtils {
     }
 
     /**
-     * The texture size should match the actual size of the sprites.
-     * <pre>
      * Available prefixes:
-     * "ui_border1"
-     * "ui_border2"
-     * "ui_border3"
-     * "ui_border4"
-     * </pre>
+     * <ul>
+     *  <li>{@link UIConstants#UI_BORDER_1}</li>
+     *  <li>{@link UIConstants#UI_BORDER_2}</li>
+     *  <li>{@link UIConstants#UI_BORDER_3}</li>
+     *  <li>{@link UIConstants#UI_BORDER_4}</li>
+     * </ul>
      */
     public static final void drawRoundedBorder(float x, float y, float width, float height,
         float alpha, String borderPrefix, int textureSize, Color color

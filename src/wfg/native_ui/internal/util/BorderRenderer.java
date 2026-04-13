@@ -9,22 +9,26 @@ import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import wfg.native_ui.internal.ui.Side;
+import wfg.native_ui.util.UIConstants;
 
 /**
  * The texture size should match the actual size of the sprites.
- * <pre>
+ * <br><br>
  * Available prefixes:
- * "ui_border1"
- * "ui_border2"
- * "ui_border3"
- * "ui_border4"
- * </pre>
+ * <ul>
+ *  <li>{@link UIConstants#UI_BORDER_1}</li>
+ *  <li>{@link UIConstants#UI_BORDER_2}</li>
+ *  <li>{@link UIConstants#UI_BORDER_3}</li>
+ *  <li>{@link UIConstants#UI_BORDER_4}</li>
+ * </ul>
  */
 public class BorderRenderer {
+    private static final SettingsAPI settings = Global.getSettings();
+
     public boolean renderCenter = true;
     public boolean compensateForHiddenSides = true;
     public final EnumSet<Side> hiddenSides = EnumSet.noneOf(Side.class);
-    public Color centerColor = Color.WHITE;
+    public Color centerColor = Color.white;
 
     private final SpriteAPI bottom_left;
     private final SpriteAPI bottom_right;
@@ -35,20 +39,18 @@ public class BorderRenderer {
     private final SpriteAPI top_left;
     private final SpriteAPI top_right;
     private final SpriteAPI top_mid;
-    private final float corner_width;
+    private final float corner_size;
+    private final float fudge;
     private float width;
     private float height;
-    private float tilesWide;
-    private float tilesHigh;
 
     public BorderRenderer(String prefix, boolean whiteCenter, float w, float h) {
         this(prefix, whiteCenter);
         this.setSize(w, h);
     }
 
+    // TODO fix border2 rendering bug
     public BorderRenderer(String prefix, boolean whiteCenter) {
-        final SettingsAPI settings = Global.getSettings();
-
         bottom_left = settings.getSprite("ui", prefix + "_bot_left");
         bottom_right = settings.getSprite("ui", prefix + "_bot_right");
         bottom_mid = settings.getSprite("ui", prefix + "_bot");
@@ -58,9 +60,17 @@ public class BorderRenderer {
         top_left = settings.getSprite("ui", prefix + "_top_left");
         top_right = settings.getSprite("ui", prefix + "_top_right");
         top_mid = settings.getSprite("ui", prefix + "_top");
-        corner_width = bottom_left.getWidth();
+        corner_size = bottom_left.getWidth();
 
-        center.setSize(corner_width, corner_width);
+        center.setSize(corner_size, corner_size);
+
+        fudge = switch (prefix) {
+            case UIConstants.UI_BORDER_1 -> 3f;
+            case UIConstants.UI_BORDER_2 -> 4f;
+            case UIConstants.UI_BORDER_3 -> 3f;
+            case UIConstants.UI_BORDER_4 -> 2f;
+            default -> 0f;
+        };
     }
  
     public BorderRenderer(String prefix, boolean whiteCenter, float w, float h, Side... hidden) {
@@ -74,57 +84,52 @@ public class BorderRenderer {
     public void setSize(float width, float height) {
         this.width = width;
         this.height = height;
-        this.tilesWide = (width - this.corner_width * 2.0F) / this.corner_width;
-        this.tilesHigh = (height - this.corner_width * 2.0F) / this.corner_width;
     }
 
     public void render(float x, float y, float alpha) {
         {
-        bottom_left.setAlphaMult(alpha);
-        bottom_right.setAlphaMult(alpha);
-        top_left.setAlphaMult(alpha);
-        top_right.setAlphaMult(alpha);
-        left_mid.setAlphaMult(alpha);
-        right_mid.setAlphaMult(alpha);
-        top_mid.setAlphaMult(alpha);
-        bottom_mid.setAlphaMult(alpha);
+            bottom_left.setAlphaMult(alpha);
+            bottom_right.setAlphaMult(alpha);
+            top_left.setAlphaMult(alpha);
+            top_right.setAlphaMult(alpha);
+            left_mid.setAlphaMult(alpha);
+            right_mid.setAlphaMult(alpha);
+            top_mid.setAlphaMult(alpha);
+            bottom_mid.setAlphaMult(alpha);
+            center.setAlphaMult(alpha);
         }
-
+        
         final boolean hideLeft = hiddenSides.contains(Side.LEFT);
         final boolean hideRight = hiddenSides.contains(Side.RIGHT);
         final boolean hideTop = hiddenSides.contains(Side.TOP);
         final boolean hideBottom = hiddenSides.contains(Side.BOTTOM);
 
-        final float leftOffset = (compensateForHiddenSides && hideLeft) ? -corner_width : 0f;
-        final float bottomOffset = (compensateForHiddenSides && hideBottom) ? -corner_width : 0f;
+        final float leftOffset = (compensateForHiddenSides && hideLeft) ? -corner_size : 0f;
+        final float bottomOffset = (compensateForHiddenSides && hideBottom) ? -corner_size : 0f;
+        final float rightOffset = (compensateForHiddenSides && hideRight) ? corner_size : 0f;
+        final float topOffset = (compensateForHiddenSides && hideTop) ? corner_size : 0f;
+
+        final float innerX = x + corner_size + leftOffset;
+        final float innerY = y + corner_size + bottomOffset;
+        final float innerW = width - 2f * corner_size - leftOffset + rightOffset;
+        final float innerH = height - 2f * corner_size - bottomOffset + topOffset;
 
         if (renderCenter) {
-            center.setAlphaMult(alpha);
-            center.setColor(Color.white);
-            final float fudge = 1f;
-            final float cx = x + corner_width + leftOffset;
-            final float cy = y + corner_width + bottomOffset;
-            final float cw = tilesWide + ((compensateForHiddenSides) ? ((hideLeft?1f:0f) +
-                (hideRight?1f:0f)) : 0f);
-            final float ch = tilesHigh + ((compensateForHiddenSides) ? ((hideBottom?1f:0f) +
-                (hideTop?1f:0f)) : 0f);
-            center.renderRegion(cx - fudge*5, cy - fudge*5, 0f, 0f, cw + fudge, ch + fudge);
+            center.setColor(centerColor);
+            center.renderRegion(innerX - fudge, innerY - fudge, 0f, 0f, (innerW+fudge*2) / corner_size, (innerH+fudge*2) / corner_size);
         }
-        
+
         if (!hideBottom && !hideLeft) bottom_left.render(x, y);
-        if (!hideBottom && !hideRight) bottom_right.render(x + width - corner_width, y);
-        if (!hideTop && !hideLeft) top_left.render(x, y + height - corner_width);
-        if (!hideTop && !hideRight) top_right.render(x + width - corner_width, y + height - corner_width);
+        if (!hideBottom && !hideRight) bottom_right.render(x + width - corner_size, y);
+        if (!hideTop && !hideLeft) top_left.render(x, y + height - corner_size);
+        if (!hideTop && !hideRight) top_right.render(x + width - corner_size, y + height - corner_size);
 
-        final float verticalY  = y + corner_width + bottomOffset;
-        final float verticalH  = tilesHigh + ((compensateForHiddenSides) ? ((hideBottom?1f:0f) + (hideTop?1f:0f)) : 0f);
-        final float horizontalX = x + corner_width + leftOffset;
-        final float horizontalW = tilesWide + ((compensateForHiddenSides) ? ((hideLeft?1f:0f) + (hideRight?1f:0f)) : 0f);
+        final float tileW = innerW / corner_size;
+        final float tileH = innerH / corner_size;
 
-        if (!hideLeft) left_mid.renderRegion(x, verticalY, 0f, 0f, 1f, verticalH);
-        if (!hideRight) right_mid.renderRegion(x + width - corner_width, verticalY, 0f, 0f, 1f, verticalH);
-
-        if (!hideTop) top_mid.renderRegion(horizontalX, y + height - corner_width, 0f, 0f, horizontalW, 1f);
-        if (!hideBottom) bottom_mid.renderRegion(horizontalX, y, 0f, 0f, horizontalW, 1f);
+        if (!hideLeft) left_mid.renderRegion(x, innerY, 0f, 0f, 1f, tileH);
+        if (!hideRight) right_mid.renderRegion(x + width - corner_size, innerY, 0f, 0f, 1f, tileH);
+        if (!hideTop) top_mid.renderRegion(innerX, y + height - corner_size, 0f, 0f, tileW, 1f);
+        if (!hideBottom) bottom_mid.renderRegion(innerX, y, 0f, 0f, tileW, 1f);
     }
 }
