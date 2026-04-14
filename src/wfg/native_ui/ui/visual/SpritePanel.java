@@ -5,7 +5,6 @@ import java.awt.Color;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.component.NativeComponents;
@@ -62,23 +61,21 @@ public class SpritePanel<
     public SpritePanel(UIPanelAPI parent, int width, int height, String spriteID,
         Color color, Color fillColor
     ) {
+        this(parent, width, height, settings.getSprite(spriteID), color, fillColor);
+    }
+
+    public SpritePanel(UIPanelAPI parent, int width, int height, SpriteAPI sprite,
+        Color color, Color fillColor
+    ) {
         super(parent, width, height);
 
         outline.enabled = false;
         outline.type = OutlineType.VERY_THIN;
 
-        m_sprite = settings.getSprite(spriteID);
+        m_sprite = sprite;
         this.fillColor = fillColor;
 
         if (color != null) texColor = color;
-
-    }
-
-    @Override
-    public void positionChanged(PositionAPI pos) {
-        if (m_panel == null) return;
-
-        m_sprite.setSize(pos.getWidth(), pos.getHeight());
     }
 
     @Override
@@ -103,6 +100,7 @@ public class SpritePanel<
 
         m_sprite.setAlphaMult(alpha);
         m_sprite.setColor(texColor);
+        m_sprite.setSize(w, h);
         m_sprite.render(x, y);
     }
 
