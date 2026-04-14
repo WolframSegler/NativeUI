@@ -4,8 +4,6 @@ import static wfg.native_ui.util.UIConstants.pad;
 
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector2f;
-
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
@@ -47,8 +45,10 @@ import wfg.native_ui.util.UIConstants;
 public abstract class DockPanel extends CustomPanel<DockPanel> implements
     OutisdeEventListener, UIBuildableAPI
 {
+    private static final float screenW = Global.getSettings().getScreenWidth();
+    private static final float screenH = Global.getSettings().getScreenHeight();
+
     public boolean removeWhenClosed = false;
-    public boolean loseAttention = true;
     public float durIn = 0.3f;
     public float durOut = 0.3f;
     public float bgAlpha = 0.85f;
@@ -61,7 +61,8 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
     protected float offsetX = 0f;
     protected float offsetY = 0f;
     
-    protected Vector2f targetPos;
+    protected float targetPosX;
+    protected float targetPosY;
     protected float progress = 0f;
 
     protected BorderRenderer border;
@@ -81,7 +82,7 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
         dockDir = dir;
 
         border = new BorderRenderer(borderPrefix, false, width, height, dir);
-        targetPos = calculateTargetPos();
+        calculateTargetPos();
         updatePosition();
     }
 
@@ -97,12 +98,12 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
 
     public void changeOffset(final float x, final float y) {
         offsetX = x; offsetY = y;
-        targetPos = calculateTargetPos();
+        calculateTargetPos();
     }
 
     public void changeDirection(final Side dir) {
         dockDir = dir;
-        targetPos = calculateTargetPos();
+        calculateTargetPos();
         border.hiddenSides.clear();
         border.hiddenSides.add(dir);
     }
@@ -185,8 +186,8 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
         final PositionAPI pos = getPos();
         final float eased = easeOutCubic(progress, 1f);
 
-        final float openX = targetPos.x;
-        final float openY = targetPos.y;
+        final float openX = targetPosX;
+        final float openY = targetPosY;
 
         final float closedX;
         final float closedY;
@@ -197,12 +198,12 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
             closedY = openY;
             break;
         case RIGHT:
-            closedX = Global.getSettings().getScreenWidth();
+            closedX = screenW;
             closedY = openY;
             break;
         case TOP:
             closedX = openX;
-            closedY = Global.getSettings().getScreenHeight();
+            closedY = screenH;
             break;
         case BOTTOM:
             closedX = openX;
@@ -219,9 +220,9 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
         pos.inBL(x, y);
     }
 
-    protected Vector2f calculateTargetPos() {
-        final float screenWidth = Global.getSettings().getScreenWidth();
-        final float screenHeight = Global.getSettings().getScreenHeight();
+    protected void calculateTargetPos() {
+        final float screenWidth = screenW;
+        final float screenHeight = screenH;
         final PositionAPI pos = getPos();
         final float panelWidth = pos.getWidth();
         final float panelHeight = pos.getHeight();
@@ -248,7 +249,8 @@ public abstract class DockPanel extends CustomPanel<DockPanel> implements
             break;
         }
         
-        return new Vector2f(x, y);
+        targetPosX = x;
+        targetPosY = y;
     }
 
     protected static float easeOutCubic(final float t, final float end) {
