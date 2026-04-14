@@ -11,6 +11,9 @@ public class UIConstants {
     public static final int hpad = 5;
     public static final int opad = 10; 
 
+    public static final int screenW = (int) Global.getSettings().getScreenWidth();
+    public static final int screenH = (int) Global.getSettings().getScreenHeight();
+
     public static final Color text_color = Misc.getTextColor();
     public static final Color highlight = Misc.getHighlightColor();
     public static final Color positive = Misc.getPositiveHighlightColor();

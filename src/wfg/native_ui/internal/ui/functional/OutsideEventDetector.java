@@ -1,8 +1,10 @@
 package wfg.native_ui.internal.ui.functional;
 
+import static wfg.native_ui.util.UIConstants.screenH;
+import static wfg.native_ui.util.UIConstants.screenW;
+
 import java.util.List;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 
@@ -19,10 +21,7 @@ public class OutsideEventDetector extends CustomPanel<OutsideEventDetector> {
     public boolean triggerOnKeyUp = false;
     
     public OutsideEventDetector(OutisdeEventListener owner) {
-        super(Attachments.getScreenPanel(),
-            (int) Global.getSettings().getScreenWidth(),
-            (int) Global.getSettings().getScreenHeight()
-        );
+        super(Attachments.getScreenPanel(), screenW, screenH);
         listener = owner;
     }
 

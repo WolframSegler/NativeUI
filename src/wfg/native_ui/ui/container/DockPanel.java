@@ -1,10 +1,11 @@
 package wfg.native_ui.ui.container;
 
 import static wfg.native_ui.util.UIConstants.pad;
+import static wfg.native_ui.util.UIConstants.screenH;
+import static wfg.native_ui.util.UIConstants.screenW;
 
 import java.util.List;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -45,9 +46,6 @@ import wfg.native_ui.util.UIConstants;
 public abstract class DockPanel extends CustomPanel<DockPanel> implements
     OutisdeEventListener, UIBuildableAPI
 {
-    private static final float screenW = Global.getSettings().getScreenWidth();
-    private static final float screenH = Global.getSettings().getScreenHeight();
-
     public boolean removeWhenClosed = false;
     public float durIn = 0.3f;
     public float durOut = 0.3f;

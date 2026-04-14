@@ -3,12 +3,14 @@ package wfg.native_ui.internal.ui.dialog;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
+
+import static wfg.native_ui.util.UIConstants.screenH;
+import static wfg.native_ui.util.UIConstants.screenW;
+
 import java.awt.Color;
 
 import org.lwjgl.input.Keyboard;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -198,10 +200,8 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
     public void renderBelow(float alpha) {
         super.renderBelow(alpha);
 
-        final SettingsAPI set = Global.getSettings();
         RenderUtils.drawQuad(
-            0f, 0f, set.getScreenWidth(), set.getScreenHeight(),
-            Color.BLACK,
+            0f, 0f, screenW, screenH, Color.BLACK,
             alpha * backgroundDimAmount * getFaderBrightness(),
             false
         );

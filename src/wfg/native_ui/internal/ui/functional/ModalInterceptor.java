@@ -1,8 +1,10 @@
 package wfg.native_ui.internal.ui.functional;
 
+import static wfg.native_ui.util.UIConstants.screenH;
+import static wfg.native_ui.util.UIConstants.screenW;
+
 import java.util.List;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
@@ -13,7 +15,7 @@ public class ModalInterceptor extends CustomPanel<ModalInterceptor> {
     final ModalDialog dialog;
 
     public ModalInterceptor(UIPanelAPI parent, ModalDialog dialog) {
-        super(parent, (int) Global.getSettings().getScreenWidth(), (int) Global.getSettings().getScreenHeight());
+        super(parent, screenW, screenH);
         this.dialog = dialog;
     }
 

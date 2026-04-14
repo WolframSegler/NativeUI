@@ -83,9 +83,6 @@ public class NativeUiUtils {
         final int panelW = (int) Ppos.getWidth();
         final int panelH = (int) Ppos.getHeight();
 
-        final int screenW = (int) Global.getSettings().getScreenWidth();
-        final int screenH = (int) Global.getSettings().getScreenHeight();
-
         float offsetX = 0;
         if (panelX < 0) {
             offsetX = opad + (-panelX);
@@ -323,7 +320,6 @@ public class NativeUiUtils {
         float tooltipH = pos.getHeight();
         float mouseX = Global.getSettings().getMouseX();
         float mouseY = Global.getSettings().getMouseY();
-        float screenW = Global.getSettings().getScreenWidth();
 
         pos.inBL(0, 0);
 
