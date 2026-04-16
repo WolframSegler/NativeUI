@@ -74,6 +74,10 @@ public class UIElement implements UIElementAPI {
     public void sendToBack() {
         if (parent != null) parent.sendToBottom(this);
     }
+    public void detach() {
+        parent.removeComponent(this);
+        reportDetached();
+    }
 
     public void reportAttached() { UIEventBus.getInstance().fireAttached(this); }
     public void reportDetached() { UIEventBus.getInstance().fireDetached(this); }

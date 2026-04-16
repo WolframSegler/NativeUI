@@ -8,6 +8,7 @@ v0.4.0-beta
 - Added a white center bg to the BorderRenderer, which allows for custom dialog background colors.
 - Changed the rotateSprite method to directly rotate the sprite instead of return the degrees.
 - Fixed border renderer not working for other all borders.
+- Renamed engNotation to engNotate and reverseEngNotation to reverseEngNotate
 
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.

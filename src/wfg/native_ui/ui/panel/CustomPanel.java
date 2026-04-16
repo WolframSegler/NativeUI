@@ -205,6 +205,10 @@ public abstract class CustomPanel<PanelType extends CustomPanel<PanelType>> impl
         m_panel.removeComponent(a);
     }
 
+    public final void remove(CustomPanel<?> a) {
+        m_panel.removeComponent(a.getPanel());
+    }
+
     public final Fader getPanelFader() {
         return (Fader) RolfLectionUtil.invokeMethodDirectly(getFaderMethod, m_panel);
     }

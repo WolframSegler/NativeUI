@@ -31,4 +31,5 @@ public interface UIElementAPI extends UIComponentAPI {
 
     void bringToFront();
     void sendToBack();
+    void detach();
 }

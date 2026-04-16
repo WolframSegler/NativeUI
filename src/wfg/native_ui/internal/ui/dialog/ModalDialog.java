@@ -17,7 +17,6 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.codex2.CodexDialog;
 
-import wfg.native_ui.internal.ui.functional.ModalInterceptor;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
@@ -52,6 +51,10 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
         this(Attachments.getScreenPanel(), width, width, null);
     }
 
+    public ModalDialog(int width, int height, RunnableWithCode dialogDismissed) {
+        this(Attachments.getScreenPanel(), width, width, dialogDismissed);
+    }
+
     public ModalDialog(UIPanelAPI parent, int width, int height, RunnableWithCode dialogDismissed) {
         super(parent, width, height);
 
@@ -69,19 +72,17 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
         useCustomCenter = true;
     }
 
-    public float getDialogCenterY() { return centerY; }
-
     public void show(float durIn, float durOut) {
         fader.setDuration(durIn, durOut);
         m_parent.removeComponent(inputInterceptor);
         m_parent.addComponent(inputInterceptor);
-        m_parent.addComponent(m_panel);
+
         final PositionAPI pos = m_parent.getPosition();
         inputInterceptor.getPosition().setSize(pos.getWidth(), pos.getHeight()).inMid();
         if (useCustomCenter) {
             getPos().inBL(
-                    centerX - pos.getX() - pos.getWidth() / 2f,
-                    centerY - pos.getY() - pos.getHeight() / 2f);
+                centerX - pos.getX() - pos.getWidth() / 2f,
+                centerY - pos.getY() - pos.getHeight() / 2f);
         } else getPos().inMid();
 
         if (fadeInAndOut) fader.fadeIn();
@@ -126,7 +127,6 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
             m_parent.addComponent(inputInterceptor);
             final PositionAPI pos = m_parent.getPosition();
             inputInterceptor.getPosition().setSize(pos.getWidth(), pos.getHeight()).inMid();
-            m_parent.bringComponentToTop(m_panel);
         }
 
         suspendEventInterception = bool;
@@ -136,8 +136,6 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
     public void processInput(List<InputEventAPI> events) {
         super.processInput(events);
         if (suspendEventInterception || isBeingDismissed()) return;
-
-        events.removeIf(InputEventAPI::isConsumed);
 
         for (InputEventAPI e : events) {
             if (e.isConsumed()) continue;
@@ -187,13 +185,6 @@ public class ModalDialog extends CustomPanel<ModalDialog> {
     public void advance(float delta) {
         super.advance(delta);
         fader.advance(delta);
-
-        if (suspendEventInterception) return;
-
-        if (isBeingDismissed() && fader.getBrightness() == 0f && m_parent != null) {
-            m_parent.removeComponent(inputInterceptor);
-            m_parent.removeComponent(m_panel);
-        }
     }
 
     @Override

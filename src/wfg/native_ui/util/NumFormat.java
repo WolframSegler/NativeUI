@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import com.fs.starfarer.api.impl.campaign.ids.Strings;
 
 public class NumFormat {
-
+    private NumFormat() {}
     private static final String[] LARGE_SUFFIXES = {"", "K", "M", "B", "T", "Q", "Qu"};
     private static final String[] SMALL_SUFFIXES = {"", "m", "μ", "n", "p", "f", "a"};
 
@@ -26,38 +26,35 @@ public class NumFormat {
      * </ul>
      * @return a <code>String</code> containing the formatted number.
      */
-    public static final String engNotation(long input) {
+    public static final String engNotate(long input) {
+        final long value = Math.abs(input);
 
-        long value = Math.abs(input);
-
-        if (value < 1000) {
-            final String prefix = input < 0 ? "\u2212" : "";
+        if (value < 1000l) {
+            final String prefix = input < 0l ? "\u2212" : "";
             return prefix + Long.toString(value);
         }
 
-        int suffix = (int)(Math.log10(value) / 3);
-        suffix = Math.min(suffix, LARGE_SUFFIXES.length - 1);
-        double scaled = value / Math.pow(1000, suffix);
+        final int suffix = Math.min(((int) Math.log10(value) / 3), LARGE_SUFFIXES.length - 1);
+        final double scaled = value / Math.pow(1000.0, suffix);
 
-        int intDigits = (int)Math.floor(Math.log10(scaled)) + 1;
-        intDigits = Math.max(1, Math.min(3, intDigits));
-        int decimals = 3 - intDigits;
+        final int intDigits = Math.max(1, Math.min(3, (int)Math.floor(Math.log10(scaled)) + 1));
+        final int decimals = 3 - intDigits;
 
-        StringBuilder pattern = new StringBuilder("#");
+        final StringBuilder pattern = new StringBuilder("#");
         if (decimals > 0) {
             pattern.append(".");
             pattern.append("#".repeat(decimals));
         }
 
-        DecimalFormat df = new DecimalFormat(pattern.toString());
-        if (input < 0) {
+        final DecimalFormat df = new DecimalFormat(pattern.toString());
+        if (input < 0l) {
             return "\u2212" + df.format(scaled) + LARGE_SUFFIXES[suffix]; // large minus sign
         }
         return df.format(scaled) + LARGE_SUFFIXES[suffix];
     }
 
-    public static final String engNotation(double input) {
-        return engNotation((long) input);
+    public static final String engNotate(double input) {
+        return engNotate((long) input);
     }
 
     /**
@@ -72,8 +69,8 @@ public class NumFormat {
      *
      * @return a <code>String</code> containing the formatted multiplier.
      */
-    public static final String reverseEngNotation(float multiplier) {
-        if (multiplier <= 0 || multiplier >= 1.01) return "" + multiplier;
+    public static final String reverseEngNotate(float multiplier) {
+        if (multiplier <= 0 || multiplier >= 1.01) return Float.toString(multiplier);
 
         float delta = multiplier - 1f;
 
@@ -86,9 +83,9 @@ public class NumFormat {
         return String.format("1.%.0f%s", Math.round(delta * 10) / 10.0, SMALL_SUFFIXES[exp]);
     }
 
-    public static final String formatWithAdaptivePrecision(double value) {
-        double rounded = Math.round(value * 100.0) / 100.0;
-        String formatted;
+    public static final String formatAdaptivePrecision(double value) {
+        final double rounded = Math.round(value * 100.0) / 100.0;
+        final String formatted;
 
         // Check if it's basically 1.00 but not exactly
         if (Math.abs(value - 1.0) < 0.01 && Math.abs(value - 1.0) > 1e-6) {
@@ -105,9 +102,9 @@ public class NumFormat {
     }
 
     public static String formatMagnitudeAware(double value) {
-        return Math.abs(value) < 1000
-            ? formatWithAdaptivePrecision(value)
-            : engNotation((long) value);
+        return Math.abs(value) < 1000.0
+            ? formatAdaptivePrecision(value)
+            : engNotate((long) value);
     }
 
     public static final int firstDigit(int x) {

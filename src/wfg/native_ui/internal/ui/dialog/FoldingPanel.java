@@ -21,12 +21,12 @@ import wfg.native_ui.internal.util.NoiseRenderer;
 import wfg.native_ui.internal.util.PanelFillRenderer;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panel.CustomPanel;
-import static wfg.native_ui.util.UIConstants.UI_BORDER_1;
 
 public class FoldingPanel extends CustomPanel<FoldingPanel> {
     private static final SettingsAPI settings = Global.getSettings();
     private static final SpriteAPI SCANLINE_11 = settings.getSprite("ui", "scanline11");
     private static final SpriteAPI NOISE = settings.getSprite("ui", "noise");
+    private static final float scaleMult = settings.getScreenScaleMult();
 
     public boolean renderBackground = true;
     public boolean transitionEnabled = true;
@@ -50,7 +50,8 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
         int borderThickness
     ) {
         super(parent, width + (borderThickness + opad)*2, height + (borderThickness + opad)*2);
-        
+        m_parent.addComponent(m_panel);
+
         this.borderThickness = borderThickness;
         innerOffset = borderThickness + opad;
 
@@ -216,18 +217,17 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
         final float bx = x + borderThickness;
         final float by = y + borderThickness;
 
-        final float scale = settings.getScreenScaleMult();
-        final int scissorX = (int) ((x + innerOffset) * scale);
-        final int scissorY = (int) ((y + innerOffset) * scale);
-        final int scissorW = (int) ((w - innerOffset * 2f) * scale);
-        final int scissorH = (int) ((h - innerOffset * 2f) * scale);
+        final int scissorX = (int) ((x + innerOffset) * scaleMult);
+        final int scissorY = (int) ((y + innerOffset) * scaleMult);
+        final int scissorW = (int) ((w - innerOffset * 2f) * scaleMult);
+        final int scissorH = (int) ((h - innerOffset * 2f) * scaleMult);
 
         if (renderBackground) {
             borderRenderer.setSize(w, h);
             borderRenderer.render(x, y, brightness * borderAlphaFactor * borderAlpha);
         }
 
-        if (brightness != 1f || isAlwaysScissor) {
+        if (brightness < 1f || isAlwaysScissor) {
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
         }
 
@@ -240,11 +240,9 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
 
         GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
         if (currentPanel != null) {
-            if (transitionEnabled && renderBackground) {
-            currentPanel.render(transitionAlpha * brightness * (1f - noiseRenderer.getBrightness()));
-            } else {
-            currentPanel.render(transitionAlpha * brightness);
-            }
+            final float mult = (transitionEnabled && renderBackground) ? 1f - noiseRenderer.getBrightness() : 1f;
+
+            currentPanel.render(transitionAlpha * brightness * mult);
         }
 
         GL11.glScissor((int) x, (int) y, (int) w, (int) h);
@@ -257,7 +255,7 @@ public class FoldingPanel extends CustomPanel<FoldingPanel> {
             );
         }
 
-        if (brightness != 1f || isAlwaysScissor) {
+        if (brightness < 1f || isAlwaysScissor) {
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
         }
     }

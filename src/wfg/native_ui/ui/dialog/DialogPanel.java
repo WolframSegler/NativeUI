@@ -1,11 +1,9 @@
 package wfg.native_ui.ui.dialog;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.lwjgl.input.Keyboard;
 
-import static wfg.native_ui.util.UIConstants.UI_BORDER_1;
 import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
@@ -16,40 +14,31 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.ui.UIComponentAPI;
-import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.internal.ui.dialog.FoldingPanel;
 import wfg.native_ui.internal.ui.dialog.ModalDialog;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.functional.Button;
 import wfg.native_ui.ui.functional.Button.CutStyle;
+import wfg.native_ui.util.ArrayMap;
 import wfg.native_ui.util.CallbackRunnable;
 import wfg.native_ui.util.RunnableWithCode;
 
 /**
 <p>
-A modal, fold-animated dialog panel with a built-in <em>holo</em> ({@link FoldingPanel}) frame and an editable
-inner content panel. This class combines:
-</p>
-<ul>
-<li>a fullscreen modal behavior and input interception (from {@link ModalDialog}),</li>
-<li>a folding / noise animated chrome (the {@link DialogPanel#holo} FoldingPanel),</li>
-<li>and a simple button → integer option mapping via {@link DialogPanel#optionsMap}.</li>
-</ul>
+A modal, fold-animated dialog panel with a built-in <em>holo</em> ({@link FoldingPanel}) frame.
 
 <p><strong>Important implementation notes</strong></p>
 <ul>
-<li><strong>Ownership:</strong> {@link DialogPanel#innerPanel} is owned and positioned by {@link DialogPanel#holo}.
-Do <em>not</em> assign {@link DialogPanel#innerPanel} to any other parent. Use {@link FoldingPanel#setNext(innerPanel)} instead.</li>
+<li><strong>Ownership:</strong> {@link DialogPanel#m_panel} is owned and positioned by {@link DialogPanel#holo}.
+Do <em>not</em> assign {@link DialogPanel#m_panel} to any other parent. Use {@link FoldingPanel#setNext(m_panel)} instead.</li>
 <li><strong>Buttons:</strong> Buttons map to integer options stored in {@link DialogPanel#optionsMap}.</li>
 </ul>
 
 <p><strong>Typical usage</strong></p>
 <pre><code>
 final DialogPanel dlg = new DialogPanel(
-    Attachments.getScreenPanel(), // parent
-    (option) -&gt; {...},
+    (code) -&gt; {...},
     "Confirm action", // default text
     "Confirm", "Cancel" // button texts (0 = Confirm, 1 = Cancel)
 );
@@ -63,19 +52,19 @@ dlg.show(0.5f, 0.5f);
 
 <p><strong>Subclassing / customization</strong></p>
 <ul>
-<li>Subclass and populate {@link DialogPanel#innerPanel} in {@link #buildUI()}, add labels, tables or other components, and register buttons in {@link DialogPanel#optionsMap}.</li>
+<li>Subclass and populate using {@link #buildUI()}, add labels, tables or other components, and register buttons in {@link DialogPanel#optionsMap}.</li>
 <li>Override {@link #outsideClickAbsorbed(InputEventAPI)} to provide custom functionality.</li>
 
 </ul>
 
 <p><strong>Subclass example</strong></p>
 <pre><code>public class MyConfirmDialog extends DialogPanel {
-    public MyConfirmDialog(UIPanelAPI parent, RunnableWithCode done) {
-        super(parent, 420, 220, done);
+    public MyConfirmDialog(RunnableWithCode done) {
+        super(420, 220, done);
     }
 
     &#64;Override
-    public void rebuildUI() {
+    public void buildUI() {
         final LabelAPI text2 = Global.getSettings().createLabel(
             "Extra info", Fonts.INSIGNIA_LARGE
         );
@@ -89,52 +78,46 @@ dlg.show(0.5f, 0.5f);
 }
 </code></pre>
 */
-public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>, UIBuildableAPI {
+public class DialogPanel extends ModalDialog implements UIBuildableAPI, CallbackRunnable<Button> {
     public boolean noiseOnConfirmDismiss = true;
-    public final UIPanelAPI innerPanel;
     public final FoldingPanel holo;
-    public final Map<Button, Integer> optionsMap = new HashMap<>();
+    public final Map<Button, Integer> optionsMap = new ArrayMap<>();
 
-    public DialogPanel(UIPanelAPI parent, int w, int h, RunnableWithCode runnable) {
-        super(parent, w, h + BUTTON_H + pad + opad, runnable);
+    public DialogPanel(int w, int h, RunnableWithCode onDismissed) {
+        super(w, h + BUTTON_H + pad + opad, onDismissed);
 
-        holo = new FoldingPanel(m_panel, w, h + BUTTON_H + pad + opad,
+        holo = new FoldingPanel(w, h + BUTTON_H + pad + opad,
             UI_BORDER_1, 7
         );
-        add(holo);
+
         holo.getPos().inMid();
         holo.forceFoldIn();
 
-        innerPanel = Global.getSettings().createCustom(0f, 0f, null); 
-
         holo.transitionEnabled = false;
-        holo.setNext(innerPanel);
+        holo.setNext(m_panel);
     }
 
-    public DialogPanel(UIPanelAPI parent, RunnableWithCode runnable, String txt, String... btnText) {
-        this(parent, 500, 200, runnable, txt, btnText);
+    public DialogPanel(RunnableWithCode onDismissed, String txt, String... btnText) {
+        this(500, 200, onDismissed, txt, btnText);
     }
 
-    public DialogPanel(UIPanelAPI parent, int w, int h, RunnableWithCode runnable,
+    public DialogPanel(int w, int h, RunnableWithCode onDismissed,
         String txt, String... btnText
-    ) { this(parent, w, h, text_color, btnBgColorDark, runnable, txt, btnText); }
+    ) { this(w, h, text_color, btnBgColorDark, onDismissed, txt, btnText); }
 
-    public DialogPanel(UIPanelAPI parent, int w, int h, Color btnTxtColor, Color btnBgColor,
-        RunnableWithCode runnable, String txt, String... btnTextArr
+    public DialogPanel(int w, int h, Color btnTxtColor, Color btnBgColor,
+        RunnableWithCode onDismissed, String txt, String... btnTextArr
     ) {
-        this(parent, w, h, runnable);
-
-        final PositionAPI innerPos = innerPanel.getPosition();
+        this(w, h, onDismissed);
 
         if (txt != null && !txt.equals("")) {
             final LabelAPI txtLbl = Global.getSettings().createLabel(
                 txt, Fonts.INSIGNIA_LARGE
             );
-            innerPanel.addComponent((UIComponentAPI)txtLbl);
+            add(txtLbl);
             txtLbl.setColor(btnTxtColor);
             txtLbl.getPosition().setSize(
-                innerPos.getWidth(),
-                innerPos.getHeight() - BUTTON_H
+                pos.getWidth(), pos.getHeight() - BUTTON_H
             ).inTL(0f, 0f);
             txtLbl.setAlignment(Alignment.TL);
         }
@@ -144,18 +127,24 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
             for(int i = btnTextArr.length - 1; i >= 0; i--) {
                 final String BtnTxt = btnTextArr[i];
                 if (BtnTxt == null) continue;
+
+                final CallbackRunnable<Button> run = (btn) -> {
+                    final Integer optionValue = optionsMap.get(btn);
+                    if (optionValue == null) dismiss(1);
+                    else dismiss(optionValue);
+                };
     
-                final Button btn = new Button(innerPanel, BUTTON_W, BUTTON_H, BtnTxt,
-                    Fonts.ORBITRON_20AA, this
+                final Button btn = new Button(m_panel, BUTTON_W, BUTTON_H, BtnTxt,
+                    Fonts.ORBITRON_20AA, run
                 );
                 btn.setAlignment(Alignment.MID);
                 btn.cutStyle = CutStyle.TL_BR;
                 btn.setQuickMode(true);
                 optionsMap.put(btn, i);
-                innerPanel.addComponent(btn.getPanel());
+                add(btn);
 
                 if (prevBtn == null) btn.getPos().inBR(pad, pad);
-                else  btn.getPos().leftOfMid(prevBtn.getPanel(), pad*2);
+                else btn.getPos().leftOfMid(prevBtn.getPanel(), pad*2);
     
                 prevBtn = btn;
             }
@@ -180,6 +169,12 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
         });
     }
 
+    public void run(Button btn)  {
+        final Integer optionValue = optionsMap.get(btn);
+        if (optionValue == null) dismiss(1);
+        else dismiss(optionValue);
+    }
+
     @Override
     public void dismiss(int option) {
         holo.foldIn(fader.getDurationOut() * 0.5f);
@@ -192,6 +187,8 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
 
     public void show(float durIn, float durOut) {
         super.show(durIn, durOut);
+
+        holo.getParent().bringComponentToTop(holo.getPanel());
         holo.foldOut(fader.getDurationIn() * 0.5f);
         holo.flickerNoise(0f, 1f);
     }
@@ -199,12 +196,6 @@ public class DialogPanel extends ModalDialog implements CallbackRunnable<Button>
     @Override
     public void outsideClickAbsorbed(InputEventAPI event) {
         holo.flickerNoise(0f, 0.5f);
-    }
-
-    public void run(Button btn) {
-        final Integer optionValue = optionsMap.get(btn);
-        if (optionValue == null) dismiss(1);
-        else dismiss(optionValue);
     }
 
     public Button getButton(int id) {

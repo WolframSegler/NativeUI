@@ -115,6 +115,10 @@ public class SpritePanel<
     public static class Base extends SpritePanel<Base> {
         public Base(UIPanelAPI parent, int width, int height, String spriteID, Color color,
             Color fillColor
-        ) { super(parent, width, height, spriteID, color, fillColor); }
+        ) { this(parent, width, height, settings.getSprite(spriteID), color, fillColor); }
+
+        public Base(UIPanelAPI parent, int width, int height, SpriteAPI sprite, Color color,
+            Color fillColor
+        ) { super(parent, width, height, sprite, color, fillColor); }
     }
 }
