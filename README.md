@@ -2,7 +2,7 @@
 Composition-oriented UI framework with use of panels instead of custom plugins.
 
 # Features
-- Extensive use of generics for early error prevention.
+- Custom UIComponentAPI and UIPanelAPI implementations. 
 - Global UI attachment points via [`Attachments`](src/wfg/native_ui/ui/Attachments.java).
 - Barebones UI context tracking using [`UIContext`](src/wfg/native_ui/ui/UIContext.java).
 - [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) for tooltips, hoverGlow etc. to reduce boilerplate, with a more composition-oriented approach.
@@ -20,6 +20,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 - [`DialogPanel`](src/wfg/native_ui/ui/dialog/DialogPanel.java) is the vanilla Folding Dialog Panel but without the annoying vanilla API.
 - [`DockPanel`](src/wfg/native_ui/ui/container/DockPanel.java) docks to the specified side of the screen and can move in and out of the viewport.
 - [`DockClickable`](src/wfg/native_ui/ui/functional/DockClickable.java) and [`DockButton`](src/wfg/native_ui/ui/functional/DockButton.java) manage the lifecycle of a [`DockPanel`](src/wfg/native_ui/ui/container/DockPanel.java).
+- [`IconValuePair`](src/wfg/native_ui/ui/visual/IconValuePair.java) standardizes the formatting of icon-value pairs. Also includes a variant with tooltip support.
 
 # Utils
 - [`CallbackRunnable`](src/wfg/native_ui/util/CallbackRunnable.java) enables access to the panel that called the runnable. Used extensively.

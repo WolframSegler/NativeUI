@@ -12,6 +12,8 @@ v0.4.0-beta
 - DialogPanel no longer has an inner panel, and is itself the inner panel.
 - Added to AudioFeedbackComp a flag for hover only sounds.
 - Added to NativeUiUtils isCtrlDown, isShiftDown and isAltDown.
+- Removed CustomPanel generics as it was unused.
+- Added IconValuePair for standardized icon-value pairs in UI.
 
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.
