@@ -8,6 +8,7 @@ package wfg.native_ui.ui.system;
 public enum NativeSystems {
     INPUT_SNAPSHOT,
     BACKGROUND,
+    DEBUG_BG,
     AUDIO_FEEDBACK,
     HOVER_GLOW,
     OUTLINE,

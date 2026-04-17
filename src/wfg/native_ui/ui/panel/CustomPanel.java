@@ -23,6 +23,7 @@ import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
 import wfg.native_ui.ui.system.AudioFeedbackSystem;
 import wfg.native_ui.ui.system.BackgroundSystem;
 import wfg.native_ui.ui.system.BaseSystem;
+import wfg.native_ui.ui.system.DebugBgSystem;
 import wfg.native_ui.ui.system.HoverGlowSystem;
 import wfg.native_ui.ui.system.InteractionSystem;
 import wfg.native_ui.ui.system.NativeSystems;
@@ -110,6 +111,10 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
 
         if (this instanceof UIElementFlags.HasBackground) {
             system().setIfNotPresent(NativeSystems.BACKGROUND, BackgroundSystem.get(), this);
+        }
+
+        if (this instanceof UIElementFlags.HasDebugBg) {
+            system().setIfNotPresent(NativeSystems.DEBUG_BG, DebugBgSystem.get(), this);
         }
 
         if (this instanceof UIElementFlags.HasOutline) {

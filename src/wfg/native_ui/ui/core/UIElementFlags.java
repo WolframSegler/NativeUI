@@ -6,6 +6,7 @@ public interface UIElementFlags {
     public interface HasOutline {}
     public interface HasAudioFeedback {}
     public interface HasBackground {}
+    public interface HasDebugBg {}
     public interface HasTooltip {}
     public interface HasUIContext {}
     public interface HasInputSnapshot {}

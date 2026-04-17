@@ -58,7 +58,7 @@ import wfg.native_ui.util.NativeUiUtils.AnchorType;
  * <p>
  * <b>Accepted row cell types:</b>
  * <ul>
- *   <li>{@link Integer} — displayed as a small-font label with optional color.</li>
+ *   <li>{@link Number} — displayed as a small-font label with optional color.</li>
  *   <li>{@link String} — displayed as a small-font label with optional color.</li>
  *   <li>{@link SpritePanel} — displayed as a sprite panel UI component.</li>
  *   <li>{@link UIComponentAPI} — displayed directly as a UI panel component.</li>
