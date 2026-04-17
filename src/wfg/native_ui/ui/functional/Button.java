@@ -3,9 +3,9 @@ package wfg.native_ui.ui.functional;
 import org.lwjgl.input.Keyboard;
 import java.awt.Color;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.*;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
@@ -83,7 +83,7 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
     }
 
     public void recreateLabel() {
-        final LabelAPI newlbl = Global.getSettings().createLabel(labelText, labelFont);
+        final LabelAPI newlbl = settings.createLabel(labelText, labelFont);
 
         final String finalText = !appendShortcutToText ? labelText :
             labelText + " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
@@ -106,7 +106,7 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
 
         final String finalText = !appendShortcutToText ? labelText :
             labelText + " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
-        label = Global.getSettings().createLabel(finalText, labelFont);
+        label = settings.createLabel(finalText, labelFont);
         label.getPosition().setSize(pos.getWidth(), pos.getHeight());
         label.setColor(btnTxtColor);
         label.setAlignment(alg);

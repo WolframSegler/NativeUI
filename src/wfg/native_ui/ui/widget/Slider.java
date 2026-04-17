@@ -1,7 +1,5 @@
 package wfg.native_ui.ui.widget;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.graphics.util.GLListManager;
@@ -18,6 +16,8 @@ import wfg.native_ui.ui.core.UIElementFlags.HasInputSnapshot;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.NumUtils;
 import wfg.native_ui.util.RenderUtils;
+
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.text_color;
 
 import java.awt.Color;
@@ -29,8 +29,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 public class Slider extends CustomPanel implements HasInputSnapshot {
-    private static final SettingsAPI settings = Global.getSettings();
-
     protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);
 
     public float minRange = 0f;
@@ -107,7 +105,7 @@ public class Slider extends CustomPanel implements HasInputSnapshot {
 
     private void createLabel(String fontInput) {
         final String font = fontInput == null ? Fonts.DEFAULT_SMALL : fontInput;
-        label = Global.getSettings().createLabel("", font);
+        label = settings.createLabel("", font);
         label.setColor(labelColor);
         label.setHighlightOnMouseover(true);
         label.setAlignment(Alignment.MID);

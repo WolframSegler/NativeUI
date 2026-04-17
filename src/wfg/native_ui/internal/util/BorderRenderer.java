@@ -1,11 +1,11 @@
 package wfg.native_ui.internal.util;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import wfg.native_ui.internal.ui.Side;
@@ -23,8 +23,6 @@ import wfg.native_ui.util.UIConstants;
  * </ul>
  */
 public class BorderRenderer {
-    private static final SettingsAPI settings = Global.getSettings();
-
     public boolean renderCenter = true;
     public boolean compensateForHiddenSides = true;
     public final EnumSet<Side> hiddenSides = EnumSet.noneOf(Side.class);

@@ -1,5 +1,7 @@
 package wfg.native_ui.ui;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -86,7 +88,7 @@ public class Attachments {
      * Works in-general.
      */
     public static final UIPanelAPI getScreenPanel() {
-        switch (Global.getSettings().getCurrentState()) {
+        switch (settings.getCurrentState()) {
             case CAMPAIGN: return getCoreUI();
             case COMBAT: getCombatScreenPanel();
             case TITLE: default: return getTitleScreenPanel();

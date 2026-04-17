@@ -2,11 +2,12 @@ package wfg.native_ui.ui.container;
 
 import java.util.List;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import java.awt.Color;
 
 import org.lwjgl.input.Keyboard;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import com.fs.starfarer.api.ui.UIComponentAPI;
@@ -47,7 +48,7 @@ public class ScrollPanel extends CustomPanel implements HasBackground, HasInputS
         contentWidth = viewportWidth;
         contentHeight = viewportHeight;
 
-        contentPanel = Global.getSettings().createCustom(viewportWidth, viewportHeight, null);
+        contentPanel = settings.createCustom(viewportWidth, viewportHeight, null);
         add(contentPanel).inBL(0, 0);
     }
 

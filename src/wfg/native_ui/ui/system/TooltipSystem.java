@@ -1,8 +1,8 @@
 package wfg.native_ui.ui.system;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.pad;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
@@ -29,7 +29,7 @@ public final class TooltipSystem extends BaseSystem {
         element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
     }
 
-    public static final CustomPanelAPI customPanel = Global.getSettings().createCustom(pad, pad, null);
+    public static final CustomPanelAPI customPanel = settings.createCustom(pad, pad, null);
     public static final Object scrollPanelConstr;
     public static final Object setContentSizeMethod;
     public static final Object setSizeMethod;

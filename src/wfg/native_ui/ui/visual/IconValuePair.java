@@ -1,11 +1,10 @@
 package wfg.native_ui.ui.visual;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Strings;
 import com.fs.starfarer.api.ui.Alignment;
@@ -18,8 +17,6 @@ import wfg.native_ui.ui.visual.SpritePanel.Base;
 import wfg.native_ui.util.NumFormat;
 
 public class IconValuePair extends CustomPanel {
-    private static final SettingsAPI settings = Global.getSettings();
-
     private final Base iconBase;
     private final LabelAPI valueLbl;
 

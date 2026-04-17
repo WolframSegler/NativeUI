@@ -1,9 +1,9 @@
 package wfg.native_ui.ui.visual;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import java.awt.Color;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
@@ -46,8 +46,6 @@ import wfg.native_ui.util.RenderUtils;
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
 > extends CustomPanel implements HasOutline, HasUIContext {
-    private static final SettingsAPI settings = Global.getSettings();
-
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 

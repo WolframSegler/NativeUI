@@ -1,11 +1,10 @@
 package wfg.native_ui.ui.functional;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.hpad;
 
 import java.util.List;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.ButtonAPI.UICheckboxSize;
@@ -27,7 +26,6 @@ import wfg.native_ui.util.CallbackRunnable;
  * automatically repositioned if the checkbox size changes.</p>
  */
 public class CheckboxButton extends Button {
-    private static final SettingsAPI settings = Global.getSettings();
     private static final SpriteAPI S_TOGGLE_OFF = settings.getSprite("ui", "toggle12_off");
     private static final SpriteAPI S_TOGGLE_ON = settings.getSprite("ui", "toggle12_on");
     private static final SpriteAPI M_TOGGLE_OFF = settings.getSprite("ui", "toggle20_off");

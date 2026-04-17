@@ -1,7 +1,10 @@
 package wfg.native_ui.ui.visual;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import java.awt.Color;
 
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.component.AudioFeedbackComp;
@@ -37,7 +40,13 @@ public class SpritePanelWithTp extends SpritePanel<SpritePanelWithTp>
     public SpritePanelWithTp(UIPanelAPI parent, int width, int height, String spriteID,
         Color color, Color fillColor
     ) {
-        super(parent, width, height, spriteID, color, fillColor);
+        this(parent, width, height, settings.getSprite(spriteID), color, fillColor);
+    }
+
+    public SpritePanelWithTp(UIPanelAPI parent, int width, int height, SpriteAPI sprite,
+        Color color, Color fillColor
+    ) {
+        super(parent, width, height, sprite, color, fillColor);
 
         glow.additiveSprite = m_sprite;
     }

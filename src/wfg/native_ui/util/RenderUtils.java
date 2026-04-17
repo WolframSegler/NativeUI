@@ -3,14 +3,13 @@ package wfg.native_ui.util;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+
+import static wfg.native_ui.util.Globals.settings;
 
 import java.awt.Color;
 
 public class RenderUtils {
-    private static final SettingsAPI settings = Global.getSettings();
     private static final SpriteAPI LINE_TEX = settings.getSprite("graphics/hud/line4x4.png");
 
     /**

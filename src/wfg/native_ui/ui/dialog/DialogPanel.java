@@ -4,11 +4,11 @@ import java.util.Map;
 
 import org.lwjgl.input.Keyboard;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
@@ -111,7 +111,7 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
         this(w, h, onDismissed);
 
         if (txt != null && !txt.equals("")) {
-            final LabelAPI txtLbl = Global.getSettings().createLabel(
+            final LabelAPI txtLbl = settings.createLabel(
                 txt, Fonts.INSIGNIA_LARGE
             );
             add(txtLbl);

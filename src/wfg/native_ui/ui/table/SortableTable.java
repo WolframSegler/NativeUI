@@ -1,5 +1,6 @@
 package wfg.native_ui.ui.table;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
@@ -8,8 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
@@ -106,7 +106,7 @@ import wfg.native_ui.util.NativeUiUtils.AnchorType;
 public class SortableTable extends CustomPanel implements
     UIBuildableAPI, HasOutline
 {
-    private final static String sortIconPath = Global.getSettings().getSpriteName("ui", "sortIcon");
+    private final static SpriteAPI sortIconPath = settings.getSprite("ui", "sortIcon");
 
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
@@ -246,7 +246,7 @@ public class SortableTable extends CustomPanel implements
 
         @Override
         public void buildUI() {
-            final LabelAPI lbl = Global.getSettings().createLabel(column.title, Fonts.ORBITRON_12);
+            final LabelAPI lbl = settings.createLabel(column.title, Fonts.ORBITRON_12);
             lbl.autoSizeToWidth(pos.getWidth());
             lbl.setColor(base);
             lbl.setAlignment(Alignment.MID);
@@ -347,8 +347,6 @@ public class SortableTable extends CustomPanel implements
         }
 
         public void buildUI() {
-            final SettingsAPI settings = Global.getSettings();
-
             int cumulativeXOffset = 0;
             for (int i = 0; i < m_cellData.size(); i++) {
                 final Object cell = m_cellData.get(i);

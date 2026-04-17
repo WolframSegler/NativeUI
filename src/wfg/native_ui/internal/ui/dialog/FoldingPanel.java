@@ -1,14 +1,13 @@
 package wfg.native_ui.internal.ui.dialog;
 
 import static wfg.native_ui.util.UIConstants.*;
+import static wfg.native_ui.util.Globals.settings;
 
 import java.awt.Color;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
@@ -23,7 +22,6 @@ import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panel.CustomPanel;
 
 public class FoldingPanel extends CustomPanel {
-    private static final SettingsAPI settings = Global.getSettings();
     private static final SpriteAPI SCANLINE_11 = settings.getSprite("ui", "scanline11");
     private static final SpriteAPI NOISE = settings.getSprite("ui", "noise");
     private static final float scaleMult = settings.getScreenScaleMult();

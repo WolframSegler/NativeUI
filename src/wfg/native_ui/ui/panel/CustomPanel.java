@@ -1,10 +1,11 @@
 package wfg.native_ui.ui.panel;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import java.util.List;
 
 import com.fs.graphics.util.Fader;
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
@@ -65,7 +66,7 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
     public static final Object isSlidOutMethod;
 
     static {
-        final UIPanelAPI panelIns = Global.getSettings().createCustom(0, 0, null);
+        final UIPanelAPI panelIns = settings.createCustom(0, 0, null);
         final Class<?> panelClazz = panelIns.getClass();
         final Class<?> posClazz = panelIns.getPosition().getClass();
 
@@ -92,7 +93,7 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
     public CustomPanel(UIPanelAPI parent, int width, int height) {
         m_parent = parent;
 
-        m_panel = Global.getSettings().createCustom(width, height, this);
+        m_panel = settings.createCustom(width, height, this);
         pos = m_panel.getPosition();
 
         initSystems();

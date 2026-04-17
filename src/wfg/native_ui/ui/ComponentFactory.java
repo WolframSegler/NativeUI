@@ -1,11 +1,10 @@
 package wfg.native_ui.ui;
 
 import static wfg.native_ui.util.UIConstants.*;
+import static wfg.native_ui.util.Globals.settings;
 
 import java.awt.Color;
 
-import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
@@ -31,7 +30,6 @@ public class ComponentFactory {
         UIPanelAPI parent, int btnSize, String text, String font, CallbackRunnable<Button> onClick, 
         Color txtColor, int textAndBtnGap
     ) {
-        final SettingsAPI settings = Global.getSettings();
         final Button checkbox = new Button(
             parent, btnSize, btnSize, null, null, onClick
         );
@@ -96,8 +94,6 @@ public class ComponentFactory {
         String captionFont, String valueFont, Color captionColor, Color valueColor,
         boolean highlightOnHover, float maxW
     ) {
-        final SettingsAPI settings = Global.getSettings();
-
         final LabelAPI captionLbl = settings.createLabel(captionTxt, captionFont);
         captionLbl.setColor(captionColor);
         captionLbl.setHighlightOnMouseover(highlightOnHover);

@@ -1,11 +1,12 @@
 package wfg.native_ui.internal.util;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import java.util.Random;
 import java.awt.Color;
 
 import org.lwjgl.opengl.GL11;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.api.util.Misc;
@@ -14,7 +15,7 @@ import wfg.native_ui.util.RenderUtils;
 
 public class NoiseRenderer {
     public final FaderUtil fader = new FaderUtil(0f, 1f, 1f, false, true);
-    public Color noiseColor = Global.getSettings().getColor("noiseColor");
+    public Color noiseColor = settings.getColor("noiseColor");
     public float renderW;
     public float renderH;
 

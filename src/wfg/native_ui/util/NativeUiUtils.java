@@ -1,5 +1,6 @@
 package wfg.native_ui.util;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
@@ -8,7 +9,6 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector2f;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
@@ -25,9 +25,9 @@ public class NativeUiUtils {
         "expandLabel", StandardTooltipV2.class
     );
 
-    public static final void resetFlowLeft(TooltipMakerAPI tooltip, float gap) {
-        float prevHeight = tooltip.getHeightSoFar();
-        LabelAPI alignReset = tooltip.addPara("", 0f);
+    public static final void resetFlowLeft(final TooltipMakerAPI tooltip, float gap) {
+        final float prevHeight = tooltip.getHeightSoFar();
+        final LabelAPI alignReset = tooltip.addPara("", 0f);
         alignReset.getPosition().inTL(gap, prevHeight);
         tooltip.setHeightSoFar(prevHeight);
     }
@@ -156,8 +156,8 @@ public class NativeUiUtils {
             }
         } 
 
-        float offsetX = 0;
-        float offsetY = 0;
+        final float offsetX;
+        final float offsetY;
         
         switch (type) {
         case LeftTop:
@@ -175,7 +175,7 @@ public class NativeUiUtils {
             offsetY = anchorY - panelY - heightCompensation;
             break;
 
-        case RightTop:
+        default: case RightTop:
             offsetX = anchorX + anchorW - panelX + gap - widthCompensation;
             offsetY = anchorY + anchorH - panelY - panelH;
             break;
@@ -315,17 +315,17 @@ public class NativeUiUtils {
         final int mouseSize = 40;
         final float correction = 8f;
 
-        PositionAPI pos = tooltip.getPosition();
+        final PositionAPI pos = tooltip.getPosition();
 
-        float tooltipW = pos.getWidth();
-        float tooltipH = pos.getHeight();
-        float mouseX = Global.getSettings().getMouseX();
-        float mouseY = Global.getSettings().getMouseY();
+        final float tooltipW = pos.getWidth();
+        final float tooltipH = pos.getHeight();
+        final float mouseX = settings.getMouseX();
+        final float mouseY = settings.getMouseY();
 
         pos.inBL(0, 0);
 
-        float tooltipX = pos.getX();
-        float tooltipY = pos.getY();
+        final float tooltipX = pos.getX();
+        final float tooltipY = pos.getY();
 
         // Bottom-left of mouse
         float offsetX = (mouseX - tooltipX) + mouseSize / 2f;
@@ -342,8 +342,6 @@ public class NativeUiUtils {
         }
 
         // If top overflow
-        final int screenH = (int) Global.getSettings().getScreenHeight();
-
         if (tooltipY + offsetY + tooltipH > screenH - opad) {
             offsetY = screenH - tooltipY - tooltipH - opad*2;
         }
