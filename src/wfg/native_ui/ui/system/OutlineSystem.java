@@ -18,14 +18,14 @@ public final class OutlineSystem extends BaseSystem {
     private OutlineSystem() {}
 
     @Override
-    public void init(CustomPanel<?> element) {
+    public void init(CustomPanel element) {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.OUTLINE, new OutlineComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
     }
 
     @Override
-    public final void renderBelow(final CustomPanel<?> element, float alpha) {
+    public final void renderBelow(final CustomPanel element, float alpha) {
         final var comp = element.comp();
         final OutlineComp outline = comp.get(NativeComponents.OUTLINE);
         final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);

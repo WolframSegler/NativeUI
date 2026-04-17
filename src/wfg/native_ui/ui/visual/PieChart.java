@@ -15,7 +15,7 @@ import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
 
-public class PieChart extends CustomPanel<PieChart> implements
+public class PieChart extends CustomPanel implements
     HasTooltip
 {
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);

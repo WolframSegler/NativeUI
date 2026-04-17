@@ -28,7 +28,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-public class Slider extends CustomPanel<Slider> implements HasInputSnapshot {
+public class Slider extends CustomPanel implements HasInputSnapshot {
     private static final SettingsAPI settings = Global.getSettings();
 
     protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);

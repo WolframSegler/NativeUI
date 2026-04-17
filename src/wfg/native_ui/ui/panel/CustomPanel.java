@@ -54,9 +54,7 @@ import wfg.native_ui.ui.system.UISystemContainer;
  * freely read component data.
  * </p>
  */
-public abstract class CustomPanel<PanelType extends CustomPanel<PanelType>> implements 
-    CustomUIPanelPlugin
-{
+public abstract class CustomPanel implements CustomUIPanelPlugin {
     public static final Object clearChildrenMethod;
     public static final Object getChildrenCopyMethod;
     public static final Object getChildrenNonCopyMethod;
@@ -191,7 +189,7 @@ public abstract class CustomPanel<PanelType extends CustomPanel<PanelType>> impl
         return a.getPosition();
     }
 
-    public final PositionAPI add(CustomPanel<?> a) {
+    public final PositionAPI add(CustomPanel a) {
         m_panel.addComponent(a.getPanel());
 
         return a.getPos();
@@ -205,7 +203,7 @@ public abstract class CustomPanel<PanelType extends CustomPanel<PanelType>> impl
         m_panel.removeComponent(a);
     }
 
-    public final void remove(CustomPanel<?> a) {
+    public final void remove(CustomPanel a) {
         m_panel.removeComponent(a.getPanel());
     }
 

@@ -43,7 +43,7 @@ import wfg.native_ui.ui.panel.CustomPanel;
  * );
  * }</pre>
  */
-public abstract class TextPanel extends CustomPanel<TextPanel> implements
+public abstract class TextPanel extends CustomPanel implements
     HasTooltip, HasAudioFeedback, HasUIContext, UIBuildableAPI
 {
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);

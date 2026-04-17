@@ -22,7 +22,7 @@ import wfg.native_ui.internal.util.PanelFillRenderer;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panel.CustomPanel;
 
-public class FoldingPanel extends CustomPanel<FoldingPanel> {
+public class FoldingPanel extends CustomPanel {
     private static final SettingsAPI settings = Global.getSettings();
     private static final SpriteAPI SCANLINE_11 = settings.getSprite("ui", "scanline11");
     private static final SpriteAPI NOISE = settings.getSprite("ui", "noise");

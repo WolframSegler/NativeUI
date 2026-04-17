@@ -45,7 +45,7 @@ import wfg.native_ui.util.RenderUtils;
  */
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
-> extends CustomPanel<PanelType> implements HasOutline, HasUIContext {
+> extends CustomPanel implements HasOutline, HasUIContext {
     private static final SettingsAPI settings = Global.getSettings();
 
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);

@@ -18,7 +18,7 @@ public final class InteractionSystem extends BaseSystem {
     private InteractionSystem() {}
 
     @Override
-    public void init(CustomPanel<?> element) {
+    public void init(CustomPanel element) {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
         comp.setIfNotPresent(NativeComponents.INTERACTION, new InteractionComp<>());
@@ -27,7 +27,7 @@ public final class InteractionSystem extends BaseSystem {
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void processInput(final CustomPanel<?> element, List<InputEventAPI> events) {
+    public void processInput(final CustomPanel element, List<InputEventAPI> events) {
         final var comp = element.comp();
         final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
         final InteractionComp listen = comp.get(NativeComponents.INTERACTION);

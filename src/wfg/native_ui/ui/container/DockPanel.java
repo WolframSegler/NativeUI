@@ -43,7 +43,7 @@ import wfg.native_ui.util.UIConstants;
  *   close animation finishes.</li>
  * </ul>
  */
-public abstract class DockPanel extends CustomPanel<DockPanel> implements
+public abstract class DockPanel extends CustomPanel implements
     OutisdeEventListener, UIBuildableAPI
 {
     public boolean removeWhenClosed = false;

@@ -10,7 +10,7 @@ import wfg.native_ui.ui.panel.CustomPanel;
 /**
  * Wrapper panel for providing a listener in overlays.
  */
-public class ListenerProviderPanel extends CustomPanel<ListenerProviderPanel> implements HasInteraction {
+public class ListenerProviderPanel extends CustomPanel implements HasInteraction {
     public final InteractionComp<ListenerProviderPanel> interaction = comp().get(NativeComponents.INTERACTION);
 
     public ListenerProviderPanel(UIPanelAPI parent, int width, int height) {

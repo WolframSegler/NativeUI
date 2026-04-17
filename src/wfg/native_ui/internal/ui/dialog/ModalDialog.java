@@ -22,7 +22,7 @@ import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
 import wfg.native_ui.util.RunnableWithCode;
 
-public class ModalDialog extends CustomPanel<ModalDialog> {
+public class ModalDialog extends CustomPanel {
     public RunnableWithCode delegate;
     public int optionOnKeyboardCancel = 1;
     public int optionOnKeyboardConfirm = 0;

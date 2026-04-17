@@ -22,7 +22,7 @@ public final class TooltipSystem extends BaseSystem {
     private TooltipSystem() {}
 
     @Override
-    public void init(CustomPanel<?> element) {
+    public void init(CustomPanel element) {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.TOOLTIP, new TooltipComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
@@ -58,7 +58,7 @@ public final class TooltipSystem extends BaseSystem {
 
     // TODO fix bug causing tooltip to be visible even when its owner is invisible
     @Override
-    public final void advance(final CustomPanel<?> element, float delta) {
+    public final void advance(final CustomPanel element, float delta) {
         final var comp = element.comp();
         final TooltipComp spec = comp.get(NativeComponents.TOOLTIP);
         final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);

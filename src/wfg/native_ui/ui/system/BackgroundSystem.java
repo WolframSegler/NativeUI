@@ -13,13 +13,13 @@ public final class BackgroundSystem extends BaseSystem {
     private BackgroundSystem() {}
 
     @Override
-    public void init(CustomPanel<?> element) {
+    public void init(CustomPanel element) {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.BACKGROUND, new BackgroundComp());
     }
 
     @Override
-    public void renderBelow(final CustomPanel<?> element, float alpha) {
+    public void renderBelow(final CustomPanel element, float alpha) {
         final var comp = element.comp();
         final BackgroundComp bg = comp.get(NativeComponents.BACKGROUND);
         if (!bg.enabled) return;

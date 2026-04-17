@@ -20,7 +20,7 @@ public final class HoverGlowSystem extends BaseSystem {
     private HoverGlowSystem() {}
 
     @Override
-    public void init(CustomPanel<?> element) {
+    public void init(CustomPanel element) {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.HOVER_GLOW, new HoverGlowComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
@@ -28,7 +28,7 @@ public final class HoverGlowSystem extends BaseSystem {
     }
 
     @Override
-    public final void advance(final CustomPanel<?> element, float amount) {
+    public final void advance(final CustomPanel element, float amount) {
         final var comp = element.comp();
         final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
         final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
@@ -47,7 +47,7 @@ public final class HoverGlowSystem extends BaseSystem {
     }
 
     @Override
-    public final void renderBelow(final CustomPanel<?> element, float alpha) {
+    public final void renderBelow(final CustomPanel element, float alpha) {
         final var comp = element.comp();
         final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
@@ -64,7 +64,7 @@ public final class HoverGlowSystem extends BaseSystem {
     }
 
     @Override
-    public final void render(final CustomPanel<?> element, float alpha) {
+    public final void render(final CustomPanel element, float alpha) {
         final var comp = element.comp();
         final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
@@ -96,7 +96,7 @@ public final class HoverGlowSystem extends BaseSystem {
     }
 
     private final void drawGlowLayer(float alpha, InputSnapshotComp input, HoverGlowComp glow,
-        CustomPanel<?> element
+        CustomPanel element
     ) {
 
         final float effectiveAlpha = glow.overlayBrightness * glow.fader.getBrightness() * alpha;

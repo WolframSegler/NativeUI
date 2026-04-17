@@ -14,13 +14,14 @@ import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.panel.CustomPanel;
 
 public final class AudioFeedbackSystem extends BaseSystem {
+    private static final SoundPlayerAPI player = Global.getSoundPlayer();
 
     private static final AudioFeedbackSystem INSTANCE = new AudioFeedbackSystem();
     public static AudioFeedbackSystem get() { return INSTANCE;}
     private AudioFeedbackSystem() {}
 
     @Override
-    public void init(CustomPanel<?> element) {
+    public void init(CustomPanel element) {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.AUDIO_FEEDBACK, new AudioFeedbackComp());
         comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
@@ -29,29 +30,24 @@ public final class AudioFeedbackSystem extends BaseSystem {
     private static final int initCompTicks = 10;
 
     @Override
-    public void processInput(final CustomPanel<?> element, final List<InputEventAPI> events) {
+    public void processInput(final CustomPanel element, final List<InputEventAPI> events) {
         final AudioFeedbackComp audio = element.comp().get(NativeComponents.AUDIO_FEEDBACK);
         final UIContextComp context = element.comp().get(NativeComponents.UI_CONTEXT);
         final InputSnapshotComp input = element.comp().get(NativeComponents.INPUT_SNAPSHOT);
 
-        if (audio == null || !audio.enabled) return;
+        if (audio == null || !audio.enabled || !context.isValid()) return;
+        audio.accumulatedGameTicks++;
 
-        if (audio.accumulatedGameTicks > initCompTicks && context.isValid()) {
-            SoundPlayerAPI player = Global.getSoundPlayer();
+        if (audio.accumulatedGameTicks < initCompTicks) return;
 
-            if (input.hoverStarted && audio.enabled) {
-                player.playUISound(audio.mouseOverSound, 1f, 1f);
-            }
-
-            if (input.LMBUpLastFrame && audio.enabled) {
-                if (audio.useDisabledSound) {
-                    player.playUISound(audio.buttonPressedDisabledSound, 1f, 1f);
-                } else {
-                    player.playUISound(audio.buttonPressedSound, 1f, 1f);
-                }
-            }
+        if (input.hoverStarted) {
+            player.playUISound(audio.mouseOverSound, 1f, 1f);
         }
 
-        audio.accumulatedGameTicks++;
+        if (input.LMBUpLastFrame && !audio.hoverOnly) {
+            player.playUISound(audio.useDisabledSound ?
+                audio.buttonPressedDisabledSound : audio.buttonPressedSound, 1f, 1f
+            );
+        }
     }
 }

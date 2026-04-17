@@ -10,7 +10,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.panel.CustomPanel;
 
-public class ModalInterceptor extends CustomPanel<ModalInterceptor> {
+public class ModalInterceptor extends CustomPanel {
     final ModalDialog dialog;
 
     public ModalInterceptor(UIPanelAPI parent, ModalDialog dialog) {

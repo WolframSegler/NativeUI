@@ -37,7 +37,7 @@ import wfg.native_ui.util.RunnableWithCode;
  *   <li>{@link LayoutMode#HORIZONTAL} – options are distributed evenly across the panel width.</li>
  * </ul>
  */
-public class RadioPanel extends CustomPanel<RadioPanel> implements UIBuildableAPI {
+public class RadioPanel extends CustomPanel implements UIBuildableAPI {
     public enum LayoutMode {
         HORIZONTAL, VERTICAL
     }

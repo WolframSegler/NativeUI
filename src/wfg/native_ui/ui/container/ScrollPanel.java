@@ -22,9 +22,7 @@ import wfg.native_ui.ui.panel.CustomPanel;
 /**
  * Do not add children directly to ScrollPanel, but to the contentPanel
  */
-public class ScrollPanel extends CustomPanel<ScrollPanel>
-    implements HasBackground, HasInputSnapshot
-{
+public class ScrollPanel extends CustomPanel implements HasBackground, HasInputSnapshot {
     public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
     protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);
 

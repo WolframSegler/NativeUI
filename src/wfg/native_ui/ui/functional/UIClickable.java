@@ -33,7 +33,7 @@ import wfg.native_ui.util.CallbackRunnable;
  *   toggle semantics.</li>
  * </ul>
  */
-public class UIClickable<T extends UIClickable<T>> extends CustomPanel<UIClickable<T>> implements HasInteraction, HasUIContext {
+public class UIClickable<T extends UIClickable<T>> extends CustomPanel implements HasInteraction, HasUIContext {
 
     public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
     protected final InteractionComp<T> interaction = comp().get(NativeComponents.INTERACTION);

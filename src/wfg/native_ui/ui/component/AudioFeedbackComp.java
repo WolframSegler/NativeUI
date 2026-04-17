@@ -4,6 +4,7 @@ import wfg.native_ui.ui.system.AudioFeedbackSystem;
 
 public final class AudioFeedbackComp extends BaseComponent {
     public boolean useDisabledSound = false;
+    public boolean hoverOnly = false;
     public String buttonPressedSound = "ui_button_pressed";
     public String mouseOverSound = "ui_button_mouseover";
     public String buttonPressedDisabledSound = "ui_button_disabled_pressed";

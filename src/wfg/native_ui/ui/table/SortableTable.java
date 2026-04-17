@@ -103,7 +103,7 @@ import wfg.native_ui.util.NativeUiUtils.AnchorType;
  * This component supports tooltips both for headers and rows via {@link TooltipBuilder}.
  * <p>
  */
-public class SortableTable extends CustomPanel<SortableTable> implements
+public class SortableTable extends CustomPanel implements
     UIBuildableAPI, HasOutline
 {
     private final static String sortIconPath = Global.getSettings().getSpriteName("ui", "sortIcon");
@@ -210,7 +210,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements
         ).inTL(0f, HEADER_HEIGHT + pad);
     }
 
-    private class HeaderPanel extends CustomPanel<HeaderPanel> implements UIBuildableAPI,
+    private class HeaderPanel extends CustomPanel implements UIBuildableAPI,
         HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction, HasUIContext
     {
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
@@ -313,7 +313,7 @@ public class SortableTable extends CustomPanel<SortableTable> implements
         }
     }
 
-    public class RowPanel extends CustomPanel<RowPanel> implements UIBuildableAPI,
+    public class RowPanel extends CustomPanel implements UIBuildableAPI,
         HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
     {
         public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);

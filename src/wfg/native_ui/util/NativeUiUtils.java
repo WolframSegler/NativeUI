@@ -4,6 +4,7 @@ import static wfg.native_ui.util.UIConstants.*;
 
 import java.awt.Color;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -364,5 +365,17 @@ public class NativeUiUtils {
 
     public static final boolean isMouseDown() {
         return Mouse.isButtonDown(0) || Mouse.isButtonDown(1);
+    }
+
+    public static final boolean isCtrlDown() {
+        return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+    }
+
+    public static final boolean isShiftDown() {
+        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+    }
+
+    public static final boolean isAltDown() {
+        return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
     }
 }

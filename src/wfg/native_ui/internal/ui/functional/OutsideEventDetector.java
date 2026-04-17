@@ -11,7 +11,7 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.panel.CustomPanel;
 
-public class OutsideEventDetector extends CustomPanel<OutsideEventDetector> {
+public class OutsideEventDetector extends CustomPanel {
     private final OutisdeEventListener listener;
 
     public boolean consumeMouseMove = true;

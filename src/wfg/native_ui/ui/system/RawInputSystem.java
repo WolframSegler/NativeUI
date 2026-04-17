@@ -18,12 +18,12 @@ public class RawInputSystem extends BaseSystem {
     private RawInputSystem() {}
 
     @Override
-    public void init(CustomPanel<?> element) {
+    public void init(CustomPanel element) {
         element.comp().setIfNotPresent(NativeComponents.INPUT_SNAPSHOT, new InputSnapshotComp());
     }
 
     @Override
-    public void processInput(final CustomPanel<?> element, final List<InputEventAPI> events) {
+    public void processInput(final CustomPanel element, final List<InputEventAPI> events) {
         final InputSnapshotComp input = element.comp().get(NativeComponents.INPUT_SNAPSHOT);
 
         input.resetFrameFlags();
