@@ -17,6 +17,8 @@ public class InputSnapshotComp extends BaseComponent {
     public boolean isActive = false;
 
     public InputEventAPI mouseMoveEvent = null;
+    public InputEventAPI LMBUpEvent = null;
+    public InputEventAPI RMBUpEvent = null;
 
     public void resetFrameFlags() {
         LMBDownLastFrame = false;
@@ -24,5 +26,9 @@ public class InputSnapshotComp extends BaseComponent {
 
         RMBDownLastFrame = false;
         RMBUpLastFrame = false;
+
+        mouseMoveEvent = null;
+        LMBUpEvent = null;
+        RMBUpEvent = null;
     }
 }

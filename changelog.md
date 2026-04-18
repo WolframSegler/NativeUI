@@ -15,6 +15,7 @@ v0.4.0-beta
 - Removed CustomPanel generics as it was unused.
 - Added IconValuePair for standardized icon-value pairs in UI.
 - Removed UIContext as it was no longer needed.
+- Added swapPosition to NativeUiUtils.
 
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.

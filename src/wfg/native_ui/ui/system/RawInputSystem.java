@@ -61,7 +61,10 @@ public class RawInputSystem extends BaseSystem {
             }
 
             if (event.isLMBUpEvent() || !Mouse.isButtonDown(0)) {
-                if (input.hasLMBClickedBefore) input.LMBUpLastFrame = true;
+                if (input.hasLMBClickedBefore) {
+                    input.LMBUpLastFrame = true;
+                    input.LMBUpEvent = event;
+                }
                 input.isActive = false;
                 input.hasLMBClickedBefore = false;
             }
@@ -72,14 +75,16 @@ public class RawInputSystem extends BaseSystem {
             }
 
             if (event.isRMBUpEvent() || !Mouse.isButtonDown(1)) {
-                if (input.hasRMBClickedBefore) input.RMBUpLastFrame = true;
+                if (input.hasRMBClickedBefore) {
+                    input.RMBUpLastFrame = true;
+                    input.RMBUpEvent = event;
+                }
                 input.hasRMBClickedBefore = false;
             }
         }
 
         if (!mouseMovePresent) {
             input.hoveredLastFrame = false;
-            input.mouseMoveEvent = null;
         }
     }
 }

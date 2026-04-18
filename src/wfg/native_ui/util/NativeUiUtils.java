@@ -309,6 +309,32 @@ public class NativeUiUtils {
     }
 
     /**
+     * Swaps the visual positions of two UI components.
+     */
+    public static final void swapPositions(UIComponentAPI comp1, UIComponentAPI comp2) {
+        final PositionAPI pos1 = comp1.getPosition();
+        final PositionAPI pos2 = comp2.getPosition();
+
+        final float absX1 = pos1.getX();
+        final float absY1 = pos1.getY();
+        final float absX2 = pos2.getX();
+        final float absY2 = pos2.getY();
+
+        pos1.inBL(0f, 0f);
+        pos2.inBL(0f, 0f);
+
+        final float parentX1 = pos1.getX();
+        final float parentY1 = pos1.getY();
+        final float parentX2 = pos2.getX();
+        final float parentY2 = pos2.getY();
+
+        pos1.setXAlignOffset(absX2 - parentX1);
+        pos1.setYAlignOffset(absY2 - parentY1);
+        pos2.setXAlignOffset(absX1 - parentX2);
+        pos2.setYAlignOffset(absY1 - parentY2);
+    }
+
+    /**
      * Positions the tooltip at a corner of the mouse.
      */
     public static final void mouseCornerPos(TooltipMakerAPI tooltip, int opad) {
