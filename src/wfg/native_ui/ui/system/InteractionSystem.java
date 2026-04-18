@@ -33,9 +33,11 @@ public final class InteractionSystem extends BaseSystem {
         // Click handling
         if (input.hoveredLastFrame && input.LMBUpLastFrame && listen.onClicked != null) {
             listen.onClicked.handle(element, true);
+            if (input.LMBUpEvent != null) input.LMBUpEvent.consume();
         }
         if (input.hoveredLastFrame && input.RMBUpLastFrame && listen.onClicked != null) {
             listen.onClicked.handle(element, false);
+            if (input.RMBUpEvent != null) input.RMBUpEvent.consume();
         }
 
         // Shortcut handling
