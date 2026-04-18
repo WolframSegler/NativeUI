@@ -165,7 +165,7 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
 
     public void setConfirmShortcut() {
         optionsMap.keySet().forEach(b -> {
-            if (optionsMap.get(b) == 0) { b.setShortcut(Keyboard.KEY_G);}
+            if (optionsMap.get(b) == 0) { b.setShortcutAndAppendToText(Keyboard.KEY_G);}
         });
     }
 

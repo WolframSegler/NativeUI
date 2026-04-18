@@ -7,11 +7,9 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import wfg.native_ui.ui.component.AudioFeedbackComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
-import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
 import wfg.native_ui.ui.panel.CustomPanel;
 
 /**
@@ -44,10 +42,9 @@ import wfg.native_ui.ui.panel.CustomPanel;
  * }</pre>
  */
 public abstract class TextPanel extends CustomPanel implements
-    HasTooltip, HasAudioFeedback, HasUIContext, UIBuildableAPI
+    HasTooltip, HasAudioFeedback, UIBuildableAPI
 {
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
     public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
 
     // Shared state for anonymous subclasses to modify.
@@ -60,7 +57,6 @@ public abstract class TextPanel extends CustomPanel implements
     public TextPanel(UIPanelAPI parent, int width, int height) {
         super(parent, width, height);
 
-        context.ignore = true;
         buildUI();
     }
 }

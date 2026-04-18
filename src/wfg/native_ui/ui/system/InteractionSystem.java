@@ -7,8 +7,6 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
-import wfg.native_ui.ui.component.UIComponentContainer;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.panel.CustomPanel;
 
 public final class InteractionSystem extends BaseSystem {
@@ -19,9 +17,7 @@ public final class InteractionSystem extends BaseSystem {
 
     @Override
     public void init(CustomPanel element) {
-        final UIComponentContainer comp = element.comp();
-        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
-        comp.setIfNotPresent(NativeComponents.INTERACTION, new InteractionComp<>());
+        element.comp().setIfNotPresent(NativeComponents.INTERACTION, new InteractionComp<>());
         element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
     }
 
@@ -29,7 +25,6 @@ public final class InteractionSystem extends BaseSystem {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void processInput(final CustomPanel element, List<InputEventAPI> events) {
         final var comp = element.comp();
-        final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
         final InteractionComp listen = comp.get(NativeComponents.INTERACTION);
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
 
@@ -44,7 +39,7 @@ public final class InteractionSystem extends BaseSystem {
         }
 
         // Shortcut handling
-        if (listen.shortcut > 0 && context.isValid() && listen.onShortcutPressed != null) {
+        if (listen.shortcut > 0 && listen.onShortcutPressed != null) {
             for (InputEventAPI event : events) {
                 if (!event.isConsumed() && event.isKeyDownEvent() &&
                     event.getEventValue() == listen.shortcut

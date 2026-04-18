@@ -15,9 +15,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.ComponentFactory;
-import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.UIComponentContainer;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.core.UIElementFlags;
 import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
 import wfg.native_ui.ui.system.AudioFeedbackSystem;
@@ -101,10 +99,6 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
     }
 
     protected void initSystems() {
-        if (this instanceof UIElementFlags.HasUIContext) {
-            comp().setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
-        }
-
         if (this instanceof UIElementFlags.HasInputSnapshot) {
             system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), this);
         }

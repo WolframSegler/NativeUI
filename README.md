@@ -4,7 +4,6 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 # Features
 - Custom UIComponentAPI and UIPanelAPI implementations. 
 - Global UI attachment points via [`Attachments`](src/wfg/native_ui/ui/Attachments.java).
-- Barebones UI context tracking using [`UIContext`](src/wfg/native_ui/ui/UIContext.java).
 - [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) for tooltips, hoverGlow etc. to reduce boilerplate, with a more composition-oriented approach.
 
 # UI Elements

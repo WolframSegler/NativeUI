@@ -14,6 +14,7 @@ v0.4.0-beta
 - Added to NativeUiUtils isCtrlDown, isShiftDown and isAltDown.
 - Removed CustomPanel generics as it was unused.
 - Added IconValuePair for standardized icon-value pairs in UI.
+- Removed UIContext as it was no longer needed.
 
 v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.

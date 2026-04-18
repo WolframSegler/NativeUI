@@ -9,10 +9,8 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.OutlineComp;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.component.OutlineComp.OutlineType;
 import wfg.native_ui.ui.core.UIElementFlags.HasOutline;
-import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
 
@@ -45,9 +43,8 @@ import wfg.native_ui.util.RenderUtils;
  */
 public class SpritePanel<
     PanelType extends SpritePanel<PanelType>
-> extends CustomPanel implements HasOutline, HasUIContext {
+> extends CustomPanel implements HasOutline {
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
-    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
     public boolean drawTextureHalo = false;
     public Color fillColor;

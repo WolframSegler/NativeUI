@@ -25,7 +25,6 @@ import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.OutlineComp;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
 import wfg.native_ui.ui.component.InteractionComp.ClickHandler;
 import wfg.native_ui.ui.component.TooltipComp.TooltipBuilder;
@@ -36,7 +35,6 @@ import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
 import wfg.native_ui.ui.core.UIElementFlags.HasOutline;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
-import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.ui.visual.SpritePanel;
 import wfg.native_ui.ui.visual.SpritePanel.Base;
@@ -109,7 +107,6 @@ public class SortableTable extends CustomPanel implements
     private final static SpriteAPI sortIconPath = settings.getSprite("ui", "sortIcon");
 
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
-    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
     private final List<ColumnManager> m_columns = new ArrayList<>();
     private final List<RowPanel> m_rows = new ArrayList<>();
@@ -142,7 +139,6 @@ public class SortableTable extends CustomPanel implements
 
         outline.color = NativeUiUtils.adjustBrightness(new Color(grid.getRed(), grid.getGreen(), grid.getBlue()), 0.3f);
         outline.enabled = false;
-        context.ignore = true;
     }
 
     public void buildUI() {
@@ -211,14 +207,13 @@ public class SortableTable extends CustomPanel implements
     }
 
     private class HeaderPanel extends CustomPanel implements UIBuildableAPI,
-        HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction, HasUIContext
+        HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction
     {
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
         public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
         public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
         public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
         public final InteractionComp<HeaderPanel> interaction = comp().get(NativeComponents.INTERACTION);
-        public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
         protected final ColumnManager column;
         public int listIndex = -1;
@@ -228,8 +223,6 @@ public class SortableTable extends CustomPanel implements
             super(parent, width, height);
             this.column = column;
             this.listIndex = listIndex;
-
-            context.ignore = true;
 
             interaction.onClicked = (source, isLeftClick) -> {
                 if (!sortingEnabled) return;
@@ -321,7 +314,6 @@ public class SortableTable extends CustomPanel implements
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
         public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
         public final InteractionComp<RowPanel> interaction = comp().get(NativeComponents.INTERACTION);
-        public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
 
         public Color textColor = base;
         public Object customData = null;
@@ -333,7 +325,6 @@ public class SortableTable extends CustomPanel implements
 
         public RowPanel(UIPanelAPI parent, int width, int height) {
             super(parent, width, height);
-            context.ignore = true;
             outline.enabled = false;
 
             glow.color = dark;

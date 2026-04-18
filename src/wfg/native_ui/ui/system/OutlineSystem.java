@@ -7,7 +7,6 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.OutlineComp;
 import wfg.native_ui.ui.component.UIComponentContainer;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
 
@@ -21,16 +20,13 @@ public final class OutlineSystem extends BaseSystem {
     public void init(CustomPanel element) {
         final UIComponentContainer comp = element.comp();
         comp.setIfNotPresent(NativeComponents.OUTLINE, new OutlineComp());
-        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
     }
 
     @Override
     public final void renderBelow(final CustomPanel element, float alpha) {
-        final var comp = element.comp();
-        final OutlineComp outline = comp.get(NativeComponents.OUTLINE);
-        final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
+        final OutlineComp outline = element.comp().get(NativeComponents.OUTLINE);
 
-        if (!outline.enabled || !context.isValid()) return;
+        if (!outline.enabled) return;
 
         final PositionAPI pos = element.getPos();
 

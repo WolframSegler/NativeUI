@@ -8,6 +8,5 @@ public interface UIElementFlags {
     public interface HasBackground {}
     public interface HasDebugBg {}
     public interface HasTooltip {}
-    public interface HasUIContext {}
     public interface HasInputSnapshot {}
 }

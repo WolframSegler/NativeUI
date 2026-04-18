@@ -9,8 +9,6 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import wfg.native_ui.ui.component.AudioFeedbackComp;
 import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
-import wfg.native_ui.ui.component.UIComponentContainer;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.panel.CustomPanel;
 
 public final class AudioFeedbackSystem extends BaseSystem {
@@ -22,9 +20,7 @@ public final class AudioFeedbackSystem extends BaseSystem {
 
     @Override
     public void init(CustomPanel element) {
-        final UIComponentContainer comp = element.comp();
-        comp.setIfNotPresent(NativeComponents.AUDIO_FEEDBACK, new AudioFeedbackComp());
-        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        element.comp().setIfNotPresent(NativeComponents.AUDIO_FEEDBACK, new AudioFeedbackComp());
     }
 
     private static final int initCompTicks = 10;
@@ -32,10 +28,9 @@ public final class AudioFeedbackSystem extends BaseSystem {
     @Override
     public void processInput(final CustomPanel element, final List<InputEventAPI> events) {
         final AudioFeedbackComp audio = element.comp().get(NativeComponents.AUDIO_FEEDBACK);
-        final UIContextComp context = element.comp().get(NativeComponents.UI_CONTEXT);
         final InputSnapshotComp input = element.comp().get(NativeComponents.INPUT_SNAPSHOT);
 
-        if (audio == null || !audio.enabled || !context.isValid()) return;
+        if (audio == null || !audio.enabled) return;
         audio.accumulatedGameTicks++;
 
         if (audio.accumulatedGameTicks < initCompTicks) return;

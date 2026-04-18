@@ -10,8 +10,6 @@ import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.component.UIComponentContainer;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.core.UITooltip;
 import wfg.native_ui.ui.panel.CustomPanel;
 
@@ -23,9 +21,7 @@ public final class TooltipSystem extends BaseSystem {
 
     @Override
     public void init(CustomPanel element) {
-        final UIComponentContainer comp = element.comp();
-        comp.setIfNotPresent(NativeComponents.TOOLTIP, new TooltipComp());
-        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        element.comp().setIfNotPresent(NativeComponents.TOOLTIP, new TooltipComp());
         element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
     }
 
@@ -61,10 +57,9 @@ public final class TooltipSystem extends BaseSystem {
     public final void advance(final CustomPanel element, float delta) {
         final var comp = element.comp();
         final TooltipComp spec = comp.get(NativeComponents.TOOLTIP);
-        final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
 
-        if (!spec.enabled || !context.isValid()) {
+        if (!spec.enabled) {
             spec.internal_hoverTime = 0f;
             hideTooltip(spec);
             return;

@@ -7,17 +7,11 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 
 public class IconValuePairTp extends IconValuePair implements HasTooltip {
 
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
-
-    {
-        context.ignore = true;
-    }
     
     public IconValuePairTp(UIPanelAPI parent, int w, int h, String iconID, double value, boolean withX, Color color) {
         super(parent, w, h, iconID, value, withX, color);

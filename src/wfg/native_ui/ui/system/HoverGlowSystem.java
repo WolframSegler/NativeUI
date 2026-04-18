@@ -7,8 +7,6 @@ import com.fs.starfarer.api.util.FaderUtil.State;
 import wfg.native_ui.ui.component.HoverGlowComp;
 import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
-import wfg.native_ui.ui.component.UIComponentContainer;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.RenderUtils;
@@ -21,9 +19,7 @@ public final class HoverGlowSystem extends BaseSystem {
 
     @Override
     public void init(CustomPanel element) {
-        final UIComponentContainer comp = element.comp();
-        comp.setIfNotPresent(NativeComponents.HOVER_GLOW, new HoverGlowComp());
-        comp.setIfNotPresent(NativeComponents.UI_CONTEXT, new UIContextComp());
+        element.comp().setIfNotPresent(NativeComponents.HOVER_GLOW, new HoverGlowComp());
         element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
     }
 
@@ -31,14 +27,11 @@ public final class HoverGlowSystem extends BaseSystem {
     public final void advance(final CustomPanel element, float amount) {
         final var comp = element.comp();
         final HoverGlowComp glow = comp.get(NativeComponents.HOVER_GLOW);
-        final UIContextComp context = comp.get(NativeComponents.UI_CONTEXT);
         final InputSnapshotComp input = comp.get(NativeComponents.INPUT_SNAPSHOT);
 
         if (!glow.enabled || !glow.isFaderOwner) return;
 
         State target = input.hoveredLastFrame ? State.IN : State.OUT;
-
-        if (!context.isValid()) target = State.OUT;
         
         if (glow.persistent) target = State.IN;
 

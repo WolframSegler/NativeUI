@@ -5,9 +5,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
-import wfg.native_ui.ui.component.UIContextComp;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
-import wfg.native_ui.ui.core.UIElementFlags.HasUIContext;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.CallbackRunnable;
 
@@ -33,9 +31,8 @@ import wfg.native_ui.util.CallbackRunnable;
  *   toggle semantics.</li>
  * </ul>
  */
-public class UIClickable<T extends UIClickable<T>> extends CustomPanel implements HasInteraction, HasUIContext {
+public class UIClickable<T extends UIClickable<T>> extends CustomPanel implements HasInteraction {
 
-    public final UIContextComp context = comp().get(NativeComponents.UI_CONTEXT);
     protected final InteractionComp<T> interaction = comp().get(NativeComponents.INTERACTION);
 
     public boolean clickable = true;
@@ -55,8 +52,6 @@ public class UIClickable<T extends UIClickable<T>> extends CustomPanel implement
         super(parent, width, height);
 
         onClicked = callback;
-
-        context.ignore = true;
 
         interaction.onClicked = (source, isLeftClick) -> {
             if ((!isLeftClick && !rightClicksOkWhenDisabled) || !clickable) return;

@@ -9,6 +9,8 @@ public class NumFormat {
     private static final String[] LARGE_SUFFIXES = {"", "K", "M", "B", "T", "Q", "Qu"};
     private static final String[] SMALL_SUFFIXES = {"", "m", "μ", "n", "p", "f", "a"};
 
+    public static final String MINUS = "\u2212";
+
     /**
      * <p>Formats a positive number according to the following rules:</p>
      * 
@@ -28,9 +30,9 @@ public class NumFormat {
      */
     public static final String engNotate(long input) {
         final long value = Math.abs(input);
+        final String prefix = input < 0l ? MINUS : "";
 
         if (value < 1000l) {
-            final String prefix = input < 0l ? "\u2212" : "";
             return prefix + Long.toString(value);
         }
 
@@ -47,10 +49,7 @@ public class NumFormat {
         }
 
         final DecimalFormat df = new DecimalFormat(pattern.toString());
-        if (input < 0l) {
-            return "\u2212" + df.format(scaled) + LARGE_SUFFIXES[suffix]; // large minus sign
-        }
-        return df.format(scaled) + LARGE_SUFFIXES[suffix];
+        return prefix + df.format(scaled) + LARGE_SUFFIXES[suffix];
     }
 
     public static final String engNotate(double input) {
