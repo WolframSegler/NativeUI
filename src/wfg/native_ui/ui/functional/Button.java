@@ -85,9 +85,10 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
     public void recreateLabel() {
         final LabelAPI newlbl = settings.createLabel(labelText, labelFont);
 
-        final String finalText = !appendShortcutToText ? labelText :
-            labelText + " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
-        newlbl.setText(finalText);
+        final String shortcutTxt = (!appendShortcutToText || interaction.shortcut == 0) ? "" :
+            " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
+
+        newlbl.setText(labelText + shortcutTxt);
         newlbl.getPosition().setSize(pos.getWidth(), pos.getHeight());
         newlbl.setColor(label.getColor());
         newlbl.setAlignment(alg);
@@ -104,9 +105,10 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
     public void buildUI() {
         if (label != null) remove(label);
 
-        final String finalText = !appendShortcutToText ? labelText :
-            labelText + " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
-        label = settings.createLabel(finalText, labelFont);
+        final String shortcutTxt = (!appendShortcutToText || interaction.shortcut == 0) ? "" :
+            " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
+
+        label = settings.createLabel(labelText + shortcutTxt, labelFont);
         label.getPosition().setSize(pos.getWidth(), pos.getHeight());
         label.setColor(btnTxtColor);
         label.setAlignment(alg);

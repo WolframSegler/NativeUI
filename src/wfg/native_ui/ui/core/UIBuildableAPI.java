@@ -1,5 +1,6 @@
 package wfg.native_ui.ui.core;
 
+// TODO make this extend UIComponentAPI with the new update
 public interface UIBuildableAPI {
 
     /**

@@ -20,6 +20,7 @@ import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
 import wfg.native_ui.ui.core.UIElementFlags.HasInputSnapshot;
 import wfg.native_ui.ui.panel.CustomPanel;
+import wfg.native_ui.util.Arithmetic;
 /**
  * Do not add children directly to ScrollPanel, but to the contentPanel
  */
@@ -112,13 +113,11 @@ public class ScrollPanel extends CustomPanel implements HasBackground, HasInputS
         contentPanel.getPosition().inTL(-scrollOffsetX, scrollOffsetY);
     }
 
-    private float clampScrollX(float x) {
-        float max = Math.max(0, contentWidth - getPos().getWidth());
-        return x < 0 ? 0 : (x > max ? max : x);
+    private final float clampScrollX(float x) {
+        return Arithmetic.clamp(x, 0f, Math.max(0f, contentWidth - getPos().getWidth()));
     }
 
-    private float clampScrollY(float y) {
-        float max = Math.max(0, contentHeight - getPos().getHeight());
-        return y < 0 ? 0 : (y > max ? max : y);
+    private final float clampScrollY(float y) {
+        return Arithmetic.clamp(y, 0f, Math.max(0f, contentHeight - getPos().getHeight()));
     }
 }
