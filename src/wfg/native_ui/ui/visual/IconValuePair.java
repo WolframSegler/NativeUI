@@ -50,11 +50,11 @@ public class IconValuePair extends CustomPanel {
         add(valueLbl).inBR(0f, 0f);
     }
 
-    public final Base getIcon() {
+    public final Base icon() {
         return iconBase;
     }
 
-    public final LabelAPI getValueLbl() {
+    public final LabelAPI label() {
         return valueLbl;
     }
 }

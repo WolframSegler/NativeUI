@@ -99,7 +99,7 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends CustomPanel i
 
         final float margin = uniformOuterGap ? gap : 0f;
         final float availableW = pos.getWidth() - 2 * margin;
-        final int cols = Math.max(1, (int) ((availableW + gap) / (widgetW + gap)));
+        final int cols = calculateColumns();
 
         final float effGap;
         if (justifyGrid && cols > 1) {
@@ -146,5 +146,11 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends CustomPanel i
         final float visibleHeight = pos.getHeight() - gap;
         final float maxScroll = Math.max(0f, container.getHeightSoFar() - visibleHeight);
         container.getExternalScroller().setYOffset(maxScroll);
+    }
+
+    protected final int calculateColumns() {
+        final float margin = uniformOuterGap ? gap : 0f;
+        final float availableW = pos.getWidth() - 2 * margin;
+        return Math.max(1, (int) ((availableW + gap) / (widgetW + gap)));
     }
 }
