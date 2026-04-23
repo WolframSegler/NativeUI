@@ -14,7 +14,7 @@ import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.core.UIElementFlags.HasInputSnapshot;
 import wfg.native_ui.ui.panel.CustomPanel;
-import wfg.native_ui.util.NumUtils;
+import wfg.native_ui.util.Arithmetic;
 import wfg.native_ui.util.RenderUtils;
 
 import static wfg.native_ui.util.Globals.settings;
@@ -801,42 +801,42 @@ public class Slider extends CustomPanel implements HasInputSnapshot {
 
             interpolationScale = pos.getWidth() / effectiveRange;
 
-            cachedProgressValue = NumUtils.smoothApproach(
+            cachedProgressValue = Arithmetic.smoothApproach(
                 cachedProgressValue, progressValue,
                 scrollSpeed / interpolationScale,
                 0.02f * Math.abs(cachedProgressValue - progressValue) * interpolationScale,
                 delta
             );
 
-            cachedMin = NumUtils.smoothApproach(
+            cachedMin = Arithmetic.smoothApproach(
                 cachedMin, minValue,
                 scrollSpeed / interpolationScale,
                 0.02f * Math.abs(cachedMin - minValue) * interpolationScale,
                 delta
             );
 
-            cachedMax = NumUtils.smoothApproach(
+            cachedMax = Arithmetic.smoothApproach(
                 cachedMax, maxValue,
                 scrollSpeed / interpolationScale,
                 0.05f * Math.abs(cachedMax - maxValue) * interpolationScale,
                 delta
             );
 
-            cachedPotentialDecreaseAmount = NumUtils.smoothApproach(
+            cachedPotentialDecreaseAmount = Arithmetic.smoothApproach(
                 cachedPotentialDecreaseAmount, potentialDecreaseAmount,
                 scrollSpeed / interpolationScale,
                 0.05f * Math.abs(cachedPotentialDecreaseAmount - potentialDecreaseAmount) * interpolationScale,
                 delta
             );
 
-            cachedMaxValue = NumUtils.smoothApproach(
+            cachedMaxValue = Arithmetic.smoothApproach(
                 cachedMaxValue, maxRange,
                 scrollSpeed / interpolationScale,
                 0.02f * Math.abs(cachedMaxValue - maxRange) * interpolationScale,
                 delta
             );
 
-            CachedShowNotchOnIfBelowProgress = NumUtils.smoothApproach(
+            CachedShowNotchOnIfBelowProgress = Arithmetic.smoothApproach(
                 CachedShowNotchOnIfBelowProgress, showNotchOnIfBelowProgress,
                 scrollSpeed / interpolationScale,
                 0.05f * Math.abs(CachedShowNotchOnIfBelowProgress - showNotchOnIfBelowProgress) * interpolationScale,

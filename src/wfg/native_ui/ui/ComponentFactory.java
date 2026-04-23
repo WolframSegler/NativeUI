@@ -22,6 +22,7 @@ import wfg.native_ui.ui.system.TooltipSystem;
 import wfg.native_ui.util.CallbackRunnable;
 
 public class ComponentFactory {
+    private ComponentFactory() {}
 
     /**
      * Use {@link CheckboxButton} if you want the checkbox sprite.

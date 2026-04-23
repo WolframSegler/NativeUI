@@ -79,6 +79,6 @@ public class UIElement implements UIElementAPI {
         reportDetached();
     }
 
-    public void reportAttached() { UIEventBus.getInstance().fireAttached(this); }
-    public void reportDetached() { UIEventBus.getInstance().fireDetached(this); }
+    public void reportAttached() { UIEventBus.fireAttached(this); }
+    public void reportDetached() { UIEventBus.fireDetached(this); }
 }

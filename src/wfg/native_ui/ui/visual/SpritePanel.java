@@ -76,8 +76,7 @@ public class SpritePanel<
     @Override
     public void renderBelow(float alpha) {
         super.renderBelow(alpha);
-        if (m_sprite == null) return;
-
+        
         final float x = pos.getX();
         final float y = pos.getY();
         final float w = pos.getWidth();
@@ -86,6 +85,8 @@ public class SpritePanel<
         if (fillColor != null) {
             RenderUtils.drawQuad(x, y, w, h, fillColor, alpha, false);
         }
+
+        if (m_sprite == null) return;
 
         if (drawTextureHalo && texHaloColor != null) {
             RenderUtils.drawSpriteOutline(
@@ -110,7 +111,7 @@ public class SpritePanel<
     public static class Base extends SpritePanel<Base> {
         public Base(UIPanelAPI parent, int width, int height, String spriteID, Color color,
             Color fillColor
-        ) { this(parent, width, height, settings.getSprite(spriteID), color, fillColor); }
+        ) { super(parent, width, height, spriteID, color, fillColor); }
 
         public Base(UIPanelAPI parent, int width, int height, SpriteAPI sprite, Color color,
             Color fillColor

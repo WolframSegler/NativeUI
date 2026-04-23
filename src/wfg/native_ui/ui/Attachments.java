@@ -18,6 +18,7 @@ import rolflectionlib.util.RolfLectionUtil;
  * dialogs, and overlays depending on the current mode. Is not null-safe.
  */
 public class Attachments {
+    private Attachments() {}
 
     private static final Object getWarRoomPanelMethod = RolfLectionUtil.getMethod(
         "getWarroom",CombatState.class

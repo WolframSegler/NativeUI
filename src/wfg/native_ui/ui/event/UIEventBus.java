@@ -6,39 +6,33 @@ import java.util.List;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 
 public final class UIEventBus {
-    private static final UIEventBus INSTANCE = new UIEventBus();
-
-    public static UIEventBus getInstance() {
-        return INSTANCE;
-    }
-
-    private final List<UILifecycleListener> listeners = new ArrayList<>();
-
     private UIEventBus() {}
 
-    public final void addListener(UILifecycleListener l) {
+    private static final List<UILifecycleListener> listeners = new ArrayList<>();
+
+    public static final void addListener(UILifecycleListener l) {
         if (!listeners.contains(l)) listeners.add(l);
     }
 
-    public final void removeListener(UILifecycleListener l) {
+    public static final void removeListener(UILifecycleListener l) {
         listeners.remove(l);
     }
 
-    public final void fireAttached(UIComponentAPI panel) {
+    public static final void fireAttached(UIComponentAPI panel) {
         final String id = extractId(panel);
         for (UILifecycleListener l : listeners) {
             l.panelAttached(panel, id);
         }
     }
 
-    public final void fireDetached(UIComponentAPI panel) {
+    public static final void fireDetached(UIComponentAPI panel) {
         final String id = extractId(panel);
         for (UILifecycleListener l : listeners) {
             l.panelDetached(panel, id);
         }
     }
 
-    public final void fireRefreshed(UIComponentAPI panel) {
+    public static final void fireRefreshed(UIComponentAPI panel) {
         final String id = extractId(panel);
         for (UILifecycleListener l : listeners) {
             l.panelRefreshed(panel, id);

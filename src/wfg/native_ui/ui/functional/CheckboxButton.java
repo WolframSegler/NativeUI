@@ -93,7 +93,7 @@ public class CheckboxButton extends Button {
         super.processInput(events);
 
         for (InputEventAPI event : events) {
-            if (event.isMouseMoveEvent()) {
+            if (event.isMouseMoveEvent() && !event.isConsumed()) {
                 if (label.getPosition().containsEvent(event)) {
                     label.flash(0f, 0.3f);
                 }

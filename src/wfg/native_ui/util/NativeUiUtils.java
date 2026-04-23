@@ -19,6 +19,7 @@ import com.fs.starfarer.ui.impl.StandardTooltipV2;
 import rolflectionlib.util.RolfLectionUtil;
 
 public class NativeUiUtils {
+    private NativeUiUtils() {}
     public static final int APICodexHeight = 28;
 
     public static final Object expandLabelField = RolfLectionUtil.getFieldByName(
