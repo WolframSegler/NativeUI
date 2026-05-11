@@ -1,4 +1,4 @@
-package wfg.native_ui.ui.core;
+package wfg.native_ui.internal.ui.core;
 
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;

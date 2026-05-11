@@ -16,6 +16,7 @@ public class UIConstants {
 
     public static final int screenW = (int) settings.getScreenWidth();
     public static final int screenH = (int) settings.getScreenHeight();
+    public static final float uiScale = settings.getScreenScaleMult();
 
     public static final Color text_color = Misc.getTextColor();
     public static final Color highlight = Misc.getHighlightColor();

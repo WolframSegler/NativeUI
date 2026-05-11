@@ -1,4 +1,4 @@
-package wfg.native_ui.ui.core;
+package wfg.native_ui.internal.ui.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,8 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import wfg.native_ui.ui.core.UIContainerAPI;
+import wfg.native_ui.ui.core.UIEntityAPI;
 import wfg.native_ui.ui.event.IdentifiedPanel;
 import wfg.native_ui.ui.system.BaseSystem;
 

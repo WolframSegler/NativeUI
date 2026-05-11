@@ -31,12 +31,12 @@ public final class Arithmetic {
     public static final float dist(final Vector2f src, final Vector2f dest) {
         final float dx = dest.x - src.x;
         final float dy = dest.y - src.y;
-        return (float) Math.sqrt(dx * dx + dy * dy);
+        return (float) Math.hypot(dx, dy);
     }
     public static final float dist(final float x1, final float y1, final float x2, final float y2) {
         final float dx = x2 - x1;
         final float dy = y2 - y1;
-        return (float) Math.sqrt(dx * dx + dy * dy);
+        return (float) Math.hypot(dx, dy);
     }
 
     public static final float lerp(final float x, final float y, float t) {

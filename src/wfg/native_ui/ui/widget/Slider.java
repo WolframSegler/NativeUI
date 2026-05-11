@@ -24,7 +24,6 @@ import java.awt.Color;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
@@ -735,8 +734,8 @@ public class Slider extends CustomPanel implements HasInputSnapshot {
         if (event == null || event.isConsumed()) return;
 
         if (input.isActive && userAdjustable) {
-            mapInputToProgress();
-            if (event != null) event.consume();
+            mapInputToProgress(event);
+            event.consume();
         }
     }
 
@@ -901,9 +900,9 @@ public class Slider extends CustomPanel implements HasInputSnapshot {
         }
     }
 
-    protected float mapInputToProgress() {
-        final float mouseX = Mouse.getX();
-        final float mouseY = Mouse.getY();
+    protected float mapInputToProgress(InputEventAPI mouseEvent) {
+        final float mouseX = mouseEvent.getX();
+        final float mouseY = mouseEvent.getY();
         if (mouseX < 0 || mouseX > windowWidth || mouseY < 0 || mouseY > windowHeight) {
             return progressValue;
         }

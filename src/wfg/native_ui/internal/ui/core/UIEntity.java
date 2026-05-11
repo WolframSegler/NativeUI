@@ -1,4 +1,4 @@
-package wfg.native_ui.ui.core;
+package wfg.native_ui.internal.ui.core;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 
 import wfg.native_ui.ui.component.UIComponentContainer;
+import wfg.native_ui.ui.core.UIEntityAPI;
 import wfg.native_ui.ui.system.BaseSystem;
 import wfg.native_ui.ui.system.UISystemContainer;
 

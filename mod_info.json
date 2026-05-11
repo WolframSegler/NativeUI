@@ -2,8 +2,8 @@
 	"id":"wfg_native_ui",
 	"name":"WrapUI",
 	"author":"WolframSegler",
-	"version": "0.4.0",
-	"description":"Bedrock buttresses beneath marble halls.",
+	"version": "0.4.1",
+	"description":"Composition oriented UI Framework with a native allure",
 	"gameVersion":"0.98a-RC8",
 	"utility": true,
 	"jars": [

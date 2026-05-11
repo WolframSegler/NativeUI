@@ -1,3 +1,8 @@
+v0.4.1-beta
+- Changed getEnabled to isEnabled inside UIClickable.
+- Fixed issues related to uiScale.
+- Added uiScale as a constant.
+
 v0.4.0-beta
 - package changes.
 - Added DockButton/DockClickable for internal dockpanel instance handling.
@@ -63,7 +68,7 @@ v0.2.1-beta
 
 v0.2.0-beta
 - Created a carbon copy of DialogPanel because the API for vanilla version was too restrictive.
-- Create new Attachments for UI injection.
+- Created new Attachments for UI injection.
 - Switched to RolflectionLib.jar to not depend on kotlin.
 - Removed old dialog wrappers.
 - Misc. bug fixes.

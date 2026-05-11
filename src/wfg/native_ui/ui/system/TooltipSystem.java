@@ -7,10 +7,10 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
 import rolflectionlib.util.RolfLectionUtil;
+import wfg.native_ui.internal.ui.core.UITooltip;
 import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.core.UITooltip;
 import wfg.native_ui.ui.panel.CustomPanel;
 
 public final class TooltipSystem extends BaseSystem {

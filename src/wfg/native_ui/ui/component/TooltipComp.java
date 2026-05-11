@@ -4,7 +4,7 @@ import static wfg.native_ui.util.UIConstants.opad;
 
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
-import wfg.native_ui.ui.core.UITooltip;
+import wfg.native_ui.internal.ui.core.UITooltip;
 import wfg.native_ui.ui.system.TooltipSystem;
 import wfg.native_ui.util.NativeUiUtils;
 

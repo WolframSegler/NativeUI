@@ -24,7 +24,6 @@ import wfg.native_ui.ui.panel.CustomPanel;
 public class FoldingPanel extends CustomPanel {
     private static final SpriteAPI SCANLINE_11 = settings.getSprite("ui", "scanline11");
     private static final SpriteAPI NOISE = settings.getSprite("ui", "noise");
-    private static final float scaleMult = settings.getScreenScaleMult();
 
     public boolean renderBackground = true;
     public boolean transitionEnabled = true;
@@ -215,10 +214,10 @@ public class FoldingPanel extends CustomPanel {
         final float bx = x + borderThickness;
         final float by = y + borderThickness;
 
-        final int scissorX = (int) ((x + innerOffset) * scaleMult);
-        final int scissorY = (int) ((y + innerOffset) * scaleMult);
-        final int scissorW = (int) ((w - innerOffset * 2f) * scaleMult);
-        final int scissorH = (int) ((h - innerOffset * 2f) * scaleMult);
+        final int scissorX = (int) ((x + innerOffset) * uiScale);
+        final int scissorY = (int) ((y + innerOffset) * uiScale);
+        final int scissorW = (int) ((w - innerOffset * 2f) * uiScale);
+        final int scissorH = (int) ((h - innerOffset * 2f) * uiScale);
 
         if (renderBackground) {
             borderRenderer.setSize(w, h);

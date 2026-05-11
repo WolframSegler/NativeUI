@@ -78,7 +78,7 @@ public class UIClickable<T extends UIClickable<T>> extends CustomPanel implement
         };
     }
 
-    public boolean getEnabled() { return !disabled; }
+    public boolean isEnabled() { return !disabled; }
     public void setEnabled(boolean enabled) {
         disabled = !enabled;
     }
