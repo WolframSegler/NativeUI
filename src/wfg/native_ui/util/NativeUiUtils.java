@@ -382,8 +382,8 @@ public class NativeUiUtils {
         final float y = pos.getY();
         final float w = pos.getWidth();
         final float h = pos.getHeight();
-        final float mx = Mouse.getX() * uiScale;
-        final float my = Mouse.getY() * uiScale;
+        final float mx = Mouse.getX() * 1f/uiScale;
+        final float my = Mouse.getY() * 1f/uiScale;
 
         return mx >= x && mx <= x + w && my >= y && my <= y + h;
     }
