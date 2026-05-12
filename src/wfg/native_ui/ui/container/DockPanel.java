@@ -1,13 +1,14 @@
 package wfg.native_ui.ui.container;
 
-import static wfg.native_ui.util.UIConstants.pad;
-import static wfg.native_ui.util.UIConstants.screenH;
-import static wfg.native_ui.util.UIConstants.screenW;
+import static wfg.native_ui.util.Globals.settings;
+import static wfg.native_ui.util.UIConstants.*;
 
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.internal.ui.Side;
@@ -15,6 +16,7 @@ import wfg.native_ui.internal.ui.functional.OutsideEventDetector;
 import wfg.native_ui.internal.ui.functional.OutsideEventDetector.OutisdeEventListener;
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.CallbackRunnable;
@@ -67,15 +69,19 @@ public abstract class DockPanel extends CustomPanel implements
     protected String borderPrefix = UIConstants.UI_BORDER_1;
 
     protected final OutsideEventDetector detector;
+    protected final UIPanelAPI contentContainer;
 
     public DockPanel(int width, int height, final Side dir) {
         this(Attachments.getScreenPanel(), width, height, dir);
     }
 
     public DockPanel(final UIPanelAPI parent, int width, int height, final Side dir) {
-        super(parent, width, height);
+        super(parent, width + opad*2, height + opad*2);
         detector = new OutsideEventDetector(this);
         parent.addComponent(m_panel);
+
+        contentContainer = settings.createCustom(width, height, null);
+        m_panel.addComponent(contentContainer).inBL(opad, opad);
 
         dockDir = dir;
 
@@ -178,6 +184,39 @@ public abstract class DockPanel extends CustomPanel implements
 
             event.consume();
         }
+    }
+
+    @Override
+    public UIPanelAPI getPanel() { return contentContainer; }
+    public UIPanelAPI getDockPanel() { return m_panel; }
+
+    @Override
+    public PositionAPI add(TooltipMakerAPI a) {
+        return ComponentFactory.addTooltip(a, 0f, false, contentContainer);
+    }
+
+    @Override
+    public PositionAPI add(UIComponentAPI a) {
+        contentContainer.addComponent(a);
+
+        return a.getPosition();
+    }
+
+    @Override
+    public PositionAPI add(CustomPanel a) {
+        contentContainer.addComponent(a.getPanel());
+
+        return a.getPos();
+    }
+
+    @Override
+    public void remove(UIComponentAPI a) {
+        contentContainer.removeComponent(a);
+    }
+
+    @Override
+    public void remove(CustomPanel a) {
+        contentContainer.removeComponent(a.getPanel());
     }
 
     protected void updatePosition() {

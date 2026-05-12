@@ -171,39 +171,39 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
     public void buttonPressed(Object buttonID) {}
     public void positionChanged(PositionAPI position) {}
 
-    public final UIPanelAPI getPanel() { return m_panel; }
-    public final PositionAPI getPos() { return pos; }
-    public final UIPanelAPI getParent() { return m_parent; }
+    public UIPanelAPI getPanel() { return m_panel; }
+    public PositionAPI getPos() { return pos; }
+    public UIPanelAPI getParent() { return m_parent; }
 
-    public final PositionAPI add(LabelAPI a) {
+    public PositionAPI add(LabelAPI a) {
         return add((UIComponentAPI) a);
     }
 
-    public final PositionAPI add(TooltipMakerAPI a) {
+    public PositionAPI add(TooltipMakerAPI a) {
         return ComponentFactory.addTooltip(a, 0f, false, m_panel);
     }
 
-    public final PositionAPI add(UIComponentAPI a) {
+    public PositionAPI add(UIComponentAPI a) {
         m_panel.addComponent(a);
 
         return a.getPosition();
     }
 
-    public final PositionAPI add(CustomPanel a) {
+    public PositionAPI add(CustomPanel a) {
         m_panel.addComponent(a.getPanel());
 
         return a.getPos();
     }
 
-    public final void remove(LabelAPI a) {
+    public void remove(LabelAPI a) {
         remove((UIComponentAPI) a);
     }
 
-    public final void remove(UIComponentAPI a) {
+    public void remove(UIComponentAPI a) {
         m_panel.removeComponent(a);
     }
 
-    public final void remove(CustomPanel a) {
+    public void remove(CustomPanel a) {
         m_panel.removeComponent(a.getPanel());
     }
 
