@@ -65,7 +65,7 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
     public static final Object isSlidOutMethod;
 
     static {
-        final UIPanelAPI panelIns = settings.createCustom(0, 0, null);
+        final UIPanelAPI panelIns = settings.createCustom(0f, 0f, null);
         final Class<?> panelClazz = panelIns.getClass();
         final Class<?> posClazz = panelIns.getPosition().getClass();
 
@@ -229,8 +229,16 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
         return position;
     }
 
-    public final void clearChildren() {
-        RolfLectionUtil.invokeMethodDirectly(clearChildrenMethod, m_panel);
+    public void clearChildren() {
+        clearChildren(m_panel);
+    }
+
+    public List<UIComponentAPI> getChildrenNonCopy() {
+        return getChildrenNonCopy(m_panel);
+    }
+
+    public List<UIComponentAPI> getChildrenCopy() {
+        return getChildrenCopy(m_panel);
     }
 
     public final void setSize(int width, int height) {
@@ -243,5 +251,20 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
 
     public final void setHeight(int height) {
         pos.setSize(pos.getWidth(), height);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static final List<UIComponentAPI> clearChildren(UIPanelAPI panel) {
+        return (List<UIComponentAPI>) RolfLectionUtil.invokeMethodDirectly(clearChildrenMethod, panel);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static final List<UIComponentAPI> getChildrenNonCopy(UIPanelAPI panel) {
+        return (List<UIComponentAPI>) RolfLectionUtil.invokeMethodDirectly(getChildrenNonCopyMethod, panel);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static final List<UIComponentAPI> getChildrenCopy(UIPanelAPI panel) {
+        return (List<UIComponentAPI>) RolfLectionUtil.invokeMethodDirectly(getChildrenCopyMethod, panel);
     }
 }

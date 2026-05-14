@@ -10,6 +10,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -54,6 +55,15 @@ public class NativeUiUtils {
         final int b = Math.min(255, (int) (base.getBlue() * factor));
         
         return new Color(r, g, b, base.getAlpha());
+    }
+
+    /**
+     * Returns a new Color with the alpha channel multiplied by alphaMult,
+     * clamped to 0–255. RGB channels are left unchanged.
+     */
+    public static final Color setAlpha(Color color, float alphaMult) {
+        final int a = Arithmetic.clamp((int) (color.getAlpha() * alphaMult), 0, 255);
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), a);
     }
 
     /**
@@ -382,10 +392,34 @@ public class NativeUiUtils {
         final float y = pos.getY();
         final float w = pos.getWidth();
         final float h = pos.getHeight();
-        final float mx = Mouse.getX() * 1f/uiScale;
-        final float my = Mouse.getY() * 1f/uiScale;
+        final float mx = Mouse.getX() / uiScale;
+        final float my = Mouse.getY() / uiScale;
 
         return mx >= x && mx <= x + w && my >= y && my <= y + h;
+    }
+
+    public static final boolean containsMouse(Rect rect) {
+        return containsPoint(rect, Mouse.getX() / uiScale, Mouse.getY() / uiScale);
+    }
+
+    public static final boolean containsPoint(Rect rect, float x, float y) {
+        return x >= rect.x && x <= rect.x + rect.w
+            && y >= rect.y && y <= rect.y + rect.h;
+    }
+
+    public static class Rect {
+        public float x, y, w, h;
+
+        public Rect(float x, float y, float w, float h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+        }
+
+        public final boolean containsEvent(InputEventAPI event) {
+            return containsPoint(this, event.getX(), event.getY());
+        }
     }
 
     public static final boolean isMouseDown() {
@@ -402,5 +436,12 @@ public class NativeUiUtils {
 
     public static final boolean isAltDown() {
         return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+    }
+
+    public static final boolean intersects(PositionAPI a, PositionAPI b) {
+        return !(a.getX() + a.getWidth() < b.getX()
+            || a.getX() > b.getX() + b.getWidth()
+            || a.getY() + a.getHeight() < b.getY()
+            || a.getY() > b.getY() + b.getHeight());
     }
 }

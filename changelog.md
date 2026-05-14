@@ -3,6 +3,7 @@ v0.4.1-beta
 - Fixed issues related to uiScale.
 - Added uiScale as a constant.
 - Modified DockPanel to have an inner panel.
+- Added a GridRenderer
 
 v0.4.0-beta
 - package changes.

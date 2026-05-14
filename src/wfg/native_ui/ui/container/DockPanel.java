@@ -11,6 +11,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.functional.OutsideEventDetector;
 import wfg.native_ui.internal.ui.functional.OutsideEventDetector.OutisdeEventListener;
@@ -57,7 +58,6 @@ public abstract class DockPanel extends CustomPanel implements
 
     protected boolean isOpen = false;
 
-    protected Side dockDir = Side.LEFT;
     protected float offsetX = 0f;
     protected float offsetY = 0f;
     
@@ -71,21 +71,29 @@ public abstract class DockPanel extends CustomPanel implements
     protected final OutsideEventDetector detector;
     protected final UIPanelAPI contentContainer;
 
+    private Side dockDir = Side.LEFT;
+    private int innerPad;
+
     public DockPanel(int width, int height, final Side dir) {
-        this(Attachments.getScreenPanel(), width, height, dir);
+        this(Attachments.getScreenPanel(), width, height, dir, opad);
     }
 
-    public DockPanel(final UIPanelAPI parent, int width, int height, final Side dir) {
-        super(parent, width + opad*2, height + opad*2);
+    public DockPanel(int width, int height, final Side dir, int padding) {
+        this(Attachments.getScreenPanel(), width, height, dir, padding);
+    }
+
+    public DockPanel(final UIPanelAPI parent, int width, int height, final Side dir, int padding) {
+        super(parent, width + padding*2, height + padding*2);
         detector = new OutsideEventDetector(this);
         parent.addComponent(m_panel);
 
         contentContainer = settings.createCustom(width, height, null);
-        m_panel.addComponent(contentContainer).inBL(opad, opad);
+        m_panel.addComponent(contentContainer).inBL(padding, padding);
 
         dockDir = dir;
+        innerPad = padding;
 
-        border = new BorderRenderer(borderPrefix, false, width, height, dir);
+        border = new BorderRenderer(borderPrefix, false, width + padding*2, height + padding*2, dir);
         calculateTargetPos();
         updatePosition();
     }
@@ -124,15 +132,16 @@ public abstract class DockPanel extends CustomPanel implements
     public void setBorder(String prefix) {
         borderPrefix = prefix;
         border = new BorderRenderer(prefix, false);
-        setSize(pos.getWidth(), pos.getHeight());
+        setSize(pos.getWidth() + innerPad*2, pos.getHeight() + innerPad*2);
 
         border.hiddenSides.clear();
         border.hiddenSides.add(dockDir);
     }
 
     public PositionAPI setSize(final float w, final float h) {
-        pos.setSize(w, h);
-        border.setSize(w + pad*2, h + pad*2);
+        pos.setSize(w + innerPad*2, h + innerPad*2);
+        contentContainer.getPosition().setSize(w, h);
+        border.setSize(w + innerPad*2, h + innerPad*2);
         return getPos();
     }
 
@@ -162,7 +171,7 @@ public abstract class DockPanel extends CustomPanel implements
         super.renderBelow(alpha);
 
         if (border != null) {
-            border.render(pos.getX() - pad, pos.getY() - pad, alpha * bgAlpha);
+            border.render(pos.getX(), pos.getY(), alpha * bgAlpha);
         }
     }
 
@@ -217,6 +226,27 @@ public abstract class DockPanel extends CustomPanel implements
     @Override
     public void remove(CustomPanel a) {
         contentContainer.removeComponent(a.getPanel());
+    }
+
+    @Override
+    public PositionAPI addPositionOnly(UIComponentAPI comp) {
+        final PositionAPI position = comp.getPosition();
+        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, pos);
+        RolfLectionUtil.invokeMethodDirectly(addToPositionMethod, contentContainer.getPosition(), position);
+        return position;
+    }
+
+    @Override
+    public PositionAPI removePositionOnly(UIComponentAPI comp) {
+        final PositionAPI position = comp.getPosition();
+        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, (Object)null);
+        RolfLectionUtil.invokeMethodDirectly(removeFromPositionMethod, contentContainer.getPosition(), position);
+        return position;
+    }
+
+    @Override
+    public final void clearChildren() {
+        RolfLectionUtil.invokeMethodDirectly(clearChildrenMethod, contentContainer);
     }
 
     protected void updatePosition() {

@@ -74,7 +74,6 @@ public class RenderUtils {
         GL11.glVertex2f(x + w, y + h);
         GL11.glVertex2f(x, y + h);
         GL11.glEnd();
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
     public static final void drawAdditiveGlow(SpriteAPI sprite, float x, float y, Color glowColor, float intensity) {
@@ -126,7 +125,7 @@ public class RenderUtils {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         GL11.glColorMask(false, false, false, true);
-        quadWithBlend(x - w / 2f, y - h / 2f, w * 2.0F, h * 2.0F, new Color(0, 0, 0, 0), 0.0F);
+        quadWithBlend(x - w / 2f, y - h / 2f, w * 2.0F, h * 2.0F, Color.BLACK, 0.0F);
 
         sprite.setBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         sprite.setAlphaMult(alpha * 0.75f);
@@ -390,7 +389,29 @@ public class RenderUtils {
         e.render(x + width - textureSize, y + textureSize);
     }
 
-    private static final void quadWithBlend(float x, float y, float w, float h, Color color, float alphaMult) {
+    /**
+     * Draws a filled, untextured quad with per‑vertex colours in CCL order.
+     */
+    public static final void drawGradientQuad(float x, float y, float w, float h, Color colorBL, Color colorTL, Color colorTR, Color colorBR, float alpha) {
+
+        GL11.glBegin(GL11.GL_QUADS);
+
+        setGlColor(colorBL, alpha);
+        GL11.glVertex2f(x, y);
+
+        setGlColor(colorTL, alpha);
+        GL11.glVertex2f(x, y + h);
+
+        setGlColor(colorTR, alpha);
+        GL11.glVertex2f(x + w, y + h);
+
+        setGlColor(colorBR, alpha);
+        GL11.glVertex2f(x + w, y);
+
+        GL11.glEnd();
+    }
+
+    public static final void quadWithBlend(float x, float y, float w, float h, Color color, float alphaMult) {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ZERO);
@@ -404,7 +425,7 @@ public class RenderUtils {
         GL11.glEnd();
     }
 
-    private static final void quadNoBlend(float x, float y, float w, float h, Color color, float alphaMult) {
+    public static final void quadNoBlend(float x, float y, float w, float h, Color color, float alphaMult) {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         setGlColor(color, alphaMult);
         
