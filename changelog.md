@@ -1,11 +1,11 @@
-v0.4.1-beta
+Version 0.4.1-beta
 - Changed getEnabled to isEnabled inside UIClickable.
 - Fixed issues related to uiScale.
 - Added uiScale as a constant.
 - Modified DockPanel to have an inner panel.
 - Added a GridRenderer
 
-v0.4.0-beta
+Version v0.4.0-beta
 - package changes.
 - Added DockButton/DockClickable for internal dockpanel instance handling.
 - Separated click handler from Button as UIClickable.
@@ -26,7 +26,7 @@ v0.4.0-beta
 - Added a grid class.
 - Added Arithmetic.java to utils for common math utilities.
 
-v0.3.2-beta
+Version v0.3.2-beta
 - Fixed height compensation for tooltips inside the AnchorPanel method of NativeUiUtils.
 - Replaced createPanel() with buildUI().
 - Optimize some code by making the sprites a private static member.
@@ -40,7 +40,7 @@ v0.3.2-beta
 - Tooltip system hide/show tooltip methods now public.
 - Added tests for ArrayMap
 
-v0.3.1-beta
+Version v0.3.1-beta
 - Fixed issues with Dock Panel.
 - Fixed alignment issues with SortableTable.
 - Each component now has its own offset.
@@ -51,7 +51,7 @@ v0.3.1-beta
 - Fixed text padding inside DialogPanel.
 - Fixed invisible panels getting a tooltip.
 
-v0.3.0-beta
+Version v0.3.0-beta
 - Modified HasTooltip to reduce boilerplate.
 - Turned all the interfaces of CustomPanel to components.
 - CustomPanel now owns a ComponentContainer member.
@@ -59,7 +59,7 @@ v0.3.0-beta
 - Replaced all plugins for CustomPanel in favor of a forwarder plugin.
 - Renamed the packaging from wrap_ui to native_ui.
 
-v0.2.1-beta
+Version v0.2.1-beta
 - Misc. bug fixes.
 - Made SpritePanel and SpritePanelWithTp a lot leaner in terms of composition.
 - Added createTooltip and addTooltip to ComponentFactory for CustomPanelAPI independent Tooltips.
@@ -68,12 +68,12 @@ v0.2.1-beta
 - Removed CustomPanelAPI dependency fully. Ready to switch to a custom UIPanelAPI Impl. for the future.
 
 
-v0.2.0-beta
+Version v0.2.0-beta
 - Created a carbon copy of DialogPanel because the API for vanilla version was too restrictive.
 - Created new Attachments for UI injection.
 - Switched to RolflectionLib.jar to not depend on kotlin.
 - Removed old dialog wrappers.
 - Misc. bug fixes.
 
-v0.1.0-beta
+Version v0.1.0-beta
 - Initial release of WrapUI.
