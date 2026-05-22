@@ -1,3 +1,6 @@
+Version 0.4.2-beta
+- Fixed tooltip position not updating when anchor moved.
+
 Version 0.4.1-beta
 - Changed getEnabled to isEnabled inside UIClickable.
 - Fixed issues related to uiScale.
