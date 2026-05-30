@@ -66,7 +66,7 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends CustomPanel i
 
     /**
      * Create a widget for the given data item.
-     * @param item  the data object
+     * @param item the data object
      * @param index its position in the list
      * @return a fully constructed widget
      */
@@ -111,7 +111,6 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends CustomPanel i
             effGap = gap;
         }
 
-        float yOffset = margin;
         for (int i = 0; i < items.size(); i++) {
             final T item = items.get(i);
             final W widget = createWidget(item, i);
@@ -125,13 +124,13 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends CustomPanel i
             final int col = i % cols;
 
             final float x = margin + col * (widgetW + effGap);
-            final float y = yOffset + row * (widgetH + gap);
+            final float y = margin + row * (widgetH + gap);
 
             container.addCustom(widget.getElement(), 0f).getPosition().inTL(x, y);
         }
 
         final int rows = (items.size() + cols - 1) / cols;
-        final float contentHeight = yOffset + rows * (widgetH + gap);
+        final float contentHeight = margin + rows * (widgetH + gap);
         container.setHeightSoFar(contentHeight);
 
         final float visibleHeight = pos.getHeight() - margin;

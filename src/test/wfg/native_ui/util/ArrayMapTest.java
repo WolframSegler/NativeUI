@@ -563,4 +563,54 @@ public class ArrayMapTest {
         // the removed key should no longer be present in the map
         assertFalse(map.containsKey("a") && map.get("a") == 99 ? true : false);
     }
+
+    @Test
+    void testGetOrDefaultWithNullValue() {
+        // According to the Map contract, getOrDefault returns null when the key exists, even if a non‑null default is provided.
+        map.put("nullValueKey", null);
+
+        final Integer defaultVal = 42;
+
+        // This must return null, not 42, because the key exists.
+        assertNull(map.getOrDefault("nullValueKey", defaultVal),
+                "getOrDefault must return null when key exists with null value");
+    }
+
+    @Test
+    void testGetOrDefaultReturnsDefaultForMissingKey() {
+        final Integer defaultValue = 99;
+        final String missingKey = "doesNotExist";
+
+        assertNull(map.get(missingKey), "get should return null for missing key");
+
+        assertEquals(defaultValue,
+                    map.getOrDefault(missingKey, defaultValue),
+                    "getOrDefault must return the default when key is missing");
+
+        assertEquals(Integer.valueOf(42),
+                    map.getOrDefault(missingKey, 42),
+                    "getOrDefault with another default value");
+    }
+
+    @Test
+    void testComputeIfAbsentNeverStoresNull() {
+        // Mapping function that returns null – the map must NOT insert the entry.
+        map.computeIfAbsent("shouldNotExist", k -> null);
+        assertFalse(map.containsKey("shouldNotExist"));
+        // getOrDefault with a non‑null default must return the default because the key is absent.
+        assertEquals(Integer.valueOf(100), map.getOrDefault("shouldNotExist", 100));
+
+        // Normal usage: mapping function returns a non‑null value.
+        map.computeIfAbsent("exists", k -> 7);
+        assertTrue(map.containsKey("exists"));
+        assertEquals(Integer.valueOf(7), map.get("exists"));
+
+        // getOrDefault on the now‑present key must return the stored value (7), not the default.
+        assertEquals(Integer.valueOf(7), map.getOrDefault("exists", 999));
+
+        // Additional check: calling computeIfAbsent again with a different mapping function
+        // must NOT overwrite the existing value.
+        map.computeIfAbsent("exists", k -> 123);
+        assertEquals(Integer.valueOf(7), map.get("exists"));
+    }
 }

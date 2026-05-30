@@ -1,5 +1,6 @@
 Version 0.4.2-beta
 - Fixed tooltip position not updating when anchor moved.
+- Tooltip is now hidden when scroll input is detected. 
 
 Version 0.4.1-beta
 - Changed getEnabled to isEnabled inside UIClickable.

@@ -3,6 +3,9 @@ package wfg.native_ui.ui.system;
 import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.pad;
 
+import java.util.List;
+
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
@@ -74,6 +77,18 @@ public final class TooltipSystem extends BaseSystem {
         } else {
             spec.internal_hoverTime = 0f;
             hideTooltip(spec);
+        }
+    }
+
+    @Override
+    public void processInput(final CustomPanel element, final List<InputEventAPI> events) {
+        for (InputEventAPI event : events) {
+            if (event.isMouseScrollEvent()) {
+                final TooltipComp spec = element.comp().get(NativeComponents.TOOLTIP);
+                spec.internal_hoverTime = 0f;
+                hideTooltip(spec);
+                break;
+            }
         }
     }
 
