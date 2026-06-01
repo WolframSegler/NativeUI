@@ -72,7 +72,6 @@ public final class TooltipSystem extends BaseSystem {
             spec.internal_hoverTime += delta;
             if (spec.internal_hoverTime >= spec.delay) {
                 showTooltip(spec);
-                spec.positioner.position(spec.internal_tp, false);
             }
         } else {
             spec.internal_hoverTime = 0f;
@@ -100,6 +99,7 @@ public final class TooltipSystem extends BaseSystem {
         spec.internal_tp = tp;
 
         tp.attach();
+        spec.positioner.position(spec.internal_tp, false);
     }
 
     public final void hideTooltip(TooltipComp spec) {
