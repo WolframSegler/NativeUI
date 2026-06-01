@@ -109,7 +109,7 @@ public class SortableTable extends CustomPanel implements
     public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
 
     private final List<ColumnManager> m_columns = new ArrayList<>();
-    private final List<RowPanel> m_rows = new ArrayList<>();
+    private final List<TableRow> m_rows = new ArrayList<>();
 
     private final int HEADER_HEIGHT;
     private final int ROW_HEIGHT;
@@ -120,13 +120,13 @@ public class SortableTable extends CustomPanel implements
 
     private int selectedSortColumnIndex = -1;
     private boolean ascending = true;
-    private RowPanel pendingRow = null;
-    private RowPanel m_selectedRow;
+    private TableRow pendingRow = null;
+    private TableRow m_selectedRow;
 
-    public RowPanel getPendingRow() { return pendingRow;}
-    public RowPanel getSelectedRow() { return m_selectedRow;}
+    public TableRow getPendingRow() { return pendingRow;}
+    public TableRow getSelectedRow() { return m_selectedRow;}
     public List<ColumnManager> getColumns() { return m_columns;}
-    public List<RowPanel> getRows() { return m_rows;}
+    public List<TableRow> getRows() { return m_rows;}
 
     public SortableTable(UIPanelAPI parent, int width, int height) {
         this(parent, width, height, 20, 28);
@@ -194,7 +194,7 @@ public class SortableTable extends CustomPanel implements
         );
 
         int cumulativeYOffset = 0;
-        for (RowPanel row : m_rows) {
+        for (TableRow row : m_rows) {
             tp.addComponent(row.getPanel()).inTL(pad, cumulativeYOffset);
 
             cumulativeYOffset += ROW_HEIGHT;
@@ -306,14 +306,14 @@ public class SortableTable extends CustomPanel implements
         }
     }
 
-    public class RowPanel extends CustomPanel implements UIBuildableAPI,
+    public class TableRow extends CustomPanel implements UIBuildableAPI,
         HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
     {
         public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
         public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
         public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
-        public final InteractionComp<RowPanel> interaction = comp().get(NativeComponents.INTERACTION);
+        public final InteractionComp<TableRow> interaction = comp().get(NativeComponents.INTERACTION);
 
         public Color textColor = base;
         public Object customData = null;
@@ -323,7 +323,7 @@ public class SortableTable extends CustomPanel implements
         protected final List<Object> m_sortValues = new ArrayList<>();
         protected final List<Color> m_useColor = new ArrayList<>();
 
-        public RowPanel(UIPanelAPI parent, int width, int height) {
+        public TableRow(UIPanelAPI parent, int width, int height) {
             super(parent, width, height);
             outline.enabled = false;
 
@@ -498,7 +498,7 @@ public class SortableTable extends CustomPanel implements
      */
     public void addCell(Object cell, cellAlg alg, Object sortValue, Color textColor) {
         if (pendingRow == null) {
-            pendingRow = new RowPanel(
+            pendingRow = new TableRow(
                 m_panel,
                 (int) pos.getWidth() - pad*2,
                 ROW_HEIGHT
@@ -518,7 +518,7 @@ public class SortableTable extends CustomPanel implements
      * @param textColor optional. Sets all the cells to that color.
      * @param highlight optional.
      */
-    public void pushRow(Object customData, TooltipBuilder tp, ClickHandler<RowPanel> onRowClicked,
+    public void pushRow(Object customData, TooltipBuilder tp, ClickHandler<TableRow> onRowClicked,
         String codexID, Color textColor, Color highlight
     ) {
         if (pendingRow == null || pendingRow.m_cellData.isEmpty()) {
@@ -579,7 +579,7 @@ public class SortableTable extends CustomPanel implements
         buildUI();
     }
 
-    private final Comparator<RowPanel> stringComparator = (a, b) -> {
+    private final Comparator<TableRow> stringComparator = (a, b) -> {
         String valA = (String) a.getSortValue(selectedSortColumnIndex);
         String valB = (String) b.getSortValue(selectedSortColumnIndex);
 
@@ -587,7 +587,7 @@ public class SortableTable extends CustomPanel implements
         return ascending ? cmp : -cmp;
     };
 
-    private final Comparator<RowPanel> numberComparator = (a, b) -> {
+    private final Comparator<TableRow> numberComparator = (a, b) -> {
         Number valA = (Number) a.getSortValue(selectedSortColumnIndex);
         Number valB = (Number) b.getSortValue(selectedSortColumnIndex);
 
@@ -595,9 +595,9 @@ public class SortableTable extends CustomPanel implements
         return ascending ? cmp : -cmp;
     };
 
-    public RowPanel selectLastRow() {
-        RowPanel target = null;
-        for (RowPanel row : m_rows) {
+    public TableRow selectLastRow() {
+        TableRow target = null;
+        for (TableRow row : m_rows) {
             boolean result = row == m_rows.get(m_rows.size() - 1);
             row.glow.persistent = result;
 
@@ -609,8 +609,8 @@ public class SortableTable extends CustomPanel implements
         return target;
     }
 
-    public void selectRow(RowPanel selectedRow) {
-        for (RowPanel row : m_rows) {
+    public void selectRow(TableRow selectedRow) {
+        for (TableRow row : m_rows) {
             row.glow.persistent = row == selectedRow;
         }
     }
