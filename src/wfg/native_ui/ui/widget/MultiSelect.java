@@ -20,6 +20,28 @@ import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.ui.widget.RadioPanel.LayoutMode;
 import wfg.native_ui.util.CallbackRunnable;
 
+/**
+ * Multi‑selection panel that presents multiple independently selectable options.
+ *
+ * <p>Options are provided at construction and rendered according to the
+ * chosen {@link LayoutMode}. The selected indices and their
+ * corresponding strings can be retrieved with {@link #getSelectedIndexes()}
+ * and {@link #getSelectedStrings()}.</p>
+ *
+ * <p>The panel supports a callback {@link #onSelected} which is invoked
+ * whenever the user clicks an option to change its state. Individual button states are automatically
+ * synchronized with the internal selection set when the panel is built
+ * via {@link #buildUI()}.</p>
+ *
+ * <p>Layout behavior:</p>
+ * <ul>
+ *   <li>{@link LayoutMode#VERTICAL} – options are stacked vertically
+ *       using checkbox buttons.</li>
+ *   <li>{@link LayoutMode#HORIZONTAL} – options are distributed evenly
+ *       across the panel width as toggle buttons with cut styles applied
+ *       to the first and last buttons.</li>
+ * </ul>
+ */
 public class MultiSelect extends CustomPanel implements UIBuildableAPI {
     private final List<String> options = new ArrayList<>();
     private final List<Button> buttons = new ArrayList<>();
