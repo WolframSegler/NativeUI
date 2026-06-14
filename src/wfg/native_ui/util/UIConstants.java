@@ -25,6 +25,7 @@ public class UIConstants {
     public static final Color base = Misc.getBasePlayerColor();
     public static final Color dark = Misc.getDarkPlayerColor();
     public static final Color grid = settings.getFactionSpec(Factions.PLAYER).getGridUIColor();
+    public static final Color bright = settings.getFactionSpec(Factions.PLAYER).getBrightUIColor();
     public static final Color gray = Misc.getGrayColor();
     public static final Color glowHighlight = Misc.getTooltipTitleAndLightHighlightColor();
 

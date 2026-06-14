@@ -1,3 +1,7 @@
+Version 0.4.3-beta
+- Added player bright color to UIConstants.
+- Fixed UI alignment bugs.
+
 Version 0.4.2-beta
 - Tooltip is now hidden when scroll input is detected.
 - Added a multi-select tool.

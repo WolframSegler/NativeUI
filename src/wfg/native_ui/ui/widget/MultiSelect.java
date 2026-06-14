@@ -144,7 +144,7 @@ public class MultiSelect extends CustomPanel implements UIBuildableAPI {
                 buttons.add(button);
 
                 final float x = pad + i * (buttonWidth + pad);
-                add(button).inTL(x, pad);
+                add(button).inTL(x, 0f);
 
                 if (i == 0) button.cutStyle = CutStyle.TL_BL;
                 if (i == count - 1) button.cutStyle = CutStyle.TR_BR;
