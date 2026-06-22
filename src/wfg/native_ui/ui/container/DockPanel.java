@@ -116,8 +116,8 @@ public abstract class DockPanel extends CustomPanel implements
     public void changeDirection(final Side dir) {
         dockDir = dir;
         calculateTargetPos();
-        border.hiddenSides.clear();
-        border.hiddenSides.add(dir);
+        border.clearSides();
+        border.hideSide(dir);
     }
 
     /**
@@ -134,8 +134,8 @@ public abstract class DockPanel extends CustomPanel implements
         border = new BorderRenderer(prefix, false);
         setSize(pos.getWidth() + innerPad*2, pos.getHeight() + innerPad*2);
 
-        border.hiddenSides.clear();
-        border.hiddenSides.add(dockDir);
+        border.clearSides();
+        border.hideSide(dockDir);
     }
 
     public PositionAPI setSize(final float w, final float h) {

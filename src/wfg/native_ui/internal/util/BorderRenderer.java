@@ -3,9 +3,6 @@ package wfg.native_ui.internal.util;
 import static wfg.native_ui.util.Globals.settings;
 
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.EnumSet;
-
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import wfg.native_ui.internal.ui.Side;
@@ -23,9 +20,13 @@ import wfg.native_ui.util.UIConstants;
  * </ul>
  */
 public class BorderRenderer {
+    private static final int HIDE_LEFT = 1;   // 0001
+    private static final int HIDE_RIGHT = 2;  // 0010
+    private static final int HIDE_TOP = 4;    // 0100
+    private static final int HIDE_BOTTOM = 8; // 1000
+
     public boolean renderCenter = true;
     public boolean compensateForHiddenSides = true;
-    public final EnumSet<Side> hiddenSides = EnumSet.noneOf(Side.class);
     public Color centerColor = Color.white;
 
     private final SpriteAPI bottom_left;
@@ -39,8 +40,10 @@ public class BorderRenderer {
     private final SpriteAPI top_mid;
     private final float corner_size;
     private final float fudge;
+    private int hiddenSidesMask = 0;
     private float width;
     private float height;
+    private float prevAlpha = 0f;
 
     public BorderRenderer(String prefix, boolean whiteCenter, float w, float h) {
         this(prefix, whiteCenter);
@@ -74,18 +77,31 @@ public class BorderRenderer {
     public BorderRenderer(String prefix, boolean whiteCenter, float w, float h, Side... hidden) {
         this(prefix, whiteCenter);
         this.setSize(w, h);
-        if (hidden != null) {
-            hiddenSides.addAll(Arrays.asList(hidden));
-        }
+
+        for (Side side : hidden) hideSide(side);
     }
 
-    public void setSize(float width, float height) {
+    public final void setSize(float width, float height) {
         this.width = width;
         this.height = height;
     }
 
-    public void render(float x, float y, float alpha) {
-        {
+    public final void hideSide(Side side) {
+        hiddenSidesMask |= bitForSide(side);
+    }
+
+    public final void showSide(Side side) {
+        hiddenSidesMask &= ~bitForSide(side);
+    }
+
+    public final void clearSides() {
+        hiddenSidesMask = 0;
+    }
+
+    public final void render(float x, float y, float alpha) {
+        if (prevAlpha != alpha)  {
+            prevAlpha = alpha;
+
             bottom_left.setAlphaMult(alpha);
             bottom_right.setAlphaMult(alpha);
             top_left.setAlphaMult(alpha);
@@ -97,10 +113,10 @@ public class BorderRenderer {
             center.setAlphaMult(alpha);
         }
         
-        final boolean hideLeft = hiddenSides.contains(Side.LEFT);
-        final boolean hideRight = hiddenSides.contains(Side.RIGHT);
-        final boolean hideTop = hiddenSides.contains(Side.TOP);
-        final boolean hideBottom = hiddenSides.contains(Side.BOTTOM);
+        final boolean hideTop = (hiddenSidesMask & HIDE_TOP) != 0;
+        final boolean hideLeft = (hiddenSidesMask & HIDE_LEFT) != 0;
+        final boolean hideRight = (hiddenSidesMask & HIDE_RIGHT) != 0;
+        final boolean hideBottom = (hiddenSidesMask & HIDE_BOTTOM) != 0;
 
         final float leftOffset = (compensateForHiddenSides && hideLeft) ? -corner_size : 0f;
         final float bottomOffset = (compensateForHiddenSides && hideBottom) ? -corner_size : 0f;
@@ -129,5 +145,14 @@ public class BorderRenderer {
         if (!hideRight) right_mid.renderRegion(x + width - corner_size, innerY, 0f, 0f, 1f, tileH);
         if (!hideTop) top_mid.renderRegion(innerX, y + height - corner_size, 0f, 0f, tileW, 1f);
         if (!hideBottom) bottom_mid.renderRegion(innerX, y, 0f, 0f, tileW, 1f);
+    }
+
+    private static final int bitForSide(Side side) {
+        return switch (side) {
+            case LEFT -> HIDE_LEFT;
+            case RIGHT -> HIDE_RIGHT;
+            case TOP -> HIDE_TOP;
+            case BOTTOM -> HIDE_BOTTOM;
+        };
     }
 }
