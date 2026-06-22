@@ -1,5 +1,6 @@
 Version 0.4.4-beta
 - BorderRenderer performance improvements and API changes.
+- SortableTable fixes concerning rows.
 
 Version 0.4.3-beta
 - Added player bright color to UIConstants.
