@@ -66,6 +66,11 @@ public class NativeUiUtils {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), a);
     }
 
+    /** Returns a new Color with the alpha channel set to alpha. */
+    public static final Color setAlpha(Color color, int alpha) {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), Arithmetic.clamp(alpha, 0, 255));
+    }
+
     /**
      * @param t Must be between 0 and 1
      */

@@ -1,6 +1,8 @@
 Version 0.4.4-beta
 - BorderRenderer performance improvements and API changes.
 - SortableTable fixes concerning rows.
+- Added a new overload for NativeUiUtils.setAlpha that takes in a raw alpha value [0, 255].
+- Vanilla CutStyle enums are now mapped to the NativeUI CutStyle enums in Button with a setter.
 
 Version 0.4.3-beta
 - Added player bright color to UIConstants.

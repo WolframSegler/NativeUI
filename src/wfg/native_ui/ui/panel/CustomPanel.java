@@ -253,6 +253,10 @@ public abstract class CustomPanel implements CustomUIPanelPlugin {
         pos.setSize(pos.getWidth(), height);
     }
 
+    public final void posRecompute() {
+        pos.setSize(pos.getWidth(), pos.getHeight());
+    }
+
     @SuppressWarnings("unchecked")
     public static final List<UIComponentAPI> clearChildren(UIPanelAPI panel) {
         return (List<UIComponentAPI>) RolfLectionUtil.invokeMethodDirectly(clearChildrenMethod, panel);

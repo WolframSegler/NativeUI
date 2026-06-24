@@ -244,6 +244,14 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
         return disabled ? bgDisabledAlpha : bgAlpha;
     }
 
+    public void setCutStyle(CutStyle style) {
+        cutStyle = style;
+    }
+
+    public void setCutStyle(com.fs.starfarer.api.ui.CutStyle vanillaStyle) {
+        cutStyle = CutStyle.fromVanilla(vanillaStyle);
+    }
+
     protected float[] getFaderMaskVertices() {
         final float cutSize = computeCut((int) pos.getWidth(), (int) pos.getHeight());
 
@@ -288,6 +296,19 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
                 case TR_BL_BR: return new float[]{1f, 1f, 1f, 0f};
                 case ALL:      return new float[]{1f, 1f, 1f, 1f};
                 default:       return new float[]{0f, 0f, 0f, 0f};
+            }
+        }
+
+        public static final CutStyle fromVanilla(com.fs.starfarer.api.ui.CutStyle vanilla) {
+            if (vanilla == null) return null;
+            switch (vanilla) {
+                case TL_BR: return TL_BR;
+                case BL_TR: return TR_BL;
+                case BOTTOM: return BL_BR;
+                case TOP: return TL_TR;
+                case ALL: return ALL;
+                case C2_MENU: return TR_BL;
+                case NONE: default: return NONE;
             }
         }
     }

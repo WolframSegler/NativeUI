@@ -146,7 +146,7 @@ public class VanillaScrollPanel extends CustomPanel {
 
                 contentContainer.setOffset(offsetX, offsetY);
                 RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, false);
-                pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+                posRecompute();
                 RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, true);
                 event.consume();
                 continue;
@@ -191,7 +191,7 @@ public class VanillaScrollPanel extends CustomPanel {
 
                 contentContainer.forceOffset(offsetX, offsetY);
                 RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, false);
-                pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+                posRecompute();
                 RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, true);
                 someLocalBool = true;
             }
@@ -220,7 +220,7 @@ public class VanillaScrollPanel extends CustomPanel {
 
                         contentContainer.forceOffset(offsetX, offsetY);
                         RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, false);
-                        pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+                        posRecompute();
                         RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, true);
                         event.consume();
                     }
@@ -267,7 +267,7 @@ public class VanillaScrollPanel extends CustomPanel {
 
                         contentContainer.forceOffset(offsetX, offsetY);
                         RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, false);
-                        pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+                        posRecompute();
                         RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, true);
                         someLocalBool = true;
                     }
@@ -296,7 +296,7 @@ public class VanillaScrollPanel extends CustomPanel {
 
                             contentContainer.forceOffset(offsetX, offsetY);
                             RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, false);
-                            pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+                            posRecompute();
                             RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, true);
                             event.consume();
                         }
@@ -383,7 +383,7 @@ public class VanillaScrollPanel extends CustomPanel {
 
                             contentContainer.forceOffset(offsetX, offsetY);
                             RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, false);
-                            pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+                            posRecompute();
                             RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, pos, true);
                             event.consume();
                         }
@@ -741,14 +741,14 @@ public class VanillaScrollPanel extends CustomPanel {
         offsetY = 0f;
         offsetX = 0f;
         contentContainer.forceOffset(offsetX, offsetY);
-        pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+        posRecompute();
     }
 
     public void setOffset(float f2, float f3) {
         offsetX = f2;
         offsetY = f3;
         contentContainer.forceOffset(offsetX, offsetY);
-        pos.setSize(pos.getWidth(), pos.getHeight()); // triggers recompute
+        posRecompute();
     }
 
     public void clampOffset() {
