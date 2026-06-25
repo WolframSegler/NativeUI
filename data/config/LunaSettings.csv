@@ -1,0 +1,2 @@
+fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
+header_Welcome,Welcome,Text,"Native UI is a composition oriented UI framework that aims to eliminate repetition and messy class hierarchies. It provides many UI elements present in game but not available through the API, such as the blue slider. Extensive documentation can be found on the GitHub page.",,,,,
