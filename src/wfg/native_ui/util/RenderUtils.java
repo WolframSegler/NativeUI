@@ -20,8 +20,15 @@ public class RenderUtils {
      * @param h = height
      * @param t = thickness
      */
-    public static final void drawFramedBorder(float x, float y, float w, float h, float t, Color       
-        color, float alphaMult) {
+    public static final void drawFramedBorder(float x, float y, float w, float h, float t, Color color,
+        float alphaMult
+    ) {
+        drawFramedBorder(x, y, w, h, t, color, alphaMult, false);
+    }
+
+    public static final void drawFramedBorder(float x, float y, float w, float h, float t, Color color, 
+        float alphaMult, boolean growInward
+    ) {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -29,32 +36,57 @@ public class RenderUtils {
         setGlColor(color, alphaMult);
         GL11.glBegin(GL11.GL_QUADS);
 
-        // Bottom
-        GL11.glVertex2f(x - t, y - t);
-        GL11.glVertex2f(x + w, y - t);
-        GL11.glVertex2f(x + w, y);
-        GL11.glVertex2f(x - t, y);
-        
-        // Right
-        GL11.glVertex2f(x + w, y - t);
-        GL11.glVertex2f(x + w + t, y - t);
-        GL11.glVertex2f(x + w + t, y + h);
-        GL11.glVertex2f(x + w, y + h);
+        if (growInward) {
+            // Bottom
+            GL11.glVertex2f(x, y);
+            GL11.glVertex2f(x + w, y);
+            GL11.glVertex2f(x + w, y + t);
+            GL11.glVertex2f(x, y + t);
 
-        // Top
-        GL11.glVertex2f(x, y + h);
-        GL11.glVertex2f(x + w + t, y + h);
-        GL11.glVertex2f(x + w + t, y + h + t);
-        GL11.glVertex2f(x, y + h + t);
+            // Right
+            GL11.glVertex2f(x + w - t, y);
+            GL11.glVertex2f(x + w, y);
+            GL11.glVertex2f(x + w, y + h);
+            GL11.glVertex2f(x + w - t, y + h);
 
-        // Left
-        GL11.glVertex2f(x - t, y);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x, y + h + t);
-        GL11.glVertex2f(x - t, y + h + t);
+            // Top
+            GL11.glVertex2f(x, y + h - t);
+            GL11.glVertex2f(x + w, y + h - t);
+            GL11.glVertex2f(x + w, y + h);
+            GL11.glVertex2f(x, y + h);
+
+            // Left
+            GL11.glVertex2f(x, y + t);
+            GL11.glVertex2f(x + t, y + t);
+            GL11.glVertex2f(x + t, y + h - t);
+            GL11.glVertex2f(x, y + h - t);
+        } else {
+            // Bottom
+            GL11.glVertex2f(x - t, y - t);
+            GL11.glVertex2f(x + w, y - t);
+            GL11.glVertex2f(x + w, y);
+            GL11.glVertex2f(x - t, y);
+            
+            // Right
+            GL11.glVertex2f(x + w, y - t);
+            GL11.glVertex2f(x + w + t, y - t);
+            GL11.glVertex2f(x + w + t, y + h);
+            GL11.glVertex2f(x + w, y + h);
+
+            // Top
+            GL11.glVertex2f(x, y + h);
+            GL11.glVertex2f(x + w + t, y + h);
+            GL11.glVertex2f(x + w + t, y + h + t);
+            GL11.glVertex2f(x, y + h + t);
+
+            // Left
+            GL11.glVertex2f(x - t, y);
+            GL11.glVertex2f(x, y);
+            GL11.glVertex2f(x, y + h + t);
+            GL11.glVertex2f(x - t, y + h + t);
+        }
 
         GL11.glEnd();
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
     public static final void drawQuad(float x, float y, float w, float h, Color color, float alphaMult,

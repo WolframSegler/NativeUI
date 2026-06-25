@@ -23,13 +23,26 @@ import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.TextFieldAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI.ActionListenerDelegate;
+import com.fs.starfarer.api.util.FaderUtil;
+import com.fs.starfarer.api.util.Misc;
 
+import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.panel.CustomPanel;
 import wfg.native_ui.util.NativeUiUtils;
+import wfg.native_ui.util.RenderUtils;
 
+// TODO release TextField after new update.
 public class TextField extends CustomPanel implements TextFieldAPI {
+    private static final char NULL_CHAR = '\u0000';
     private static final String TYPER_BUZZER_SOUND_ID = "ui_typer_buzz";
     private static final String TYPER_TYPE_SOUND_ID = "ui_typer_type";
+    private static final Color DISABLED_COLOR = new Color(100, 100, 100, 255);
+
+    private static final Class<?> labelClass = settings.createLabel("", null).getClass();
+    private static final Object isBlinkingMethod = RolfLectionUtil.getMethodDeclared("isBlinking", labelClass, 0);
+    private static final Object stopBlinkingMethod = RolfLectionUtil.getMethodDeclared("stopBlinking", labelClass, 0);
+    private static final Object getFlasherMethod = RolfLectionUtil.getMethodDeclared("getFlasher", labelClass, 0);
+    private static final Object blinkMethod = RolfLectionUtil.getMethodDeclared("blink", labelClass, 2);
 
     private final ActionListenerDelegate actionListener;
 
@@ -41,7 +54,7 @@ public class TextField extends CustomPanel implements TextFieldAPI {
     private TextFieldAPI nextTextField;
     private LabelAPI blankTextLabel;
     private LabelAPI descLabel;
-    private o textListener = null;
+    private AAAA textListener = null;
     private int maxCharacters = -1;
     private String lastTextBeforeFocus = null;
     
@@ -67,9 +80,9 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         cursorLabel = settings.createLabel("_", font);
         cursorLabel.autoSizeToWidth(w);
         cursorLabel.setAlignment(Alignment.MID);
-        // TODO
-        // cursorLabel.getFader().setDuration(0.05f, 0.25f);
-        // cursorLabel.getFader().forceOut();
+        final FaderUtil fader = (FaderUtil) RolfLectionUtil.invokeMethodDirectly(CustomPanel.getFaderMethod, cursorLabel);
+        fader.setDuration(0.05f, 0.25f);
+        fader.forceOut();
         setColor(btnTxtColor);
         add(cursorLabel).rightOfBottom((UIComponentAPI) textLabel, 0f);
     }
@@ -112,11 +125,11 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         return textLabel;
     }
 
-    public o getTextListener() {
+    public AAAA getTextListener() {
         return textListener;
     }
 
-    public void setTextListener(o o2) {
+    public void setTextListener(AAAA o2) {
         textListener = o2;
     }
 
@@ -162,20 +175,20 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         }
     }
 
-    public boolean isValidChar(char c2) {
-        if (c2 == '\u0000') {
+    public boolean isValidChar(char input) {
+        if (input == NULL_CHAR) {
             return false;
         }
-        if (c2 == '%') {
+        if (input == '%') {
             return false;
         }
-        if (c2 == '$') {
+        if (input == '$') {
             return false;
         }
         // oOOO[] oOOOArray = textLabel.getRenderer().return().\u00d600000();
-        // boolean bl = oOOOArray.length > c2 && oOOOArray[c2] != null;
+        // boolean bl = oOOOArray.length > input && oOOOArray[input] != null;
         // return bl;
-        return false; // TODO remove
+        return true; // TODO handle
     }
 
     public final boolean appendCharIfPossible(char c2) {
@@ -256,11 +269,11 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         grabFocus(true);
     }
 
-    public void grabFocus(boolean bl) {
-        if (bl) {
-            Global.getSoundPlayer().playUISound(TYPER_BUZZER_SOUND_ID, 1f, 1f);
-        }
+    public void grabFocus(boolean withSound) {
+        if (withSound) Global.getSoundPlayer().playUISound(TYPER_BUZZER_SOUND_ID, 1f, 1f);
+
         lastTextBeforeFocus = getText();
+        // TODO handle
         // O0Oo.\u00d500000(this);
     }
 
@@ -268,25 +281,28 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         if (object != null && actionListener != null) {
             actionListener.actionPerformed(object, this);
         }
+        // TODO handle
         // O0Oo.super(this);
     }
 
     @Override
     public void advance(float delta) {
         super.advance(delta);
-
-        if (blankTextLabel != null) {
-            blankTextLabel.setOpacity(getText().isEmpty() ? 1f : 0f);
+        
+        if (blankTextLabel != null) blankTextLabel.setOpacity(getText().isEmpty() ? 1f : 0f);
+        
+        final FaderUtil fader = (FaderUtil) RolfLectionUtil.invokeMethodDirectly(CustomPanel.getFaderMethod, cursorLabel);
+        final boolean isBlinking = (boolean) RolfLectionUtil.invokeMethodDirectly(isBlinkingMethod, cursorLabel);
+        final boolean hasFocus = hasFocus();
+        
+        if ((isBlinking || fader.getBrightness() > 0f && !fader.isFadingOut()) && !hasFocus) {
+            RolfLectionUtil.invokeMethodDirectly(stopBlinkingMethod, cursorLabel);
+            fader.fadeOut();
+        } else if ((!isBlinking || fader.getBrightness() < 1f && !fader.isFadingIn()) && hasFocus) {
+            RolfLectionUtil.invokeMethodDirectly(blinkMethod, cursorLabel, 2f, Float.MAX_VALUE);
+            ((FaderUtil)RolfLectionUtil.invokeMethodDirectly(getFlasherMethod, cursorLabel)).forceIn();
+            fader.fadeIn();
         }
-        // boolean bl = O0Oo.\u00d300000() == this;
-        // if ((cursorLabel.isBlinking() || cursorLabel.getFader().getBrightness() > 0f && !cursorLabel.getFader().isFadingOut()) && !bl) {
-        //     cursorLabel.stopBlinking();
-        //     cursorLabel.getFader().fadeOut();
-        // } else if ((!cursorLabel.isBlinking() || cursorLabel.getFader().getBrightness() < 1f && !cursorLabel.getFader().isFadingIn()) && bl) {
-        //     cursorLabel.blink(2f, Float.MAX_VALUE);
-        //     cursorLabel.getFlasher().forceIn();
-        //     cursorLabel.getFader().fadeIn();
-        // }
     }
 
     public boolean hasFocus() {
@@ -298,29 +314,26 @@ public class TextField extends CustomPanel implements TextFieldAPI {
     public void processInput(List<InputEventAPI> events) {
         super.processInput(events);
 
-        // boolean bl = O0Oo.\u00d300000() == this;
-        boolean bl = false; // TODO handle
+        final boolean hasFocus = hasFocus();
 
-        // if (!isEnabled()) {
-        //     if (bl) {
-        //         releaseFocus(null);
-        //     }
-        //     return;
-        // }
+        if (!isEnabled()) {
+            if (hasFocus) releaseFocus(null);
+            return;
+        }
 
         for (InputEventAPI event : events) {
             if (event.isConsumed() || event.isMouseMoveEvent()) continue;
-            if (!bl && event.isLMBDownEvent() && pos.containsEvent(event)) {
+            if (!hasFocus && event.isLMBDownEvent() && pos.containsEvent(event)) {
                 grabFocus();
-                // events.\u00d200000();
+                clearKeyboardEvents(events);
                 event.consume();
                 continue;
             }
-            if (bl && event.isMouseDownEvent()) {
+            if (hasFocus && event.isMouseDownEvent()) {
                 releaseFocus(event);
                 break;
             }
-            if (!bl || !event.isKeyboardEvent() || !event.isKeyDownEvent() && !event.isRepeat()) continue;
+            if (!hasFocus || !event.isKeyboardEvent() || !event.isKeyDownEvent() && !event.isRepeat()) continue;
             if (event.getEventValue() == Keyboard.KEY_RETURN || event.getEventValue() == Keyboard.KEY_NUMPADENTER) {
                 if (callTabPressedOnEnter && textListener != null) {
                     textListener.tabPressed(this, event);
@@ -328,7 +341,7 @@ public class TextField extends CustomPanel implements TextFieldAPI {
                 if (goToNextOnEnter && nextTextField != null) {
                     releaseFocus(event);
                     nextTextField.grabFocus();
-                    // events.\u00d200000();
+                    clearKeyboardEvents(events);
                     event.consume();
                     break;
                 }
@@ -339,18 +352,18 @@ public class TextField extends CustomPanel implements TextFieldAPI {
                 event.consume();
                 break;
             }
-            if (event.getEventValue() == 15) {
+            if (event.getEventValue() == Keyboard.KEY_TAB) {
                 if (textListener != null) {
                     textListener.tabPressed(this, event);
                 }
                 if (nextTextField == null) continue;
                 releaseFocus(event);
                 nextTextField.grabFocus();
-                // events.\u00d200000();
+                clearKeyboardEvents(events);
                 event.consume();
                 break;
             }
-            if (event.getEventValue() == 1) {
+            if (event.getEventValue() == Keyboard.KEY_ESCAPE) {
                 Global.getSoundPlayer().playUISound(TYPER_TYPE_SOUND_ID, 1f, 1f);
                 if (undoOnEscape) {
                     setText(lastTextBeforeFocus);
@@ -364,16 +377,16 @@ public class TextField extends CustomPanel implements TextFieldAPI {
             }
             if (event.getEventValue() == Keyboard.KEY_V && event.isCtrlDown() && handleCtrlV) {
                 final String string = getClipboardText();
-                int n2 = 0;
-                while (n2 < string.length()) {
-                    appendCharIfPossible(string.charAt(n2));
-                    ++n2;
+                int charIndex = 0;
+                while (charIndex < string.length()) {
+                    appendCharIfPossible(string.charAt(charIndex));
+                    ++charIndex;
                 }
                 event.consume();
                 continue;
             }
-            if (event.getEventValue() == 14) {
-                boolean bl3 = getText().isEmpty();
+            if (event.getEventValue() == Keyboard.KEY_BACK) {
+                final boolean isEmpty = getText().isEmpty();
                 if (event.isShiftDown()) {
                     deleteAll();
                 } else if (event.isCtrlDown()) {
@@ -382,14 +395,14 @@ public class TextField extends CustomPanel implements TextFieldAPI {
                     deleteLastChar();
                 }
                 if (textListener != null) {
-                    textListener.backspacePressed(this, !bl3);
+                    textListener.backspacePressed(this, !isEmpty);
                 }
                 event.consume();
                 continue;
             }
-            char c2 = event.getEventChar();
-            if (c2 == '\u0000') continue;
-            appendCharIfPossible(c2);
+            final char inputChar = event.getEventChar();
+            if (inputChar == NULL_CHAR) continue;
+            appendCharIfPossible(inputChar);
             event.consume();
         }
     }
@@ -412,36 +425,40 @@ public class TextField extends CustomPanel implements TextFieldAPI {
 
     @Override
     public void render(float f2) {
-        // float f3 = pos.getX();
-        // float f4 = pos.getY();
-        // float f5 = pos.getWidth();
-        // float f6 = pos.getHeight();
-        // if (minimalMode) {
-        //     public.Object(f3, f4, f5, 2f, com.fs.graphics.util.B.new((Color)borderColor, (int)((int)(127f + 128f * cursorLabel.getFader().getBrightness()))), f2);
-        //     Color color = com.fs.graphics.util.B.new((Color)com.fs.graphics.util.B.class((Color)bgColor, (float)0.4f), (int)200);
-        //     public.o00000(f3 + 1f, f4 + 1f, f5 - 2f, f6 - 2f, color, Misc.zeroColor, Misc.zeroColor, color, f2);
-        // } else {
-        //     if (descLabel != null) {
-        //         Color color = com.fs.graphics.util.B.new((Color)borderColor, (int)((int)(127f + 128f * cursorLabel.getFader().getBrightness())));
-        //         public.o00000(f3, f4, f5, f6, 1f, false, true, true, true, color, f2);
-        //         float f7 = descLabel.pos.getX();
-        //         float f8 = descLabel.pos.getX() + descLabel.pos.getWidth();
-        //         public.Object(f3 + 1f, f4 + f6 - 1f, f7 - f3 - 1f, 1f, color, f2);
-        //         public.Object(f8 + 1f, f4 + f6 - 1f, f3 + f5 - f8 - 2f, 1f, color, f2);
-        //     } else {
-        //         public.o00000(pos, com.fs.graphics.util.B.new((Color)borderColor, (int)((int)(127f + 128f * cursorLabel.getFader().getBrightness()))), f2);
-        //     }
-        //     public.Object(f3 + 1f, f4 + 1f, f5 - 2f, f6 - 2f, com.fs.graphics.util.B.new((Color)com.fs.graphics.util.B.class((Color)bgColor, (float)0.4f), (int)200), f2);
-        // }
-        // boolean bl = O0Oo.\u00d300000() == this;
-        // super.render(f2);
-        // if (!isEnabled()) {
-        //    public.Object(f3 + 1f, f4 + 1f, f5 - 2f, f6 - 2f, new Color(100, 100, 100, 255), f2 * 0.4f);
-        // }
+        final float f3 = pos.getX();
+        final float f4 = pos.getY();
+        final float f5 = pos.getWidth();
+        final float f6 = pos.getHeight();
+        final FaderUtil fader = (FaderUtil) RolfLectionUtil.invokeMethodDirectly(CustomPanel.getFaderMethod, cursorLabel);
+
+        final Color adjustedBorderColor = NativeUiUtils.setAlpha(borderColor, 127f + 128f * fader.getBrightness());
+        final Color adjustedBgColor = NativeUiUtils.adjustBrightness(bgColor, 0.4f);
+        final Color adjustedGradientColor = NativeUiUtils.setAlpha(adjustedBgColor, 200);
+        if (minimalMode) {
+            RenderUtils.drawQuad(f3, f4, f5, 2f, adjustedBorderColor, f2, false);
+
+            RenderUtils.drawGradientQuad(f3 + 1f, f4 + 1f, f5 - 2f, f6 - 2f, adjustedBorderColor, Misc.zeroColor, Misc.zeroColor, adjustedGradientColor, f2);
+        } else {
+            if (descLabel != null) {
+                RenderUtils.drawFramedBorder(f3, f4, f5, f6, 1f, adjustedBorderColor, f2, true);
+                final float f7 = descLabel.getPosition().getX();
+                final float f8 = descLabel.getPosition().getX() + descLabel.getPosition().getWidth();
+                RenderUtils.drawQuad(f3 + 1f, f4 + f6 - 1f, f7 - f3 - 1f, 1f, adjustedBorderColor, f2, false);
+                RenderUtils.drawQuad(f8 + 1f, f4 + f6 - 1f, f3 + f5 - f8 - 2f, 1f, adjustedBorderColor, f2, false);
+            } else {
+                RenderUtils.drawQuad(f3, f4, f5, f6, adjustedBorderColor, f2, false);
+            }
+            RenderUtils.drawQuad(f3 + 1f, f4 + 1f, f5 - 2f, f6 - 2f, adjustedGradientColor, f2, false);
+        }
+
+        super.render(f2);
+
+        if (!isEnabled()) {
+            RenderUtils.drawQuad(f3 + 1f, f4 + 1f, f5 - 2f, f6 - 2f, DISABLED_COLOR, f2 * 0.4f, false);
+        }
     }
 
-    /** Copied from StarfarerLauncherUI */
-    public static String getClipboardText() {
+    private static final String getClipboardText() {
         final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         final Transferable transferable = clipboard.getContents(null);
         final boolean validClipboard = transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor);
@@ -458,6 +475,13 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         return string;
     }
 
+    private static final void clearKeyboardEvents(final List<InputEventAPI> events) {
+        for (InputEventAPI event : events) {
+            if (event.isConsumed() || event.isMouseEvent() || !event.isKeyboardEvent()) continue;
+            event.consume();
+        }
+    }
+
     public final void setLimitByStringWidth(boolean bool) { limitByStringWidth = bool; }
     public final void setUndoOnEscape(boolean bool) { undoOnEscape = bool; }
     public final void setHandleCtrlV(boolean bool) { handleCtrlV = bool; }
@@ -467,10 +491,11 @@ public class TextField extends CustomPanel implements TextFieldAPI {
     public final boolean isHandleCtrlV() { return handleCtrlV; }
     public final boolean isUndoOnEscape() { return undoOnEscape; }
     public final boolean isVerticalCursor() { return false; }
+    public final boolean isEnabled() { return true; } // TODO originally this is from UIComponentAPI instance. Change after new update
     public final float getOpacity() { return m_panel.getOpacity(); }
     public final PositionAPI getPosition() { return pos; }
 
-    public static interface o {
+    public static interface AAAA {
         public void backspacePressed(TextFieldAPI var1, boolean var2);
 
         public void charTyped(TextFieldAPI var1, char var2);
