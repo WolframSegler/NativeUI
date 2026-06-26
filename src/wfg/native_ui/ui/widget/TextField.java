@@ -48,21 +48,22 @@ public class TextField extends CustomPanel implements TextFieldAPI {
 
     private LabelAPI textLabel;
     private LabelAPI cursorLabel;
-    private float leftPad = 2f;
-    private Color bgColor = NativeUiUtils.setAlpha(btnBgColorDark, 150);
-    private Color borderColor = bgColor;
-    private TextFieldAPI nextTextField;
     private LabelAPI blankTextLabel;
     private LabelAPI descLabel;
-    private AAAA textListener = null;
-    private int maxCharacters = -1;
+    private Color bgColor = NativeUiUtils.setAlpha(btnBgColorDark, 150);
+    private Color borderColor = bgColor;
     private String lastTextBeforeFocus = null;
+    private TextFieldAPI nextTextField;
+    private TextFieldListener fieldListener = null;
+    private int maxCharacters = -1;
+    private float leftPad = 2f;
     
     public boolean goToNextOnEnter = false;
     public boolean callTabPressedOnEnter = false;
     public boolean limitByStringWidth = true;
     public boolean undoOnEscape = true;
     public boolean handleCtrlV = true;
+    public boolean isEnabled = true;
     public boolean minimalMode = false;
 
     public TextField(float w, float h, String text, String font, ActionListenerDelegate listener) {
@@ -125,12 +126,12 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         return textLabel;
     }
 
-    public AAAA getTextListener() {
-        return textListener;
+    public TextFieldListener getFieldListener() {
+        return fieldListener;
     }
 
-    public void setTextListener(AAAA o2) {
-        textListener = o2;
+    public void setFieldListener(TextFieldListener listener) {
+        fieldListener = listener;
     }
 
     public void setMidAlignment() {
@@ -170,8 +171,8 @@ public class TextField extends CustomPanel implements TextFieldAPI {
         posRecompute();
 
         final String newText = getText();
-        if (textListener != null && !prevText.equals(newText)) {
-            textListener.textChanged(this, prevText);
+        if (fieldListener != null && !prevText.equals(newText)) {
+            fieldListener.textChanged(this, prevText);
         }
     }
 
@@ -206,16 +207,16 @@ public class TextField extends CustomPanel implements TextFieldAPI {
             if (bl) {
                 Global.getSoundPlayer().playUISound(TYPER_TYPE_SOUND_ID, 1f, 1f);
             }
-            if (textListener != null) {
-                textListener.charTyped(this, c2);
+            if (fieldListener != null) {
+                fieldListener.charTyped(this, c2);
             }
             return true;
         }
         if (bl) {
             Global.getSoundPlayer().playUISound(TYPER_BUZZER_SOUND_ID, 1f, 1f);
         }
-        if (textListener != null) {
-            textListener.charTypeFailed(this, c2);
+        if (fieldListener != null) {
+            fieldListener.charTypeFailed(this, c2);
         }
         return false;
     }
@@ -335,8 +336,8 @@ public class TextField extends CustomPanel implements TextFieldAPI {
             }
             if (!hasFocus || !event.isKeyboardEvent() || !event.isKeyDownEvent() && !event.isRepeat()) continue;
             if (event.getEventValue() == Keyboard.KEY_RETURN || event.getEventValue() == Keyboard.KEY_NUMPADENTER) {
-                if (callTabPressedOnEnter && textListener != null) {
-                    textListener.tabPressed(this, event);
+                if (callTabPressedOnEnter && fieldListener != null) {
+                    fieldListener.tabPressed(this, event);
                 }
                 if (goToNextOnEnter && nextTextField != null) {
                     releaseFocus(event);
@@ -353,8 +354,8 @@ public class TextField extends CustomPanel implements TextFieldAPI {
                 break;
             }
             if (event.getEventValue() == Keyboard.KEY_TAB) {
-                if (textListener != null) {
-                    textListener.tabPressed(this, event);
+                if (fieldListener != null) {
+                    fieldListener.tabPressed(this, event);
                 }
                 if (nextTextField == null) continue;
                 releaseFocus(event);
@@ -369,8 +370,8 @@ public class TextField extends CustomPanel implements TextFieldAPI {
                     setText(lastTextBeforeFocus);
                 }
                 releaseFocus(null);
-                if (textListener != null) {
-                    textListener.escapePressed(this, event);
+                if (fieldListener != null) {
+                    fieldListener.escapePressed(this, event);
                 }
                 event.consume();
                 break;
@@ -394,8 +395,8 @@ public class TextField extends CustomPanel implements TextFieldAPI {
                 } else {
                     deleteLastChar();
                 }
-                if (textListener != null) {
-                    textListener.backspacePressed(this, !isEmpty);
+                if (fieldListener != null) {
+                    fieldListener.backspacePressed(this, !isEmpty);
                 }
                 event.consume();
                 continue;
@@ -486,16 +487,17 @@ public class TextField extends CustomPanel implements TextFieldAPI {
     public final void setUndoOnEscape(boolean bool) { undoOnEscape = bool; }
     public final void setHandleCtrlV(boolean bool) { handleCtrlV = bool; }
     public final void setOpacity(float alpha) { m_panel.setOpacity(alpha); }
+    public final void setEnabled(boolean bool) { isEnabled = bool; }
     public final void setVerticalCursor(boolean bool) {}
     public final boolean isLimitByStringWidth() { return limitByStringWidth; }
     public final boolean isHandleCtrlV() { return handleCtrlV; }
     public final boolean isUndoOnEscape() { return undoOnEscape; }
     public final boolean isVerticalCursor() { return false; }
-    public final boolean isEnabled() { return true; } // TODO originally this is from UIComponentAPI instance. Change after new update
+    public final boolean isEnabled() { return isEnabled; }
     public final float getOpacity() { return m_panel.getOpacity(); }
     public final PositionAPI getPosition() { return pos; }
 
-    public static interface AAAA {
+    public static interface TextFieldListener {
         public void backspacePressed(TextFieldAPI var1, boolean var2);
 
         public void charTyped(TextFieldAPI var1, char var2);
