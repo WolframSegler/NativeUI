@@ -1,4 +1,5 @@
 Version 0.4.4-beta
+- Not compatible with v0.4.3-beta
 - BorderRenderer performance improvements and API changes.
 - SortableTable fixes concerning rows.
 - Added a new overload for NativeUiUtils.setAlpha that takes in a raw alpha value [0, 255].
