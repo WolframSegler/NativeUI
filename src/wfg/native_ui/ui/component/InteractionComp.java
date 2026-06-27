@@ -1,6 +1,8 @@
 package wfg.native_ui.ui.component;
 
 import org.lwjgl.input.Keyboard;
+
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI.ActionListenerDelegate;
 
 import wfg.native_ui.util.CallbackRunnable;
@@ -28,8 +30,8 @@ public final class InteractionComp<SourceType> extends BaseComponent {
     /** Called once when the cursor leaves the panel. */
     public CallbackRunnable<SourceType> onHoverEnded;
 
-    /** Called when the shortcut key is pressed. */
-    public CallbackRunnable<SourceType> onShortcutPressed;
+    /** Called when the shortcut key is pressed. Does not consume the event. */
+    public ShortcutHandler<SourceType> onShortcutPressed;
 
     /** Called once when the panel is clicked. */
     public ClickHandler<SourceType> onClicked;
@@ -37,5 +39,13 @@ public final class InteractionComp<SourceType> extends BaseComponent {
     @FunctionalInterface
     public static interface ClickHandler<SourceType> {
         void handle(SourceType source, boolean isLeftClick);
+    }
+
+    @FunctionalInterface
+    public interface ShortcutHandler<CallerType> {
+        /**
+         * @param event nullable
+         */
+        void run(CallerType caller, InputEventAPI event);
     }
 }

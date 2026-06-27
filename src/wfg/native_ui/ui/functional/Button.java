@@ -16,6 +16,7 @@ import com.fs.starfarer.api.util.FaderUtil;
 import wfg.native_ui.ui.component.HoverGlowComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
+import wfg.native_ui.ui.component.InteractionComp.ShortcutHandler;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
@@ -70,13 +71,13 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI,
         glow.overlayBrightness = 0.2f;
         glow.faderMaskVertices = getFaderMaskVertices();
 
-        final CallbackRunnable<Button> uiClickableCallback = interaction.onShortcutPressed;
-        interaction.onShortcutPressed = (source) -> {
+        final ShortcutHandler<Button> uiClickableCallback = interaction.onShortcutPressed;
+        interaction.onShortcutPressed = (source, event) -> {
             if (getPanel().getOpacity() > 0f) {
                 glow.fader.forceIn();
                 label.flash(0.2f, 0.2f);
             }
-            uiClickableCallback.run(source);
+            uiClickableCallback.run(source, event);
         };
 
         buildUI();

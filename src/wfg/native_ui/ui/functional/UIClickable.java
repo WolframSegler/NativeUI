@@ -55,13 +55,14 @@ public class UIClickable<T extends UIClickable<T>> extends CustomPanel implement
 
         interaction.onClicked = (source, isLeftClick) -> {
             if ((!isLeftClick && !rightClicksOkWhenDisabled) || !clickable) return;
-            interaction.onShortcutPressed.run(source);
+            interaction.onShortcutPressed.run(source, null);
         };
         interaction.onHoverStarted = (source) -> { if (soundEnabled) {
             Global.getSoundPlayer().playUISound(mouseOverSound, 1, 1);
         }};
-        interaction.onShortcutPressed = (source) -> {
+        interaction.onShortcutPressed = (source, event) -> {
             if (m_panel.getOpacity() <= 0f && disabledWhileInvisible) return;
+            if (event != null) event.consume();
 
             if (disabled && !performActionWhenDisabled) {
                 if (soundEnabled) Global.getSoundPlayer().playUISound("ui_button_disabled_pressed", 1, 1);
@@ -94,7 +95,7 @@ public class UIClickable<T extends UIClickable<T>> extends CustomPanel implement
     }
 
     public void click(boolean ignoreState) {
-        if (ignoreState) interaction.onShortcutPressed.run(self());
+        if (ignoreState) interaction.onShortcutPressed.run(self(), null);
         else interaction.onClicked.handle(self(), true);
     }
 
