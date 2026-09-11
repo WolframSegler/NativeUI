@@ -31,7 +31,7 @@ import wfg.native_ui.util.UIConstants;
  *   should not) add it again. The panel calculates its open position via {@link #calculateTargetPos()}
  *   and computes the closed (off-screen) position based on the chosen {@link Side}.</li>
  *   <li>Open/close is driven by {@link #open()} / {@link #close()}. The animated visibility progress
- *   value (0..1) is stored in {@code progress}; animation timing is controlled by {@link #durIn}
+ *   value (0..1) is stored in {@link #progress}; animation timing is controlled by {@link #durIn}
  *   and {@link #durOut}.</li>
  *   <li>Call {@link #changeOffset()} to nudge the final anchored position, or
  *   {@link #changeDirection()} to change the dock side at runtime (the border will be updated).</li>
@@ -141,6 +141,7 @@ public abstract class DockPanel extends UIContainer implements
         border.hideSide(dockDir);
     }
 
+    @Override 
     public PositionAPI setSize(final float w, final float h) {
         mPos.setSize(w + innerPad*2f, h + innerPad*2f);
         contentContainer.getPosition().setSize(w, h);
@@ -197,9 +198,7 @@ public abstract class DockPanel extends UIContainer implements
 
     @Override
     public PositionAPI add(UIComponentAPI comp) {
-        contentContainer.addComponent(comp);
-
-        return comp.getPosition();
+        return contentContainer.addComponent(comp);
     }
 
     @Override
@@ -209,22 +208,12 @@ public abstract class DockPanel extends UIContainer implements
 
     @Override
     public PositionAPI addPos(UIComponentAPI comp) {
-        final PositionAPI compPos = comp.getPosition();
-        final PositionAPI contentPos = contentContainer.pos();
-        // TODO
-        // contentPos.addChild(compPos);
-        // compPos.setParent(contentPos);
-
-        return compPos;
+        return contentContainer.addPos(comp);
     }
 
     @Override
     public void removePos(UIComponentAPI comp) {
-        final PositionAPI compPos = comp.getPosition();
-        final PositionAPI contentPos = contentContainer.pos();
-        // TODO
-        // contentPos.removeChild(compPos);
-        // compPos.setParent(null);
+        contentContainer.removePos(comp);
     }
 
     @Override
@@ -233,7 +222,6 @@ public abstract class DockPanel extends UIContainer implements
     }
 
     protected void updatePosition() {
-        final PositionAPI pos = pos();
         final float eased = easeOutCubic(progress, 1f);
 
         final float openX = targetPosX;
@@ -244,7 +232,7 @@ public abstract class DockPanel extends UIContainer implements
 
         switch (dockDir) {
         case LEFT:
-            closedX = -pos.getWidth();
+            closedX = -mPos.getWidth();
             closedY = openY;
             break;
         case RIGHT:
@@ -257,7 +245,7 @@ public abstract class DockPanel extends UIContainer implements
             break;
         case BOTTOM:
             closedX = openX;
-            closedY = -pos.getHeight();
+            closedY = -mPos.getHeight();
             break;
         default:
             closedX = openX;
@@ -267,7 +255,7 @@ public abstract class DockPanel extends UIContainer implements
         final float x = closedX + (openX - closedX) * eased;
         final float y = closedY + (openY - closedY) * eased;
 
-        pos.inBL(x, y);
+        mPos.inBL(x, y);
     }
 
     protected void calculateTargetPos() {
@@ -304,6 +292,6 @@ public abstract class DockPanel extends UIContainer implements
 
     protected static float easeOutCubic(final float t, final float end) {
         final float progress = Math.min(Math.max(t / end, 0f), 1f);
-        return 1f - (float)Math.pow(1f - progress, 3);
+        return 1f - (float)Math.pow(1f - progress, 3d);
     }
 }

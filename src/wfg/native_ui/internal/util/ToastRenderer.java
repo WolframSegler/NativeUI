@@ -7,10 +7,12 @@ import java.awt.Color;
 import org.lwjgl.opengl.GL11;
 
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.ui.PositionAPI;
 
 import wfg.native_ui.util.NativeUiUtils;
 import wfg.native_ui.util.RenderUtils;
 
+// TODO test this
 public final class ToastRenderer {
     private ToastRenderer() {};
     private static final SpriteAPI HANDLE_CORNER = settings.getSprite("ui", "toast_handle_bottom_left");
@@ -20,12 +22,23 @@ public final class ToastRenderer {
     private static final SpriteAPI HOLO_TOP = settings.getSprite("ui", "toast_holo_top");
     private static final SpriteAPI HOLO_CENTER = settings.getSprite("ui", "toast_holo_center");
 
-    private static final float HANDLE_W = HANDLE_CORNER.getTextureWidth();
+    public static final float HANDLE_W = HANDLE_CORNER.getTextureWidth();
+
+    private static final float PROGRESS_BAR_HEIGHT = 2f;
+    private static final float PROGRESS_BAR_PADDING = 4f;
     private static final float HANDLE_CORNER_H = HANDLE_CORNER.getTextureHeight();
     private static final float HOLO_CORNER_S = HOLO_CORNER.getWidth();
 
+    public static final void render(PositionAPI pos, boolean mirror, float alpha, Color handleColor, Color holoColor,
+        float glowIntensity, float barProgress
+    ) {
+        render(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), mirror, alpha, handleColor, holoColor, GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA,
+            glowIntensity, barProgress
+        );
+    }
+
     public static final void render(float x, float y, float w, float h, boolean mirror, float alpha, Color handleColor, Color holoColor,
-        int blendSrc, int blendDest, float glowIntensity
+        int blendSrc, int blendDest, float glowIntensity, float barProgress
     ) {
         final float handleX = x + (mirror ? w - HANDLE_W : 0f);
         final float holoX = x + (mirror ? 0f : HANDLE_W);
@@ -70,6 +83,11 @@ public final class ToastRenderer {
 
         RenderUtils.setGlColor(handleColor, alpha);
 
+        if (barProgress > 0f) {
+            drawProgressBar(holoX, y, holoW, h, alpha, holoColor, barProgress, mirror);
+            GL11.glBlendFunc(blendSrc, blendDest);
+        }
+
         HANDLE_CORNER.bindTexture();
         NineSliceUtils.drawCorner(HANDLE_CORNER, mirror, false, handleX, blY);
 
@@ -102,5 +120,30 @@ public final class ToastRenderer {
         HOLO_TOP.bindTexture();
         NineSliceUtils.drawStretch(false, false, HOLO_TOP.getWidth(), HOLO_CORNER_S, holoInnerX, y, holoInnerW, HOLO_CORNER_S);
         NineSliceUtils.drawStretch(false, true, HOLO_TOP.getWidth(), HOLO_CORNER_S, holoInnerX, y + h - HOLO_CORNER_S, holoInnerW, HOLO_CORNER_S);
+    }
+
+    private static final void drawProgressBar(
+        float holoX, float y, float holoW, float h,
+        float alpha, Color color, float progress, boolean mirror
+    ) {
+        final float barWidth = holoW - 2f * PROGRESS_BAR_PADDING;
+        final float barX = holoX + PROGRESS_BAR_PADDING;
+        final float barY = y + PROGRESS_BAR_PADDING;
+        
+        final Color trackColor = new Color(0, 0, 0, (int)(60 * alpha));
+        RenderUtils.setGlColor(trackColor, 1f);
+        RenderUtils.quadVertex(barX, barY, barWidth, PROGRESS_BAR_HEIGHT);
+        
+        final float progressWidth = barWidth * progress;
+        final float progressX = mirror ? barX + barWidth - progressWidth : barX;
+        
+        final Color barColor = NativeUiUtils.adjustBrightnessWithAlpha(color, 1.3f);
+        RenderUtils.setGlColor(barColor, alpha);
+        RenderUtils.quadVertex(progressX, barY, progressWidth, PROGRESS_BAR_HEIGHT);
+        
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+        final Color glowColor = NativeUiUtils.adjustBrightnessWithAlpha(color, 2.0f);
+        RenderUtils.setGlColor(glowColor, alpha * 0.3f);
+        RenderUtils.quadVertex(progressX, barY - 1f, progressWidth, PROGRESS_BAR_HEIGHT + 2f);
     }
 }

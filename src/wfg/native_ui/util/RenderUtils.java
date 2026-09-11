@@ -39,52 +39,29 @@ public final class RenderUtils {
 
         if (growInward) {
             // Bottom
-            GL11.glVertex2f(x, y);
-            GL11.glVertex2f(x + w, y);
-            GL11.glVertex2f(x + w, y + t);
-            GL11.glVertex2f(x, y + t);
+            quadVertexRaw(x, y, w - t, t);
 
             // Right
-            GL11.glVertex2f(x + w - t, y);
-            GL11.glVertex2f(x + w, y);
-            GL11.glVertex2f(x + w, y + h);
-            GL11.glVertex2f(x + w - t, y + h);
+            quadVertexRaw(x + w - t, y, t, h - t);
 
             // Top
-            GL11.glVertex2f(x, y + h - t);
-            GL11.glVertex2f(x + w, y + h - t);
-            GL11.glVertex2f(x + w, y + h);
-            GL11.glVertex2f(x, y + h);
+            quadVertexRaw(x + t, y + h - t, w - t, t);
 
             // Left
-            GL11.glVertex2f(x, y + t);
-            GL11.glVertex2f(x + t, y + t);
-            GL11.glVertex2f(x + t, y + h - t);
-            GL11.glVertex2f(x, y + h - t);
+            quadVertexRaw(x, y + t, t, h - t);
+            
         } else {
             // Bottom
-            GL11.glVertex2f(x - t, y - t);
-            GL11.glVertex2f(x + w, y - t);
-            GL11.glVertex2f(x + w, y);
-            GL11.glVertex2f(x - t, y);
+            quadVertexRaw(x - t, y - t, w + t, t);
             
             // Right
-            GL11.glVertex2f(x + w, y - t);
-            GL11.glVertex2f(x + w + t, y - t);
-            GL11.glVertex2f(x + w + t, y + h);
-            GL11.glVertex2f(x + w, y + h);
+            quadVertexRaw(x + w, y - t, t, h + t);
 
             // Top
-            GL11.glVertex2f(x, y + h);
-            GL11.glVertex2f(x + w + t, y + h);
-            GL11.glVertex2f(x + w + t, y + h + t);
-            GL11.glVertex2f(x, y + h + t);
+            quadVertexRaw(x, y + h, w + t, t);
 
             // Left
-            GL11.glVertex2f(x - t, y);
-            GL11.glVertex2f(x, y);
-            GL11.glVertex2f(x, y + h + t);
-            GL11.glVertex2f(x - t, y + h + t);
+            quadVertexRaw(x - t, y, t, h + t);
         }
 
         GL11.glEnd();
@@ -101,12 +78,7 @@ public final class RenderUtils {
 
         setGlColor(color, alphaMult);
 
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x + w, y);
-        GL11.glVertex2f(x + w, y + h);
-        GL11.glVertex2f(x, y + h);
-        GL11.glEnd();
+        quadVertex(x, y, w, h);
     }
 
     public static final void drawAdditiveGlow(SpriteAPI sprite, float x, float y, Color glowColor, float intensity) {
@@ -434,24 +406,29 @@ public final class RenderUtils {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ZERO);
         setGlColor(color, alphaMult);
 
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x, y + h);
-        GL11.glVertex2f(x + w, y + h);
-        GL11.glVertex2f(x + w, y);
-        GL11.glEnd();
+        quadVertex(x, y, w, h);
     }
 
     public static final void quadNoBlend(float x, float y, float w, float h, Color color, float alphaMult) {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         setGlColor(color, alphaMult);
-        
+
+        quadVertex(x, y, w, h);
+    }
+
+    /** Simple {@link GL11#GL_QUADS} draw call. */
+    public static final void quadVertex(float x, float y, float w, float h) {
         GL11.glBegin(GL11.GL_QUADS);
+        quadVertexRaw(x, y, w, h);
+        GL11.glEnd();
+    }
+
+    /** Without {@link GL11#glBegin} and {@link GL11#glEnd}. */
+    public static final void quadVertexRaw(float x, float y, float w, float h) {
         GL11.glVertex2f(x, y);
         GL11.glVertex2f(x, y + h);
         GL11.glVertex2f(x + w, y + h);
         GL11.glVertex2f(x + w, y);
-        GL11.glEnd();
     }
 
     private static final Vector2f normalize(Vector2f vec) {
