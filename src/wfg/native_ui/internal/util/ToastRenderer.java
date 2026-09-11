@@ -12,7 +12,6 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import wfg.native_ui.util.NativeUiUtils;
 import wfg.native_ui.util.RenderUtils;
 
-// TODO test this
 public final class ToastRenderer {
     private ToastRenderer() {};
     private static final SpriteAPI HANDLE_CORNER = settings.getSprite("ui", "toast_handle_bottom_left");
@@ -60,19 +59,6 @@ public final class ToastRenderer {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
 
-        if (glowIntensity > 0.04f) {
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-
-            final Color glowColor = NativeUiUtils.adjustBrightnessWithAlpha(holoColor, 1f + glowIntensity);
-            RenderUtils.setGlColor(glowColor, alpha);
-
-            drawHologram(
-                holoRight, holoTop,
-                holoInnerX, holoInnerY, holoInnerW, holoInnerH,
-                holoX, holoW, y, h
-            );
-        }
-
         GL11.glBlendFunc(blendSrc, blendDest);
         RenderUtils.setGlColor(holoColor, alpha);
         
@@ -81,12 +67,23 @@ public final class ToastRenderer {
             holoInnerH, holoX, holoW, y, h
         );
 
-        RenderUtils.setGlColor(handleColor, alpha);
+        if (glowIntensity > 0.04f) {
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+            RenderUtils.setGlColor(holoColor, alpha * glowIntensity);
+
+            drawHologram(
+                holoRight, holoTop,
+                holoInnerX, holoInnerY, holoInnerW, holoInnerH,
+                holoX, holoW, y, h
+            );
+        }
 
         if (barProgress > 0f) {
             drawProgressBar(holoX, y, holoW, h, alpha, holoColor, barProgress, mirror);
             GL11.glBlendFunc(blendSrc, blendDest);
         }
+
+        RenderUtils.setGlColor(handleColor, alpha);
 
         HANDLE_CORNER.bindTexture();
         NineSliceUtils.drawCorner(HANDLE_CORNER, mirror, false, handleX, blY);
@@ -130,8 +127,7 @@ public final class ToastRenderer {
         final float barX = holoX + PROGRESS_BAR_PADDING;
         final float barY = y + PROGRESS_BAR_PADDING;
         
-        final Color trackColor = new Color(0, 0, 0, (int)(60 * alpha));
-        RenderUtils.setGlColor(trackColor, 1f);
+        RenderUtils.setGlColor(Color.BLACK, alpha * 0.24f);
         RenderUtils.quadVertex(barX, barY, barWidth, PROGRESS_BAR_HEIGHT);
         
         final float progressWidth = barWidth * progress;

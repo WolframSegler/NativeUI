@@ -23,6 +23,7 @@ import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.util.NativeUiUtils;
 
+// TODO test this
 /**
  * A holographic notification that slides on/off screen from the left or right edge.
  * It has three layers: the handle, the hologram and the countdown bar, all managed by {@link ToastRenderer}.
@@ -143,8 +144,7 @@ public class Toast extends UIContainer {
     @Override
     public void renderBelowImpl(float alpha) {
         final boolean mirror = mDockDir == Side.RIGHT;
-        final float glow = mHoverFader.getBrightness(); // TODO complete it
-        ToastRenderer.render(mPos, mirror, alpha * mBgAlpha, mHandleColor, mHoloColor, glow, mToastProgress);
+        ToastRenderer.render(mPos, mirror, alpha * mBgAlpha, mHandleColor, mHoloColor, mHoverFader.getBrightness(), mToastProgress);
     }
 
     @Override
