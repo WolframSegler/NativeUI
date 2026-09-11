@@ -14,6 +14,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.api.util.FaderUtil.State;
 
+import wfg.native_ui.example.widget.ToastExample;
 import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.internal.util.ToastRenderer;
@@ -22,8 +23,38 @@ import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.util.NativeUiUtils;
 
+/**
+ * A holographic notification that slides on/off screen from the left or right edge.
+ * It has three layers: the handle, the hologram and the countdown bar, all managed by {@link ToastRenderer}.
+ * The countdown is optional, and can be modified using {@link #setToastProgress()}.
+ * 
+ * <ul>
+ *   <li>The constructor attaches the toast to the given parent immediately - do not
+ *   add it again. The open position is calculated via {@link #calculateTargetPos()},
+ *   and the closed position is derived from {@link #mDockDir}.</li>
+ *   <li>Open/close is driven by {@link #open()} / {@link #close()}. The animated visibility
+ *   progress [0, 1] is retrieved via {@link #getOpenProgress()}; the toast detaches itself from
+ *   the parent once the close animation finishes.</li>
+ *   <li>Content is added to an internal {@link UIContainerAPI} exposed by
+ *   {@link #getContentContainer()}. All {@code add}/{@code remove}/{@code addPos}/{@code removePos}
+ *   overloads delegate to it, so tooltips and components attach normally.</li>
+ *   <li>Call {@link #changeOffset()} to nudge the anchored position, or
+ *   {@link #changeDirection()} to swap the dock side at runtime, the handle mirrors
+ *   accordingly.</li>
+ * </ul>
+ *
+ * <p>Lifecycle
+ * <ul>
+ *   <li>A right-click anywhere inside the toast dismisses it via {@link #close()}.</li>
+ *   <li>By default a toast counts down from {@code 1f} to {@code 0f} over
+ *   {@link #mToastProgressTime} seconds and closes itself. Call
+ *   {@link #setToastProgress()} with a non-positive value to make it persistent.</li>
+ * </ul>
+ *
+ * <p><strong>Example:</strong> {@link ToastExample}</p>
+ */
 public class Toast extends UIContainer {
-    private static final float NO_TOAST_PROGRESS = -1f;
+    private static final float ZERO_TOAST_PROGRESS = 0f;
 
     public Color mHandleColor = Color.WHITE;
     public Color mHoloColor = settings.getColor("progressBarStandardColor");
@@ -41,7 +72,7 @@ public class Toast extends UIContainer {
     private Side mDockDir = Side.LEFT;
     private float mContentPad = hpad;
 
-    private FaderUtil mHoverFader = new FaderUtil(0f, 0.1f, 0.3f);
+    private final FaderUtil mHoverFader = new FaderUtil(0f, 0.1f, 0.3f);
     private float mToastProgress = 1f;
     private float mToastProgressTime = 3f;
 
@@ -61,9 +92,12 @@ public class Toast extends UIContainer {
         add(mContentContainer);
 
         setSize(width, height);
+
+        calculateTargetPos();
+        updatePosition();
     }
 
-    public final float getProgress() { return mFader.getBrightness(); }
+    public final float getOpenProgress() { return mFader.getBrightness(); }
     public boolean isOpen() { return !mFader.isFadingOut(); }
     public void close() { mFader.fadeOut(); }
     public void open() {
@@ -74,6 +108,7 @@ public class Toast extends UIContainer {
     public void changeOffset(final float x, final float y) {
         mOffsetX = x; mOffsetY = y;
         calculateTargetPos();
+        updatePosition();
     }
 
     /** Valid: {@link Side#RIGHT} and {@link Side#LEFT}. */
@@ -81,6 +116,7 @@ public class Toast extends UIContainer {
         if (dir.isVertical()) throw new IllegalArgumentException("Side must be LEFT or RIGHT");
         mDockDir = dir;
         calculateTargetPos();
+        updatePosition();
     }
 
     @Override 
@@ -92,11 +128,11 @@ public class Toast extends UIContainer {
 
     public void setContentPad(float pad) {
         mContentPad = pad;
-        setSize(getWidth(), getHeight());
+        setSize(mContentContainer.getWidth(), mContentContainer.getHeight());
     }
 
     /**
-     * @param progress The current progress of the countdown. Default is {@code 1f}. {@code -1f} for unlimited.
+     * @param progress The current progress of the countdown. Default is {@code 1f}. {@code 0f} for unlimited.
      * @param time The time it takes in seconds for the countdown to reach from {@code 1f} to {@code 0f}.
      */
     public void setToastProgress(float progress, float time) {
@@ -106,8 +142,9 @@ public class Toast extends UIContainer {
 
     @Override
     public void renderBelowImpl(float alpha) {
+        final boolean mirror = mDockDir == Side.RIGHT;
         final float glow = mHoverFader.getBrightness(); // TODO complete it
-        ToastRenderer.render(mPos, false, alpha * mBgAlpha, mHandleColor, mHoloColor, glow, mToastProgress);
+        ToastRenderer.render(mPos, mirror, alpha * mBgAlpha, mHandleColor, mHoloColor, glow, mToastProgress);
     }
 
     @Override
@@ -115,22 +152,25 @@ public class Toast extends UIContainer {
         super.advanceImpl(delta);
 
         mHoverFader.setState(NativeUiUtils.containsMouse(mPos) ? State.IN : State.OUT);
+        mHoverFader.advance(delta);
 
-        final float target = isOpen() ? 1f : 0f;
+        final boolean open = isOpen();
+        final float target = open ? 1f : 0f;
+        final float progress = getOpenProgress();
 
-        if (getProgress() != target) {
+        if (progress != target) {
             updatePosition();
         }
 
-        if (!isOpen() && getProgress() < 0.005f) {
+        if (!open && progress < 0.005f) {
             detach();
         }
 
-        if (isOpen() && mToastProgress != NO_TOAST_PROGRESS) {
+        if (open && mToastProgress > ZERO_TOAST_PROGRESS) {
             final float toastDelta = delta / mToastProgressTime;
 
-            mToastProgress = Math.max(0f, mToastProgress - toastDelta);
-            if (mToastProgress == 0f) close();
+            mToastProgress = Math.max(ZERO_TOAST_PROGRESS, mToastProgress - toastDelta);
+            if (mToastProgress == ZERO_TOAST_PROGRESS) close();
         }
     }
 
@@ -138,7 +178,8 @@ public class Toast extends UIContainer {
     public void processInputImpl(List<InputEventAPI> events) {
         super.processInputImpl(events);
         for (InputEventAPI event : events) {
-            if (!event.isMouseEvent() || !mPos.containsEvent(event)) continue;
+            if (event.isConsumed() || !event.isMouseEvent() || !mPos.containsEvent(event)) continue;
+            if (event.isRMBDownEvent()) close();
             event.consume();
         }
     }
@@ -176,7 +217,7 @@ public class Toast extends UIContainer {
     }
 
     protected void updatePosition() {
-        final float eased = easeOutCubic(getProgress(), 1f);
+        final float eased = easeOutCubic(getOpenProgress(), 1f);
 
         final float openX = mTargetPosX;
         final float openY = mTargetPosY;
@@ -213,11 +254,11 @@ public class Toast extends UIContainer {
         switch (mDockDir) {
         case LEFT: default:
             x = mOffsetX;
-            y = (screenHeight - panelHeight) / 2f + mOffsetY;
+            y = screenHeight - panelHeight + mOffsetY;
             break;
         case RIGHT:
             x = screenWidth - panelWidth + mOffsetX;
-            y = (screenHeight - panelHeight) / 2f + mOffsetY;
+            y = screenHeight - panelHeight + mOffsetY;
             break;
         }
         

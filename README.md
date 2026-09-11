@@ -24,6 +24,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 - [`DockClickable`](src/wfg/native_ui/ui/functional/DockClickable.java) and [`DockButton`](src/wfg/native_ui/ui/functional/DockButton.java) manage the lifecycle of a [`DockPanel`](src/wfg/native_ui/ui/container/DockPanel.java).
 - [`IconValuePair`](src/wfg/native_ui/ui/visual/IconValuePair.java) standardizes the formatting of icon-value pairs. Also includes a variant with tooltip support.
 - [`TextWrapper`](src/wfg/native_ui/ui/visual/TextWrapper.java) wraps an [`AudioSystem`](src/wfg/native_ui/ui/system/AudioFeedbackSystem.java) and a [`TooltipSystem`](src/wfg/native_ui/ui/system/TooltipSystem.java) around a `LabelAPI` in a slim package.
+- [`Toast`](src/wfg/native_ui/ui/widget/Toast.java) holographic notification docked to the left or right edge with an optional countdown bar.
 
 # Utils
 - [`UIConstants`](src/wfg/native_ui/util/UIConstants.java) houses commonly used values and colors to improve readability. Intended for static import.
