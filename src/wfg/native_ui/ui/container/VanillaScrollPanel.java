@@ -151,7 +151,7 @@ public class VanillaScrollPanel extends UIContainer {
                 continue;
             
             }
-            if (var2 || O0Oo.\u00d300000() == null || O0Oo.\u00d300000() == this) continue;
+            if (var2 || O0Oo.Ó00000() == null || O0Oo.Ó00000() == this) continue;
             
             boolean mouseDown = someData1 == SomeEnum1.LEFT_MOUSE && event.isLMBDownEvent() || someData1 == SomeEnum1.RIGHT_MOUSE && event.isRMBDownEvent();
             boolean mouseUp = someData1 == SomeEnum1.LEFT_MOUSE && event.isLMBUpEvent() || someData1 == SomeEnum1.RIGHT_MOUSE && event.isRMBUpEvent();

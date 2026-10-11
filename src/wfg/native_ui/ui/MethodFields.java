@@ -8,7 +8,6 @@ import com.fs.graphics.util.Fader;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.api.util.FaderUtil;
 
 import rolflectionlib.util.RolfLectionUtil;
 
@@ -65,10 +64,6 @@ public final class MethodFields {
 
     public static final Fader getPanelFader(UIComponentAPI panel) {
         return (Fader) RolfLectionUtil.invokeMethodDirectly(getFaderMethod, panel);
-    }
-
-    public static final FaderUtil getPanelFaderUtil(UIComponentAPI panel) {
-        return (FaderUtil) RolfLectionUtil.invokeMethodDirectly(getFaderMethod, panel);
     }
 
     public static final boolean isSlidOut(UIComponentAPI panel) {

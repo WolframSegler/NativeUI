@@ -11,15 +11,16 @@ import com.fs.starfarer.api.util.FaderUtil;
 
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.UIEventBus;
+import wfg.native_ui.util.Arithmetic;
 
 public class UIElement implements UIElementAPI {
-    private static final float FADE_SPEED_MULT = settings.getFloat("uiFadeSpeedMult");
+    static final float FADE_SPEED_MULT = settings.getFloat("uiFadeSpeedMult");
 
     protected FaderUtil mFader = new FaderUtil(1f, 0.05f, 0.25f);
     protected PositionAPI mPos;
     protected UIPanelAPI mParent;
 
-    protected float mOpacity;
+    protected float mOpacity = 1f;
 
     public UIElement(float width, float height) {
         this();
@@ -27,9 +28,8 @@ public class UIElement implements UIElementAPI {
     }
 
     public UIElement() {
+        // TODO this(settings.createPosition()); instead of this(null);
         this(null);
-        // TODO use createPosition() here
-        // this(settings.createPosition()); 
     }
 
     public UIElement(PositionAPI pos) {
@@ -73,12 +73,12 @@ public class UIElement implements UIElementAPI {
     public UIPanelAPI getParent() { return mParent; }
     public PositionAPI setParent(UIPanelAPI parent) {
         this.mParent = parent;
-        // TODO
-        // pos.setParent(parent.getPosition());
+        // TODO pos.setParent(parent.getPosition());
         return mPos;
     }
 
     public final void render(float alpha) {
+        alpha *= mOpacity;
         if (alpha <= 0f) return;
 
         renderImpl(alpha * mFader.getBrightness());
@@ -96,7 +96,7 @@ public class UIElement implements UIElementAPI {
         advanceImpl(delta);
     }
 
-    public void setOpacity(float opacity) { mOpacity = opacity; }
+    public void setOpacity(float opacity) { mOpacity = Arithmetic.clamp(opacity, 0f, 1f); }
     public float getOpacity() { return mOpacity; }
 
 
@@ -109,7 +109,6 @@ public class UIElement implements UIElementAPI {
     public void detach() {
         if (mParent == null) return; 
         mParent.removeComponent(this);
-        reportDetached();
     }
 
     @Override
