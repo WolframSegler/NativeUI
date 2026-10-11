@@ -18,7 +18,7 @@ import rolflectionlib.util.RolfLectionUtil;
  * dialogs, and overlays depending on the current mode. Is not null-safe.
  */
 public final class Attachments {
-    private Attachments() {}
+    private Attachments() {};
 
     private static final Object getWarRoomPanelMethod = RolfLectionUtil.getMethod(
         "getWarroom",CombatState.class
@@ -30,7 +30,7 @@ public final class Attachments {
         "getTutorialOverlay", CombatState.class
     );
     private static final Object getCombatScreenPanelMethod = RolfLectionUtil.getMethod(
-        "getWidgetPanel", CombatState.class
+        "getScreenPanel", CombatState.class
     );
     private static final Object getCampaignScreenPanelMethod = RolfLectionUtil.getMethod(
         "getScreenPanel", CampaignState.class
