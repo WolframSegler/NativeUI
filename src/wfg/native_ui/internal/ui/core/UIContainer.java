@@ -57,6 +57,9 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         return comp.getPosition();
     }
 
+    /**
+     * This call internally calls {@link #addComponent} on the {@link UIContainer}, which treats it as a usual {@link UIComponentAPI}, so the wrapping works.
+     */
     public PositionAPI add(TooltipMakerAPI tooltip) {
         return ComponentFactory.addTooltip(tooltip, 0f, false, this);
     }
