@@ -16,6 +16,8 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 final class UIVanillaWrapper extends UIElement {
     private final UIComponentAPI wrapped;
 
+    private float mSyncedW, mSyncedH;
+
     UIVanillaWrapper(UIComponentAPI toBeWrapped) {
         super();
 
@@ -35,22 +37,28 @@ final class UIVanillaWrapper extends UIElement {
     public void setPos(PositionAPI pos) {}
     @Override
     public void setWidth(float w) { 
+        mSyncedW = w;
         mPos.setSize(w, mPos.getHeight());
         wrapped.getPosition().setSize(w, mPos.getHeight());
     }
     @Override
     public void setHeight(float h) {
+        mSyncedH = h;
         mPos.setSize(mPos.getWidth(), h);
         wrapped.getPosition().setSize(mPos.getWidth(), h);
     }
     @Override
     public PositionAPI setSize(float w, float h) {
+        mSyncedW = w;
+        mSyncedH = h;
         wrapped.getPosition().setSize(w, h);
         return mPos.setSize(w, h);
     }
 
     @Override
     public void resizeBy(float dw, float dh) {
+        mSyncedW += dw;
+        mSyncedH += dh;
         mPos.setSize(mPos.getWidth() + dw, mPos.getHeight() + dh);
         wrapped.getPosition().setSize(mPos.getWidth() + dw, mPos.getHeight() + dh);
     }
@@ -68,6 +76,7 @@ final class UIVanillaWrapper extends UIElement {
     @Override
     public void advanceImpl(float delta) {
         wrapped.advance(delta);
+        reconcileSize();
     }
 
     @Override 
@@ -75,5 +84,25 @@ final class UIVanillaWrapper extends UIElement {
         // TODO mPos.remove(compPos);
         // TODO wrapped.getPosition().setParent(null);
         super.reportDetached();
+    }
+
+    private final void reconcileSize() {
+        final float ww = mPos.getWidth();
+        final float wh = mPos.getHeight();
+        final float vw = wrapped.getPosition().getWidth();
+        final float vh = wrapped.getPosition().getHeight();
+
+        final boolean wChanged = ww != mSyncedW || wh != mSyncedH;
+        final boolean vChanged = vw != mSyncedW || vh != mSyncedH;
+
+        if (vChanged) {
+            mPos.setSize(vw, vh);
+            mSyncedW = vw;
+            mSyncedH = vh;
+        } else if (wChanged) {
+            wrapped.getPosition().setSize(ww, wh);
+            mSyncedW = ww;
+            mSyncedH = wh;
+        }
     }
 }
