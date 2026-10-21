@@ -6,9 +6,11 @@ import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
+import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.UIEventBus;
 import wfg.native_ui.util.Arithmetic;
@@ -28,8 +30,7 @@ public class UIElement implements UIElementAPI {
     }
 
     public UIElement() {
-        // TODO this(settings.createPosition()); instead of this(null);
-        this(null);
+        this(MethodFields.createPosition());
     }
 
     public UIElement(PositionAPI pos) {
@@ -45,7 +46,7 @@ public class UIElement implements UIElementAPI {
     public float getWidth() { return mPos.getWidth(); }
     public float getHeight() { return mPos.getHeight(); }
 
-    public void setPos(PositionAPI pos) { this.mPos = pos; }
+    public void setPos(PositionAPI pos) { mPos = pos; }
     public void setWidth(float w) { mPos.setSize(w, mPos.getHeight()); }
     public void setHeight(float h) { mPos.setSize(mPos.getWidth(), h); }
     public PositionAPI setSize(float w, float h) {
@@ -72,8 +73,8 @@ public class UIElement implements UIElementAPI {
 
     public UIPanelAPI getParent() { return mParent; }
     public PositionAPI setParent(UIPanelAPI parent) {
-        this.mParent = parent;
-        // TODO pos.setParent(parent.getPosition());
+        mParent = parent;
+        MethodFields.setPositionParent(mPos, parent == null ? null : parent.getPosition());
         return mPos;
     }
 
@@ -111,9 +112,12 @@ public class UIElement implements UIElementAPI {
         mParent.removeComponent(this);
     }
 
-    @Override
     public FaderUtil getFader() {
         return mFader;
+    }
+
+    public UIComponentAPI wrap() {
+        return new UICustomWrapper(this).panel();
     }
 
     public void reportAttached() { UIEventBus.fireAttached(this); }

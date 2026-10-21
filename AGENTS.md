@@ -213,6 +213,7 @@ Then call the methods directly on the class:
 - Use `PositionAPI pos()` instead of `getPosition()`.
 - Use the convenience methods instead of first querying the position: `getX()`, `getY()`, `getCenterX()`, `getCenterY()`, `getWidth()`, `getHeight()`,
 - `UIElementAPI` implements `UIComponentAPI`.
+- `wrap()` returns a vanilla `CustomPanelAPI` that delegates to this element. Use it to add the element to a vanilla parent: `vanillaParent.addComponent(element.wrap())`. Not idempotent, so each call creates a new wrapper panel.
 - Direct control over the parent: `UIPanelAPI getParent()`, `PositionAPI setParent(UIPanelAPI)`. `setParent` returns this element's PositionAPI for chaining.
 - `advance`, `render` and `processInput` are final and call `advanceImpl`, `renderImpl` and `processInputImpl` instead. So override the `Impl` methods.
 - `UIElement` has four members: `mFader`, `mPos`, `mParent` and `mOpacity`. All protected.
@@ -232,6 +233,9 @@ Then call the methods directly on the class:
 - `UIContainerAPI` extends `UIPanelAPI`, but use `add()` and `remove()` instead of `addComponent()` and `removeComponent()`.
 - New methods `getChildren()`, `getChildrenCopy()` and `clearChildren()`.
 - Methods `addPos(UIComponentAPI)` and `removePos(UIComponentAPI)` adds/removes the component to/from PositionAPI hierarchy only.
+- `add(UIComponentAPI)` auto-detects vanilla implementations and wraps them in an internal `UIVanillaWrapper` before adding. You pass the vanilla component, the container handles the wrap. The returned `PositionAPI` is always the wrapper's position, not the wrapped component's.
+- `add(TooltipMakerAPI)` is a separate overload for tooltips. Routes through `ComponentFactory.addTooltip`, which calls `addComponent` on the container and therefore hits `add(UIComponentAPI)`. Use this overload for tooltips, not the raw `add(UIComponentAPI)`, the factory does tooltip-specific setup (`setForceProcessInput`, `updateSizeAsUIElement`) that the raw path skips.
+- You never need to wrap vanilla children yourself.
 - Overrides `advanceImpl`, `renderImpl` and `processInputImpl` to call `System` methods and children methods.
 - `renderImpl` calls two default methods `renderBelowImpl()` and `renderAboveImpl()` relative to the children's render calls. Override these when extending `UIContainer` unless render order needs to be modified.
 - `UIContainer` adds one new private field `ArrayList<UIComponentAPI> children`.
@@ -347,6 +351,31 @@ public final class MyPanel extends UIEntity
 ```
 Custom systems must still be registered manually (see `init()` example above). The flags only cover the built‑in native systems.
 
+## Custom <-> Vanilla Interop
+
+Two wrappers bridge NativeUI and vanilla UI. The direction determines which type wraps which.
+
+### Custom inside Vanilla - `wrap()`
+
+A vanilla `UIPanel` cannot host a custom `UIComponentAPI` implementation directly; it requires its internal `UIComponent` class. `UIElementAPI.wrap()` solves this by returning a vanilla `CustomPanelAPI` that delegates to the wrapped element.
+
+```java
+final MyNativePanel panel = new MyNativePanel();
+vanillaParent.addComponent(panel.wrap()); // ✅ safe, wrapper is vanilla
+```
+
+Size syncing between wrapper and wrapped element is handled internally by reconciliation in `advance()`. `wrap()` is not idempotent; each call creates a new wrapper panel.
+
+### Vanilla inside Custom - automatic
+
+`UIContainer.add(UIComponentAPI)` auto-detects vanilla implementations and wraps them in an internal `UIVanillaWrapper`. No manual wrap needed:
+
+```java
+container.add(vanillaPanel); // internally wrapped
+```
+
+The returned `PositionAPI` is always the wrapper's position, not the wrapped component's.
+
 ## Attachments
 
 `Attachments` provides **static access points** to vanilla UI panels across all game states (campaign, combat, title). Use these methods to obtain a parent `UIPanelAPI` where you can insert NativeUI elements.
@@ -389,24 +418,20 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 
 ### Usage
 
-Use the returned panel as a parent to attach NativeUI containers.
-Critical – Always use `wrapAndAdd()`, never `addComponent()`. Starting with Starsector v0.9.85, vanilla UIPanelAPI provides:
-```java
-UIComponentAPI wrapAndAdd(UIComponentAPI component, FaderUtil fader); // FaderUtil is required, since each UIComponentAPI must have their own FaderUtil.
-```
-This wraps the NativeUI component so vanilla treats it as an opaque child, not as a core implementation class.
-- **Never** call `parent.addComponent(myNativePanel)` on a vanilla panel. That will cause a `ClassCastException` because the game expects its own internal UI classes.
-- Always use `wrapAndAdd()` (pass `UIElement` fader) to safely attach NativeUI container.
+To add a NativeUI element to a vanilla parent panel, wrap it with `wrap()`, then pass the wrapper to `addComponent()`:
 
-**Example:**
 ```java
 final UIPanelAPI parent = Attachments.getCurrentTab();
-if (parent == null) return;
-
 final MyNativePanel myPanel = new MyNativePanel();
-parent.wrapAndAdd(myPanel, myPanel.getFader()); // ✅ correct
-// parent.addComponent(myPanel); // ❌ will throw ClassCastException
+
+parent.addComponent(myPanel.wrap()); // ✅ correct
+// parent.addComponent(myPanel); // ❌ ClassCastException
 ```
+- **Never** call `parent.addComponent(myNativePanel)` with a raw custom panel. The vanilla `UIPanel` expects its internal `UIComponent` class and will throw `ClassCastException`.
+- `wrap()` returns a vanilla `CustomPanelAPI` (a valid `UIComponentAPI` for vanilla), so `addComponent()` accepts it safely.
+- `wrap()` is not idempotent, so each call creates a new wrapper panel. Call once and retain the result.
+
+> **Note on wrapAndAdd**. Alex has indicated a `wrapAndAdd(UIComponentAPI, FaderUtil)` method will be available with Starsector v0.98.5, combining the wrap and add steps. Do **not** use it. The framework's preferred approach is `wrap()` + `addComponent()`, which works today and will continue to work after the update. `wrapAndAdd` is mentioned only as a reference for future readers.
 
 Important: The returned panels are vanilla UIPanelAPI objects. You can add your NativeUI components as children, but follow the usual NativeUI rules inside your own container.
 

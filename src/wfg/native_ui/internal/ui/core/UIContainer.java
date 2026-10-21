@@ -11,6 +11,7 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 
 import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.ui.ComponentFactory;
+import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.IdentifiedPanel;
@@ -45,10 +46,8 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
 
         if (!mChildren.contains(comp)) {
             mChildren.add(comp);
-            final PositionAPI compPos = comp.getPosition();
-            // TODO mPos.add(compPos);
-            // TODO compPos.setParent(mPos);
-            // TODO comp.setParent(this);
+            addPos(comp);
+            MethodFields.setParentOnly(comp, this);
 
             if (comp instanceof UIElementAPI element) {
                 element.reportAttached();
@@ -75,10 +74,8 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         }
 
         if (mChildren.remove(comp)) {
-            final PositionAPI compPos = comp.getPosition();
-            // TODO mPos.remove(compPos);
-            // TODO compPos.setParent(null);
-            // TODO comp.setParent(null);
+            removePos(comp);
+            MethodFields.setParentOnly(comp, null);
 
             if (comp instanceof UIElementAPI element) {
                 element.reportDetached();
@@ -106,7 +103,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
             if (type.isInstance(child)) return type.cast(child);
 
             if (child instanceof UIVanillaWrapper wrapper) {
-                final UIComponentAPI candidate = wrapper.getWrapped();
+                final UIComponentAPI candidate = wrapper.wrapped();
                 if (type.isInstance(candidate)) return type.cast(candidate);
             }
         }
@@ -126,18 +123,12 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     public PositionAPI addComponent(UIComponentAPI comp) { return add(comp); }
     public void removeComponent(UIComponentAPI comp) { remove(comp); }
 
-    public PositionAPI addPos(UIComponentAPI comp) {
-        final PositionAPI compPos = comp.getPosition();
-        // TODO mPos.addChild(compPos);
-        // TODO compPos.setParent(mPos);
-
-        return comp.getPosition();
+    public final PositionAPI addPos(UIComponentAPI comp) {
+        return MethodFields.addPositionOnly(comp, mPos);
     }
 
-    public void removePos(UIComponentAPI comp) {
-        final PositionAPI compPos = comp.getPosition();
-        // TODO mPos.removeChild(compPos);
-        // TODO compPos.setParent(null);
+    public final void removePos(UIComponentAPI comp) {
+        MethodFields.removePositionOnly(comp, mPos);
     }
 
     public void bringComponentToTop(UIComponentAPI comp) { bringToTop(comp); }

@@ -3,6 +3,7 @@ package wfg.native_ui.ui.core;
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -42,4 +43,11 @@ public interface UIElementAPI extends UIComponentAPI {
     void detach();
 
     FaderUtil getFader();
+
+    /**
+     * Wraps this element with a vanilla {@link CustomPanelAPI} and returns the wrapper panel.
+     * Used to add a custom {@link UIComponentAPI} implementation to a vanilla {@link UIPanelAPI}.
+     * <p>Not idempotent: each call creates a new panel.
+     */
+    UIComponentAPI wrap();
 }

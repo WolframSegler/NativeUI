@@ -7,6 +7,8 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import wfg.native_ui.ui.MethodFields;
+
 /**
  * Vanilla {@link UIComponentAPI} implementation cannot have a custom {@link UIPanelAPI} implementation as its parent.
  * This wrapper wraps a vanilla {@link UIComponentAPI} and passes down its traversal calls to the wrapped panel.
@@ -14,23 +16,25 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
  * This panel is intended for this particular implementation of the core classes.
  */
 final class UIVanillaWrapper extends UIElement {
-    private final UIComponentAPI wrapped;
+    private final UIComponentAPI mWrapped;
 
     private float mSyncedW, mSyncedH;
 
-    UIVanillaWrapper(UIComponentAPI toBeWrapped) {
+    UIVanillaWrapper(UIComponentAPI wrapped) {
         super();
 
-        wrapped = toBeWrapped;
+        mWrapped = wrapped;
         final PositionAPI compPos = wrapped.getPosition();
-        // TODO mPos.addChild(compPos);
-        // TODO compPos.setParent(mPos);
+        MethodFields.addPositionOnly(wrapped, mPos);
         compPos.inBL(0f, 0f);
+
         mPos.setSize(compPos.getWidth(), compPos.getHeight());
+        mSyncedW = compPos.getWidth();
+        mSyncedH = compPos.getHeight();
     };
 
-    UIComponentAPI getWrapped() { return wrapped; }
-    boolean isWrapped(UIComponentAPI comp) { return comp == wrapped; }
+    UIComponentAPI wrapped() { return mWrapped; }
+    boolean isWrapped(UIComponentAPI comp) { return comp == mWrapped; }
 
     /** Do not use for {@link UIVanillaWrapper} */
     @Override @Deprecated
@@ -39,19 +43,19 @@ final class UIVanillaWrapper extends UIElement {
     public void setWidth(float w) { 
         mSyncedW = w;
         mPos.setSize(w, mPos.getHeight());
-        wrapped.getPosition().setSize(w, mPos.getHeight());
+        mWrapped.getPosition().setSize(w, mPos.getHeight());
     }
     @Override
     public void setHeight(float h) {
         mSyncedH = h;
         mPos.setSize(mPos.getWidth(), h);
-        wrapped.getPosition().setSize(mPos.getWidth(), h);
+        mWrapped.getPosition().setSize(mPos.getWidth(), h);
     }
     @Override
     public PositionAPI setSize(float w, float h) {
         mSyncedW = w;
         mSyncedH = h;
-        wrapped.getPosition().setSize(w, h);
+        mWrapped.getPosition().setSize(w, h);
         return mPos.setSize(w, h);
     }
 
@@ -60,37 +64,36 @@ final class UIVanillaWrapper extends UIElement {
         mSyncedW += dw;
         mSyncedH += dh;
         mPos.setSize(mPos.getWidth() + dw, mPos.getHeight() + dh);
-        wrapped.getPosition().setSize(mPos.getWidth() + dw, mPos.getHeight() + dh);
+        mWrapped.getPosition().setSize(mPos.getWidth() + dw, mPos.getHeight() + dh);
     }
 
     @Override
     public void renderImpl(float alpha) {
-        wrapped.render(alpha);
+        mWrapped.render(alpha);
     }
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
-        wrapped.processInput(events);
+        mWrapped.processInput(events);
     }
 
     @Override
     public void advanceImpl(float delta) {
-        wrapped.advance(delta);
+        mWrapped.advance(delta);
         reconcileSize();
     }
 
     @Override 
     public void reportDetached() {
-        // TODO mPos.remove(compPos);
-        // TODO wrapped.getPosition().setParent(null);
+        MethodFields.removePositionOnly(mWrapped, mPos);
         super.reportDetached();
     }
 
     private final void reconcileSize() {
         final float ww = mPos.getWidth();
         final float wh = mPos.getHeight();
-        final float vw = wrapped.getPosition().getWidth();
-        final float vh = wrapped.getPosition().getHeight();
+        final float vw = mWrapped.getPosition().getWidth();
+        final float vh = mWrapped.getPosition().getHeight();
 
         final boolean wChanged = ww != mSyncedW || wh != mSyncedH;
         final boolean vChanged = vw != mSyncedW || vh != mSyncedH;
@@ -100,7 +103,7 @@ final class UIVanillaWrapper extends UIElement {
             mSyncedW = vw;
             mSyncedH = vh;
         } else if (wChanged) {
-            wrapped.getPosition().setSize(ww, wh);
+            mWrapped.getPosition().setSize(ww, wh);
             mSyncedW = ww;
             mSyncedH = wh;
         }

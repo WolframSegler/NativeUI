@@ -24,6 +24,10 @@ public final class MethodFields {
     private static final Object removeFromPositionMethod;
     private static final Object positionSetParentMethod;
     private static final Object isSlidOutMethod;
+    private static final Object setCompParentMethod;
+    private static final Object getCompParentMethod;
+
+    private static final Object positionConstructor;
 
     static {
         final UIPanelAPI panelIns = settings.createCustom(0f, 0f, null);
@@ -41,6 +45,10 @@ public final class MethodFields {
         addToPositionMethod = RolfLectionUtil.getMethod("add", posClazz, 1);
         removeFromPositionMethod = RolfLectionUtil.getMethod("remove", posClazz, 1);
         positionSetParentMethod = RolfLectionUtil.getMethod("setParent", posClazz, 1);
+        setCompParentMethod = RolfLectionUtil.getMethod("setParent", panelClazz, 1);
+        getCompParentMethod = RolfLectionUtil.getMethod("getParent", panelClazz);
+
+        positionConstructor = RolfLectionUtil.getConstructor(posClazz, new Class<?>[] {});
     }
 
     @SuppressWarnings("unchecked")
@@ -70,17 +78,33 @@ public final class MethodFields {
         return (boolean) RolfLectionUtil.invokeMethodDirectly(isSlidOutMethod, panel);
     }
 
+    public static final void setPositionParent(PositionAPI pos, PositionAPI parent) {
+        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, pos, parent);
+    }
+
     public static final PositionAPI addPositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
         final PositionAPI position = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, parentPos);
+        setPositionParent(position, parentPos);
         RolfLectionUtil.invokeMethodDirectly(addToPositionMethod, parentPos, position);
         return position;
     }
 
     public static final PositionAPI removePositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
         final PositionAPI position = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, (Object) null);
+        setPositionParent(position, null);
         RolfLectionUtil.invokeMethodDirectly(removeFromPositionMethod, parentPos, position);
         return position;
+    }
+
+    public static final void setParentOnly(UIComponentAPI comp, UIPanelAPI parent) {
+        RolfLectionUtil.invokeMethodDirectly(setCompParentMethod, comp, parent);
+    }
+
+    public static final UIPanelAPI getParent(UIComponentAPI comp) {
+        return (UIPanelAPI) RolfLectionUtil.invokeMethodDirectly(getCompParentMethod, comp);
+    }
+
+    public static final PositionAPI createPosition() {
+        return (PositionAPI) RolfLectionUtil.instantiateClass(positionConstructor);
     }
 }
