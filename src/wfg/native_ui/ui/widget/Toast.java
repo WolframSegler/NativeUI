@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
@@ -14,12 +15,13 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.api.util.FaderUtil.State;
 
+import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.example.widget.ToastExample;
 import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.core.UIContainer;
+import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.internal.util.ToastRenderer;
 import wfg.native_ui.ui.Attachments;
-import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.util.NativeUiUtils;
 
@@ -37,8 +39,7 @@ import wfg.native_ui.util.NativeUiUtils;
  *   progress [0, 1] is retrieved via {@link #getOpenProgress()}; the toast detaches itself from
  *   the parent once the close animation finishes.</li>
  *   <li>Content is added to an internal {@link UIContainerAPI} exposed by
- *   {@link #getContentContainer()}. All {@code add}/{@code remove}/{@code addPos}/{@code removePos}
- *   overloads delegate to it, so tooltips and components attach normally.</li>
+ *   {@link #getContent()}.</li>
  *   <li>Call {@link #changeOffset()} to nudge the anchored position, or
  *   {@link #changeDirection()} to swap the dock side at runtime, the handle mirrors
  *   accordingly.</li>
@@ -54,7 +55,9 @@ import wfg.native_ui.util.NativeUiUtils;
  *
  * <p><strong>Example:</strong> {@link ToastExample}</p>
  */
-public class Toast extends UIContainer {
+public class Toast extends UIElement {
+    private static final String DOCK_DIR_ERROR_STR = "Side must be LEFT or RIGHT";
+
     private static final float ZERO_TOAST_PROGRESS = 0f;
 
     public Color mHandleColor = Color.WHITE;
@@ -84,26 +87,31 @@ public class Toast extends UIContainer {
     public Toast(final UIPanelAPI parent, float width, float height, final Side dir) {
         super();
 
-        parent.addComponent(this);
-
+        if (UiUtil.uiComponentClass.isInstance(parent)) {
+            wrap(parent);
+        } else {
+            parent.addComponent(this);
+        }
         mFader.forceOut();
+        mFader.setState(State.IDLE);
+
+        if (dir.isVertical()) throw new IllegalArgumentException(DOCK_DIR_ERROR_STR);
         mDockDir = dir;
 
         mContentContainer = new UIContainer();
-        add(mContentContainer);
+        super.addPos(mContentContainer);
 
         setSize(width, height);
-
-        calculateTargetPos();
-        updatePosition();
     }
 
     public final float getOpenProgress() { return mFader.getBrightness(); }
-    public boolean isOpen() { return !mFader.isFadingOut(); }
+    public boolean isOpen() { return mFader.isFadingIn(); }
+    public boolean isClosed() { return mFader.isFadedOut(); }
     public void close() { mFader.fadeOut(); }
     public void open() {
+        if (mParent == null) throw new IllegalStateException("Cannot open a detached toast");
         mFader.fadeIn();
-        mParent.bringComponentToTop(this);
+        bringToFront();
     }
 
     public void changeOffset(final float x, final float y) {
@@ -114,16 +122,18 @@ public class Toast extends UIContainer {
 
     /** Valid: {@link Side#RIGHT} and {@link Side#LEFT}. */
     public void changeDirection(final Side dir) {
-        if (dir.isVertical()) throw new IllegalArgumentException("Side must be LEFT or RIGHT");
+        if (dir.isVertical()) throw new IllegalArgumentException(DOCK_DIR_ERROR_STR);
         mDockDir = dir;
-        calculateTargetPos();
-        updatePosition();
+        setSize(mContentContainer.getWidth(), mContentContainer.getHeight());
     }
 
     @Override 
     public PositionAPI setSize(final float w, final float h) {
         mPos.setSize(w + ToastRenderer.HANDLE_W + mContentPad * 2f, h + mContentPad * 2f);
-        mContentContainer.getPosition().setSize(w, h).inBL(ToastRenderer.HANDLE_W + mContentPad, mContentPad);
+        final float handlePad = mDockDir == Side.LEFT ? ToastRenderer.HANDLE_W : 0f;
+        mContentContainer.getPosition().setSize(w, h).inBL(handlePad + mContentPad, mContentPad);    
+        calculateTargetPos();
+        updatePosition();
         return mPos;
     }
 
@@ -141,64 +151,25 @@ public class Toast extends UIContainer {
         mToastProgressTime = time;
     }
 
-    @Override
-    public void renderBelowImpl(float alpha) {
-        final boolean mirror = mDockDir == Side.RIGHT;
-        ToastRenderer.render(mPos, mirror, alpha * mBgAlpha, mHandleColor, mHoloColor, mHoverFader.getBrightness(), mToastProgress);
-    }
-
-    @Override
-    public void advanceImpl(float delta) {
-        super.advanceImpl(delta);
-
-        mHoverFader.setState(NativeUiUtils.containsMouse(mPos) ? State.IN : State.OUT);
-        mHoverFader.advance(delta);
-
-        final boolean open = isOpen();
-        final float target = open ? 1f : 0f;
-        final float progress = getOpenProgress();
-
-        if (progress != target) {
-            updatePosition();
-        }
-
-        if (!open && progress < 0.005f) {
-            detach();
-        }
-
-        if (open && mToastProgress > ZERO_TOAST_PROGRESS) {
-            final float toastDelta = delta / mToastProgressTime;
-
-            mToastProgress = Math.max(ZERO_TOAST_PROGRESS, mToastProgress - toastDelta);
-            if (mToastProgress == ZERO_TOAST_PROGRESS) close();
-        }
-    }
-
-    @Override
-    public void processInputImpl(List<InputEventAPI> events) {
-        super.processInputImpl(events);
-        for (InputEventAPI event : events) {
-            if (event.isConsumed() || !event.isMouseEvent() || !mPos.containsEvent(event)) continue;
-            if (event.isRMBDownEvent()) close();
-            event.consume();
-        }
-    }
-
-    public UIContainerAPI getContentContainer() { return mContentContainer; }
-
-    @Override
     public PositionAPI add(TooltipMakerAPI tooltip) {
-        return ComponentFactory.addTooltip(tooltip, 0f, false, mContentContainer);
+        return mContentContainer.add(tooltip);
     }
 
-    @Override
     public PositionAPI add(UIComponentAPI comp) {
         return mContentContainer.addComponent(comp);
     }
 
-    @Override
+    /** TODO remove */
+    public PositionAPI add(LabelAPI comp) {
+        return mContentContainer.add(comp);
+    }
+
     public void remove(UIComponentAPI comp) {
         mContentContainer.removeComponent(comp);
+    }
+
+    public void clearChildren() {
+        mContentContainer.clearChildren();
     }
 
     @Override
@@ -212,9 +183,51 @@ public class Toast extends UIContainer {
     }
 
     @Override
-    public final void clearChildren() {
-        mContentContainer.clearChildren();
+    public void renderImpl(float alpha) {
+        final boolean mirror = mDockDir == Side.RIGHT;
+        ToastRenderer.render(mPos, mirror, alpha * mBgAlpha, mHandleColor, mHoloColor, mHoverFader.getBrightness(), mToastProgress);
+
+        mContentContainer.render(alpha);
     }
+
+    @Override
+    public void advanceImpl(float delta) {
+        mHoverFader.setState(NativeUiUtils.containsMouse(mPos) ? State.IN : State.OUT);
+        mHoverFader.advance(delta);
+
+        final boolean open = isOpen();
+        final float target = open ? 1f : 0f;
+        final float progress = getOpenProgress();
+
+        if (progress != target) {
+            updatePosition();
+        }
+
+        if (isClosed() && progress < 0.005f) {
+            detach();
+        }
+
+        if (open && mToastProgress > ZERO_TOAST_PROGRESS) {
+            final float toastDelta = delta / mToastProgressTime;
+
+            mToastProgress = Math.max(ZERO_TOAST_PROGRESS, mToastProgress - toastDelta);
+            if (mToastProgress == ZERO_TOAST_PROGRESS) close();
+        }
+
+        mContentContainer.advance(delta);
+    }
+
+    @Override
+    public void processInputImpl(List<InputEventAPI> events) {
+        mContentContainer.processInput(events);
+        for (InputEventAPI event : events) {
+            if (event.isConsumed() || !event.isMouseEvent() || !mPos.containsEvent(event)) continue;
+            if (event.isRMBDownEvent()) close();
+            event.consume();
+        }
+    }
+
+    public UIContainerAPI getContent() { return mContentContainer; }
 
     protected void updatePosition() {
         final float eased = easeOutCubic(getOpenProgress(), 1f);

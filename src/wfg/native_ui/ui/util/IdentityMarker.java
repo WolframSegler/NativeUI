@@ -1,38 +1,46 @@
 package wfg.native_ui.ui.util;
 
-import java.util.List;
-
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import wfg.native_ui.internal.ui.core.UIElement;
+import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.ui.MethodFields;
 
 /**
  * Gets injected to vanilla UI hierarchies. Its presence indicates that the UI has yet to be refreshed.
  * Used to prevent constant UI-replacement.
  */
-public class IdentityMarker extends UIElement {
+public class IdentityMarker extends BaseCustomUIPanelPlugin {
     private IdentityMarker() {};
-    private static final IdentityMarker element = new IdentityMarker();
+
+    private static final UIComponentAPI mMarker = Global.getSettings().createCustom(0f, 0f, new IdentityMarker());
 
     /** attaches to the provided parent an {@link IdentityMarker}. */
     public static final void attach(UIPanelAPI parent) {
-        parent.addComponent(element);
+        throwIfNotVanilla(parent);
+        parent.addComponent(mMarker);
     }
 
     /** @return if the provided object is an instace of {@link IdentityMarker}. */
     public static final boolean isMarker(Object obj) {
-        return obj instanceof IdentityMarker;
+        return obj instanceof CustomPanelAPI custom && custom.getPlugin() instanceof IdentityMarker;
     }
 
     /** @return if the direct children of the {@code parent} contain an {@link IdentityMarker}. */
     public static final boolean isPresent(UIPanelAPI parent) {
-        final List<UIComponentAPI> children = MethodFields.getChildrenNonCopy(parent);
-        
-        for (UIComponentAPI child : children) {
+        throwIfNotVanilla(parent);
+        for (UIComponentAPI child : MethodFields.getChildrenNonCopy(parent)) {
             if (isMarker(child)) return true;
         }
         return false;
+    }
+
+    private static final void throwIfNotVanilla(UIPanelAPI panel) {
+        if (!UiUtil.uiComponentClass.isInstance(panel)) {
+            throw new IllegalArgumentException("Non vanilla parent detected. Use UIEventBus instead.");
+        }
     }
 }

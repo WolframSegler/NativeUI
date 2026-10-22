@@ -5,19 +5,21 @@ import static wfg.native_ui.util.UIConstants.*;
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.example.container.DockPanelExample;
 import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.core.UIContainer;
+import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
-import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutisdeEventListener;
+import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.ui.Attachments;
-import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.functional.CallbackRunnable;
@@ -31,8 +33,8 @@ import wfg.native_ui.util.UIConstants;
  *   add it again. The panel calculates its open position via {@link #calculateTargetPos()}
  *   and computes the closed (off-screen) position based on the chosen {@link Side}.</li>
  *   <li>Open/close is driven by {@link #open()} / {@link #close()}. The animated visibility progress
- *   value [0, 1] is stored in {@link #progress}; animation timing is controlled by {@link #durIn}
- *   and {@link #durOut}.</li>
+ *   value [0, 1] is stored in {@link #mProgress}; animation timing is controlled by {@link #mDurIn}
+ *   and {@link #mDurOut}.</li>
  *   <li>Call {@link #changeOffset()} to nudge the final anchored position, or
  *   {@link #changeDirection()} to change the dock side at runtime (the border will be updated).</li>
  * </ul>
@@ -42,39 +44,39 @@ import wfg.native_ui.util.UIConstants;
  *   <li>By default the panel attaches an {@link OutsideEventDetector} when opened and closes when
  *   an outside click or the cancel button is pressed. Override {@link #outsideClicked()} / {@link #buttonPressed()}
  *   only if you intend to change that behavior.</li>
- *   <li>If {@link #removeWhenClosed} is true the panel will remove itself from the parent when its
+ *   <li>If {@link #mRemoveWhenClosed} is true the panel will remove itself from the parent when its
  *   close animation finishes.</li>
  * </ul>
  * 
  * <p><strong>Example: </strong> {@link DockPanelExample}</p>
  */
-public abstract class DockPanel extends UIContainer implements
-    OutisdeEventListener, UIBuildableAPI
+public abstract class DockPanel extends UIElement implements
+    OutsideEventListener, UIBuildableAPI
 {
-    public boolean removeWhenClosed = false;
-    public float durIn = 0.3f;
-    public float durOut = 0.3f;
-    public float bgAlpha = 0.85f;
+    public boolean mRemoveWhenClosed = false;
+    public float mDurIn = 0.3f;
+    public float mDurOut = 0.3f;
+    public float mBgAlpha = 0.85f;
 
-    public CallbackRunnable<DockPanel> onRemoved = null;
+    public CallbackRunnable<DockPanel> mOnRemoved = null;
 
-    protected boolean isOpen = false;
+    protected boolean mIsOpen = false;
 
-    protected float offsetX = 0f;
-    protected float offsetY = 0f;
+    protected float mOffsetX = 0f;
+    protected float mOffsetY = 0f;
     
-    protected float targetPosX;
-    protected float targetPosY;
-    protected float progress = 0f;
+    protected float mTargetPosX;
+    protected float mTargetPosY;
+    protected float mProgress = 0f;
 
-    protected BorderRenderer border;
-    protected String borderPrefix = UIConstants.UI_BORDER_1;
+    protected BorderRenderer mBorder;
+    protected String mBorderPrefix = UIConstants.UI_BORDER_1;
 
-    protected final OutsideEventDetector detector;
-    protected final UIContainerAPI contentContainer;
+    protected final OutsideEventDetector mDetector;
+    protected final UIContainerAPI mContentContainer;
 
-    private Side dockDir = Side.LEFT;
-    private float innerPad;
+    private Side mDockDir = Side.LEFT;
+    private float mInnerPad;
 
     public DockPanel(float width, float height, final Side dir) {
         this(Attachments.getScreenPanel(), width, height, dir, opad);
@@ -86,41 +88,49 @@ public abstract class DockPanel extends UIContainer implements
 
     public DockPanel(final UIPanelAPI parent, float width, float height, final Side dir, float padding) {
         super(width + padding*2, height + padding*2);
-        setParent(parent);
-        detector = new OutsideEventDetector(this);
-        parent.addComponent(this);
 
-        contentContainer = new UIContainer(width, height);
-        add(contentContainer).inBL(padding, padding);
+        if (UiUtil.uiComponentClass.isInstance(parent)) {
+            wrap(parent);
+        } else {
+            parent.addComponent(this);
+        }
 
-        dockDir = dir;
-        innerPad = padding;
+        mDetector = new OutsideEventDetector(this);
 
-        border = new BorderRenderer(borderPrefix, false, width + padding*2, height + padding*2, dir);
+        mContentContainer = new UIContainer(width, height);
+        super.addPos(mContentContainer);
+        mContentContainer.getPosition().inBL(padding, padding);
+
+        mDockDir = dir;
+        mInnerPad = padding;
+
+        mBorder = new BorderRenderer(mBorderPrefix, false, width + padding*2, height + padding*2, dir);
         calculateTargetPos();
         updatePosition();
     }
 
-    public boolean isOpen() { return isOpen; }
-    public void close() { isOpen = false; }
+    public boolean isOpen() { return mIsOpen; }
+    public void close() { mIsOpen = false; }
     public void open() { open(false); }
     public void open(boolean guardIfProgressHigh) {
-        if (guardIfProgressHigh && progress > 0.6f) return;
-        isOpen = true;
-        detector.attach();
-        mParent.bringComponentToTop(this);
+        if (guardIfProgressHigh && mProgress > 0.6f) return;
+        mIsOpen = true;
+        mDetector.attach();
+        bringToFront();
     }
 
     public void changeOffset(final float x, final float y) {
-        offsetX = x; offsetY = y;
+        mOffsetX = x; mOffsetY = y;
         calculateTargetPos();
+        updatePosition();
     }
 
     public void changeDirection(final Side dir) {
-        dockDir = dir;
+        mDockDir = dir;
         calculateTargetPos();
-        border.clearSides();
-        border.hideSide(dir);
+        updatePosition();
+        mBorder.clearSides();
+        mBorder.hideSide(dir);
     }
 
     /**
@@ -133,48 +143,52 @@ public abstract class DockPanel extends UIContainer implements
      * </ul>
      */
     public void setBorder(String prefix) {
-        borderPrefix = prefix;
-        border = new BorderRenderer(prefix, false);
-        setSize(getWidth() + innerPad*2f, getHeight() + innerPad*2f);
+        mBorderPrefix = prefix;
+        mBorder = new BorderRenderer(prefix, false);
+        setSize(mContentContainer.getWidth(), mContentContainer.getHeight());
 
-        border.clearSides();
-        border.hideSide(dockDir);
+        mBorder.clearSides();
+        mBorder.hideSide(mDockDir);
     }
 
     @Override 
     public PositionAPI setSize(final float w, final float h) {
-        mPos.setSize(w + innerPad*2f, h + innerPad*2f);
-        contentContainer.getPosition().setSize(w, h);
-        border.setSize(w + innerPad*2f, h + innerPad*2f);
+        mPos.setSize(w + mInnerPad*2f, h + mInnerPad*2f);
+        mContentContainer.getPosition().setSize(w, h);
+        mBorder.setSize(w + mInnerPad*2f, h + mInnerPad*2f);
+        calculateTargetPos();
+        updatePosition();
         return mPos;
     }
 
     @Override
     public void advanceImpl(final float delta) {
-        super.advanceImpl(delta);
-        final float target = isOpen ? 1f : 0f;
-        final float speed = isOpen ?
-            (durIn > 0f ? 1f / durIn : Float.POSITIVE_INFINITY) :
-            (durOut > 0f ? 1f / durOut : Float.POSITIVE_INFINITY);
+        mContentContainer.advance(delta);
 
-        if (progress != target) {
+        final float target = mIsOpen ? 1f : 0f;
+        final float speed = mIsOpen ?
+            (mDurIn > 0f ? 1f / mDurIn : Float.POSITIVE_INFINITY) :
+            (mDurOut > 0f ? 1f / mDurOut : Float.POSITIVE_INFINITY);
+
+        if (mProgress != target) {
             final float step = speed * delta;
-            progress = isOpen ? Math.min(progress + step, 1f) : Math.max(progress - step, 0f);
+            mProgress = mIsOpen ? Math.min(mProgress + step, 1f) : Math.max(mProgress - step, 0f);
 
             updatePosition();
         }
 
-        if (!isOpen && removeWhenClosed && progress < 0.005f) {
+        if (!mIsOpen && mRemoveWhenClosed && mProgress < 0.005f) {
             detach();
-            if (onRemoved != null) onRemoved.run(this);
+            if (mOnRemoved != null) mOnRemoved.run(this);
         }
     }
 
     @Override
-    public void renderBelowImpl(final float alpha) {
-        if (border != null) {
-            border.render(getX(), getY(), alpha * bgAlpha);
+    public void renderImpl(final float alpha) {
+        if (mBorder != null) {
+            mBorder.render(getX(), getY(), alpha * mBgAlpha);
         }
+        mContentContainer.render(alpha);
     }
 
     public final void outsideClicked(boolean isLeft) { close(); }
@@ -182,55 +196,56 @@ public abstract class DockPanel extends UIContainer implements
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
-        super.processInputImpl(events);
+        mContentContainer.processInput(events);
         for (InputEventAPI event : events) {
             if (!event.isMouseEvent() || !mPos.containsEvent(event)) continue;
             event.consume();
         }
     }
 
-    public UIContainerAPI getContentContainer() { return contentContainer; }
+    public UIContainerAPI getContent() { return mContentContainer; }
 
-    @Override
     public PositionAPI add(TooltipMakerAPI tooltip) {
-        return ComponentFactory.addTooltip(tooltip, 0f, false, contentContainer);
+        return mContentContainer.add(tooltip);
     }
 
-    @Override
     public PositionAPI add(UIComponentAPI comp) {
-        return contentContainer.addComponent(comp);
+        return mContentContainer.addComponent(comp);
     }
 
-    @Override
+    /** TODO remove */
+    public PositionAPI add(LabelAPI comp) {
+        return mContentContainer.add(comp);
+    }
+
     public void remove(UIComponentAPI comp) {
-        contentContainer.removeComponent(comp);
+        mContentContainer.removeComponent(comp);
+    }
+
+    public void clearChildren() {
+        mContentContainer.clearChildren();
     }
 
     @Override
     public PositionAPI addPos(UIComponentAPI comp) {
-        return contentContainer.addPos(comp);
+        return mContentContainer.addPos(comp);
     }
 
     @Override
     public void removePos(UIComponentAPI comp) {
-        contentContainer.removePos(comp);
-    }
-
-    @Override
-    public final void clearChildren() {
-        contentContainer.clearChildren();
+        mContentContainer.removePos(comp);
     }
 
     protected void updatePosition() {
-        final float eased = easeOutCubic(progress, 1f);
+        final float eased = easeOutCubic(mProgress, 1f);
 
-        final float openX = targetPosX;
-        final float openY = targetPosY;
+        final float openX = mTargetPosX;
+        final float openY = mTargetPosY;
 
         final float closedX;
         final float closedY;
 
-        switch (dockDir) {
+        switch (mDockDir) {
         case LEFT:
             closedX = -mPos.getWidth();
             closedY = openY;
@@ -267,27 +282,27 @@ public abstract class DockPanel extends UIContainer implements
         final float x;
         final float y;
 
-        switch (dockDir) {
+        switch (mDockDir) {
         default: case LEFT:
-            x = 0f + offsetX;
-            y = (screenHeight - panelHeight) / 2f + offsetY;
+            x = 0f + mOffsetX;
+            y = (screenHeight - panelHeight) / 2f + mOffsetY;
             break;
         case RIGHT:
-            x = screenWidth - panelWidth + offsetX;
-            y = (screenHeight - panelHeight) / 2f + offsetY;
+            x = screenWidth - panelWidth + mOffsetX;
+            y = (screenHeight - panelHeight) / 2f + mOffsetY;
             break;
         case TOP:
-            x = (screenWidth - panelWidth) / 2f + offsetX;
-            y = screenHeight - panelHeight + offsetY;
+            x = (screenWidth - panelWidth) / 2f + mOffsetX;
+            y = screenHeight - panelHeight + mOffsetY;
             break;
         case BOTTOM:
-            x = (screenWidth - panelWidth) / 2f + offsetX;
-            y = 0f + offsetY;
+            x = (screenWidth - panelWidth) / 2f + mOffsetX;
+            y = 0f + mOffsetY;
             break;
         }
         
-        targetPosX = x;
-        targetPosY = y;
+        mTargetPosX = x;
+        mTargetPosY = y;
     }
 
     protected static float easeOutCubic(final float t, final float end) {

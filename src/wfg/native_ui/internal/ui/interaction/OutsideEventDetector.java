@@ -12,7 +12,7 @@ import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.ui.Attachments;
 
 public class OutsideEventDetector extends UIElement {
-    private final OutisdeEventListener listener;
+    private final OutsideEventListener listener;
 
     public boolean consumeMouseMove = true;
     public boolean consumeMouseScroll = true;
@@ -20,9 +20,9 @@ public class OutsideEventDetector extends UIElement {
     public boolean triggerByModKey = false;
     public boolean triggerOnKeyUp = false;
     
-    public OutsideEventDetector(OutisdeEventListener owner) {
+    public OutsideEventDetector(OutsideEventListener owner) {
         super(screenW, screenH);
-        setParent(Attachments.getScreenPanel());
+        wrap(Attachments.getScreenPanel());
         listener = owner;
     }
 
@@ -65,7 +65,7 @@ public class OutsideEventDetector extends UIElement {
         }
     }
 
-    public static interface OutisdeEventListener {
+    public static interface OutsideEventListener {
         void outsideClicked(boolean isLeft);
         void buttonPressed(int lwjgl_key);
         PositionAPI pos();

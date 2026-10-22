@@ -28,7 +28,7 @@ public class DockButton<T extends DockPanel> extends Button {
 
     private void createDock() {
         dock = dockFactory.get();
-        dock.removeWhenClosed = true;
-        dock.onRemoved = d -> dock = null;
+        dock.mRemoveWhenClosed = true;
+        dock.mOnRemoved = d -> dock = null;
     }
 }

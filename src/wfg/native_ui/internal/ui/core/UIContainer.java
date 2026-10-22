@@ -30,27 +30,22 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         super();
     }
 
-    public UIContainer(PositionAPI pos) {
-        super(pos);
-    }
-
     public PositionAPI add(UIComponentAPI comp) {
+        comp = resolveComp(comp);
+        if (comp instanceof UIVanillaWrapper) return comp.getPosition();
         if (UiUtil.uiComponentClass.isInstance(comp)) {
-            for (UIComponentAPI child : mChildren) {
-                if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) {
-                    return wrapper.getPosition();
-                }
-            }
             comp = new UIVanillaWrapper(comp);
         }
 
         if (!mChildren.contains(comp)) {
             mChildren.add(comp);
             addPos(comp);
-            MethodFields.setParentOnly(comp, this);
 
             if (comp instanceof UIElementAPI element) {
+                element.setParent(this);
                 element.reportAttached();
+            } else {
+                MethodFields.setParentOnly(comp, this);
             }
         }
         return comp.getPosition();
@@ -64,21 +59,16 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     }
 
     public void remove(UIComponentAPI comp) {
-        if (UiUtil.uiComponentClass.isInstance(comp)) {
-            for (UIComponentAPI child : mChildren) {
-                if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) {
-                    comp = wrapper;
-                    break;
-                }
-            }
-        }
+        comp = resolveComp(comp);
 
         if (mChildren.remove(comp)) {
             removePos(comp);
-            MethodFields.setParentOnly(comp, null);
-
+            
             if (comp instanceof UIElementAPI element) {
+                element.setParent(null);
                 element.reportDetached();
+            } else {
+                MethodFields.setParentOnly(comp, null);
             }
         }
     }
@@ -123,16 +113,9 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     public PositionAPI addComponent(UIComponentAPI comp) { return add(comp); }
     public void removeComponent(UIComponentAPI comp) { remove(comp); }
 
-    public final PositionAPI addPos(UIComponentAPI comp) {
-        return MethodFields.addPositionOnly(comp, mPos);
-    }
-
-    public final void removePos(UIComponentAPI comp) {
-        MethodFields.removePositionOnly(comp, mPos);
-    }
-
     public void bringComponentToTop(UIComponentAPI comp) { bringToTop(comp); }
     public void bringToTop(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(comp);
             bringToFront();
@@ -140,12 +123,14 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     }
 
     public void bringToTopWithinItself(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(comp);
         }
     }
 
     public void sendToBottom(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(0, comp);
             sendToBack();
@@ -153,6 +138,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     }
 
     public void sendToBottomWithinItself(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(0, comp);
         }
@@ -207,5 +193,14 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     @Deprecated
     public void remove(LabelAPI comp) {
         remove((UIComponentAPI) comp);
+    }
+
+    /** Returns the wrapper if the component is a vanilla element. */
+    private UIComponentAPI resolveComp(UIComponentAPI comp) {
+        if (!UiUtil.uiComponentClass.isInstance(comp)) return comp;
+        for (UIComponentAPI child : mChildren) {
+            if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) return wrapper;
+        }
+        return comp;
     }
 }

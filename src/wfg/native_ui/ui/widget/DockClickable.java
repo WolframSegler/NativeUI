@@ -28,7 +28,7 @@ public class DockClickable<T extends DockPanel> extends UIClickable<DockClickabl
 
     private void createDock() {
         dock = dockFactory.get();
-        dock.removeWhenClosed = true;
-        dock.onRemoved = d -> dock = null;
+        dock.mRemoveWhenClosed = true;
+        dock.mOnRemoved = d -> dock = null;
     }
 }

@@ -29,6 +29,7 @@ public interface UIElementAPI extends UIComponentAPI {
     void resizeBy(float dw, float dh);
 
     UIPanelAPI getParent();
+    /** Does not set {@link PositionAPI} parent. */
     PositionAPI setParent(final UIPanelAPI parent);
 
     default void reportAttached() {};
@@ -42,12 +43,18 @@ public interface UIElementAPI extends UIComponentAPI {
     void sendToBack();
     void detach();
 
+    /** adds position only. */
+    PositionAPI addPos(UIComponentAPI comp);
+    /** removes position only */
+    void removePos(UIComponentAPI comp);
+
     FaderUtil getFader();
 
     /**
-     * Wraps this element with a vanilla {@link CustomPanelAPI} and returns the wrapper panel.
+     * Wraps this element with a vanilla {@link CustomPanelAPI} and adds the wrapper panel to the parent.
      * Used to add a custom {@link UIComponentAPI} implementation to a vanilla {@link UIPanelAPI}.
-     * <p>Not idempotent: each call creates a new panel.
+     * <p>Not idempotent: Throws if the element is already wrapped or already attached to a parent.
+     * Call {@link #detach} before re-wrapping.
      */
-    UIComponentAPI wrap();
+    PositionAPI wrap(UIPanelAPI parent);
 }

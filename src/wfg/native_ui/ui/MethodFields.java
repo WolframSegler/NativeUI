@@ -26,6 +26,7 @@ public final class MethodFields {
     private static final Object isSlidOutMethod;
     private static final Object setCompParentMethod;
     private static final Object getCompParentMethod;
+    private static final Object setCompPositionMethod;
 
     private static final Object positionConstructor;
 
@@ -47,6 +48,7 @@ public final class MethodFields {
         positionSetParentMethod = RolfLectionUtil.getMethod("setParent", posClazz, 1);
         setCompParentMethod = RolfLectionUtil.getMethod("setParent", panelClazz, 1);
         getCompParentMethod = RolfLectionUtil.getMethod("getParent", panelClazz);
+        setCompPositionMethod = RolfLectionUtil.getMethod("setPos", panelClazz, 1);
 
         positionConstructor = RolfLectionUtil.getConstructor(posClazz, new Class<?>[] {});
     }
@@ -102,6 +104,10 @@ public final class MethodFields {
 
     public static final UIPanelAPI getParent(UIComponentAPI comp) {
         return (UIPanelAPI) RolfLectionUtil.invokeMethodDirectly(getCompParentMethod, comp);
+    }
+
+    public static final void setPos(UIComponentAPI comp, PositionAPI pos) {
+        RolfLectionUtil.invokeMethodDirectly(setCompPositionMethod, comp, pos);
     }
 
     public static final PositionAPI createPosition() {
