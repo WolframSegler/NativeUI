@@ -9,7 +9,6 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 
-import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIContainerAPI;
@@ -33,7 +32,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     public PositionAPI add(UIComponentAPI comp) {
         comp = resolveComp(comp);
         if (comp instanceof UIVanillaWrapper) return comp.getPosition();
-        if (UiUtil.uiComponentClass.isInstance(comp)) {
+        if (MethodFields.uiInternalCompClass.isInstance(comp)) {
             comp = new UIVanillaWrapper(comp);
         }
 
@@ -197,7 +196,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
 
     /** Returns the wrapper if the component is a vanilla element. */
     private UIComponentAPI resolveComp(UIComponentAPI comp) {
-        if (!UiUtil.uiComponentClass.isInstance(comp)) return comp;
+        if (!MethodFields.uiInternalCompClass.isInstance(comp)) return comp;
         for (UIComponentAPI child : mChildren) {
             if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) return wrapper;
         }

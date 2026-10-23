@@ -22,13 +22,12 @@ public class OutsideEventDetector extends UIElement {
     
     public OutsideEventDetector(OutsideEventListener owner) {
         super(screenW, screenH);
-        wrap(Attachments.getScreenPanel());
         listener = owner;
     }
 
     public final void attach() {
-        mParent.addComponent(this);
-        mParent.bringComponentToTop(this);
+        wrap(Attachments.getScreenPanel());
+        bringToFront();
     }
 
     @Override

@@ -2,12 +2,12 @@
     "graphics": {
         "ui": {
           "center_white": "graphics/ui/bg/border_center_white.png",
-          "toast_handle_bottom_left": "graphics/ui/toast_handle_bottom_left.png",
-          "toast_handle_center_left": "graphics/ui/toast_handle_center_left.png",
-          "toast_holo_center": "graphics/ui/toast_holo_center.png",
-          "toast_holo_corner": "graphics/ui/toast_holo_corner.png",
-          "toast_holo_left": "graphics/ui/toast_holo_left.png",
-          "toast_holo_top": "graphics/ui/toast_holo_top.png"
+          "toast_handle_bottom_left": "graphics/ui/bg/toast_handle_bottom_left.png",
+          "toast_handle_center_left": "graphics/ui/bg/toast_handle_center_left.png",
+          "toast_holo_center": "graphics/ui/bg/toast_holo_center.png",
+          "toast_holo_corner": "graphics/ui/bg/toast_holo_corner.png",
+          "toast_holo_left": "graphics/ui/bg/toast_holo_left.png",
+          "toast_holo_top": "graphics/ui/bg/toast_holo_top.png"
         }
     }
 }

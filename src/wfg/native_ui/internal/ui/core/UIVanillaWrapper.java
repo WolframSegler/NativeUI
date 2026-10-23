@@ -13,7 +13,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
  * Any vanilla panel that gets attached to a NativeUI panel gets wrapped by this panel.
  * This panel is intended for this particular implementation of the core classes.
  */
-final class UIVanillaWrapper extends UIElement {
+public final class UIVanillaWrapper extends UIElement {
     private final UIComponentAPI mWrapped;
 
     UIVanillaWrapper(UIComponentAPI wrapped) {
@@ -24,8 +24,8 @@ final class UIVanillaWrapper extends UIElement {
         mPos.inBL(0f, 0f);
     };
 
-    UIComponentAPI wrapped() { return mWrapped; }
-    boolean isWrapped(UIComponentAPI comp) { return comp == mWrapped; }
+    public UIComponentAPI wrapped() { return mWrapped; }
+    public boolean isWrapped(UIComponentAPI comp) { return comp == mWrapped; }
 
     @Override @Deprecated
     public void setPos(PositionAPI pos) {

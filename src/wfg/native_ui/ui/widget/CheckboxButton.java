@@ -86,7 +86,7 @@ public class CheckboxButton extends Button {
         toggleTex.setSize(checkboxSize, checkboxSize);
         toggleTex.render(getX(), getY());
         
-        super.render(alpha);
+        super.renderImpl(alpha);
     }
 
     @Override
@@ -119,6 +119,6 @@ public class CheckboxButton extends Button {
         setAlignment(Alignment.LMID);
         label.getPosition().setSize(lblSize, checkboxSize);
         label.getPosition().inBL(checkboxSize + hpad, 0f);
-        setSize(checkboxSize + hpad + lblSize, checkboxSize);
+        setSizeWithoutRecreate(checkboxSize + hpad + lblSize, checkboxSize);
     }
 }

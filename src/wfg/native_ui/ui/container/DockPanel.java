@@ -11,7 +11,6 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.example.container.DockPanelExample;
 import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.core.UIContainer;
@@ -20,6 +19,7 @@ import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.functional.CallbackRunnable;
@@ -89,7 +89,7 @@ public abstract class DockPanel extends UIElement implements
     public DockPanel(final UIPanelAPI parent, float width, float height, final Side dir, float padding) {
         super(width + padding*2, height + padding*2);
 
-        if (UiUtil.uiComponentClass.isInstance(parent)) {
+        if (MethodFields.uiInternalCompClass.isInstance(parent)) {
             wrap(parent);
         } else {
             parent.addComponent(this);
@@ -198,6 +198,7 @@ public abstract class DockPanel extends UIElement implements
     public void processInputImpl(List<InputEventAPI> events) {
         mContentContainer.processInput(events);
         for (InputEventAPI event : events) {
+            if (event.isConsumed()) continue;
             if (!event.isMouseEvent() || !mPos.containsEvent(event)) continue;
             event.consume();
         }

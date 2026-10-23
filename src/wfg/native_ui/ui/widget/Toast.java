@@ -15,13 +15,13 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.api.util.FaderUtil.State;
 
-import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.example.widget.ToastExample;
 import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.internal.util.ToastRenderer;
 import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.util.NativeUiUtils;
 
@@ -87,7 +87,7 @@ public class Toast extends UIElement {
     public Toast(final UIPanelAPI parent, float width, float height, final Side dir) {
         super();
 
-        if (UiUtil.uiComponentClass.isInstance(parent)) {
+        if (MethodFields.uiInternalCompClass.isInstance(parent)) {
             wrap(parent);
         } else {
             parent.addComponent(this);

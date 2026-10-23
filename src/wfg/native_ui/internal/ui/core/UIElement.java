@@ -10,7 +10,6 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
-import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.UIEventBus;
@@ -111,8 +110,7 @@ public class UIElement implements UIElementAPI {
         if (mParent != null) mParent.sendToBottom(mSelfInParent);
     }
     public void detach() {
-        if (mParent == null) return;
-        mParent.removeComponent(mSelfInParent);
+        if (mParent != null) mParent.removeComponent(mSelfInParent);
         mParent = null;
         MethodFields.setPositionParent(mPos, null);
         mSelfInParent = this;
@@ -133,13 +131,17 @@ public class UIElement implements UIElementAPI {
     public PositionAPI wrap(UIPanelAPI parent) {
         if (mSelfInParent != this) throw new IllegalStateException("UIElement already wrapped");
         if (mParent != null) throw new IllegalStateException("UIElement already attached; detach first");
-        if (!UiUtil.uiComponentClass.isInstance(parent)) {
+        if (!MethodFields.uiInternalCompClass.isInstance(parent)) {
             throw new IllegalArgumentException("wrap() requires a vanilla parent");
         }
 
         mSelfInParent = new UICustomWrapper(this).panel();
         parent.addComponent(mSelfInParent);
         return setParent(parent);
+    }
+
+    public UIComponentAPI getSelfInParent() {
+        return mSelfInParent;
     }
 
     public void reportAttached() { UIEventBus.fireAttached(this); }

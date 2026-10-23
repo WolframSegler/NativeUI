@@ -16,6 +16,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import rolflectionlib.util.RolfLectionUtil;
+import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.functional.CallbackRunnable;
 import wfg.native_ui.ui.system.TooltipSystem;
 import wfg.native_ui.ui.widget.Button;
@@ -161,14 +162,13 @@ public final class ComponentFactory {
         final StandardTooltipV2Expandable tp = (StandardTooltipV2Expandable) tooltip;
         StandardTooltipV2Expandable.updateSizeAsUIElement(tp);
 
-        if (withScroller) {
-            final ScrollPanelAPI scrollPanel = wrapWithScrollPanel(tp, tp.getWidth(), h);
-            tp.setExternalScroller(scrollPanel);
-            return parent.addComponent(scrollPanel);
-        } else {
-            tp.getPosition().setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
-            return parent.addComponent(tp);
-        }
+        final ScrollPanelAPI scrollPanel = withScroller ? wrapWithScrollPanel(tp, tp.getWidth(), h) : null;
+        final UIComponentAPI comp = withScroller ? scrollPanel : tp;
+
+        tp.setExternalScroller(scrollPanel);
+        if (!withScroller) comp.getPosition().setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
+
+        return parent.addComponent(comp);
     }
 
     // TODO Replace reflection calls with API calls once new update drops
@@ -188,7 +188,11 @@ public final class ComponentFactory {
         RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setUseSimpleShadowsMethod, scrollPanel,
             true
         );
-        scrollPanel.addComponent(content).inTL(0f, 0f);
+        if (content instanceof UIElementAPI element) {
+            element.wrap(scrollPanel).inTL(0f, 0f);
+        } else {
+            scrollPanel.addComponent(content).inTL(0f, 0f);
+        }
         return scrollPanel;
     }
 }

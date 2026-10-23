@@ -18,7 +18,7 @@ import wfg.native_ui.ui.MethodFields;
  * Any NativeUI panel that gets attached to a vanilla panel gets wrapped by this panel.
  * This panel is intended for this particular implementation of the core classes.
  */
-final class UICustomWrapper implements CustomUIPanelPlugin {
+public final class UICustomWrapper implements CustomUIPanelPlugin {
     private final CustomPanelAPI mPanel = Global.getSettings().createCustom(0f, 0f, this);
     private final UIComponentAPI mWrapped;
 

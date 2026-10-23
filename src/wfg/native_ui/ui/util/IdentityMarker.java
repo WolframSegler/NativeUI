@@ -6,7 +6,6 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.ui.MethodFields;
 
 /**
@@ -39,7 +38,7 @@ public class IdentityMarker extends BaseCustomUIPanelPlugin {
     }
 
     private static final void throwIfNotVanilla(UIPanelAPI panel) {
-        if (!UiUtil.uiComponentClass.isInstance(panel)) {
+        if (!MethodFields.uiInternalCompClass.isInstance(panel)) {
             throw new IllegalArgumentException("Non vanilla parent detected. Use UIEventBus instead.");
         }
     }

@@ -201,12 +201,15 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
 
     @Override
     public PositionAPI setSize(float w, float h) {
-        super.setSize(w, h);
-
-        glow.faderMaskVertices = getFaderMaskVertices();
+        setSizeWithoutRecreate(w, h);
         recreateLabel();
 
         return mPos;
+    }
+
+    protected final void setSizeWithoutRecreate(float w, float h) {
+        super.setSize(w, h);
+        glow.faderMaskVertices = getFaderMaskVertices();
     }
 
     @Override
