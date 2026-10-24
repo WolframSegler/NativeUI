@@ -9,6 +9,7 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
+import rolflectionlib.ui.UiUtil;
 import rolflectionlib.util.RolfLectionUtil;
 
 /**
@@ -24,11 +25,20 @@ public final class MethodFields {
     private static final Object removeFromPositionMethod;
     private static final Object positionSetParentMethod;
     private static final Object isSlidOutMethod;
+    private static final Object setCompParentMethod;
+    private static final Object getCompParentMethod;
+    private static final Object getPosParentMethod;
+    public static final Class<?> uiInternalCompClass = findInternalComponentInterface(UiUtil.uiComponentClass);
+    private static final Object uiCompPosField;
+
+    private static final Object positionConstructor;
 
     static {
         final UIPanelAPI panelIns = settings.createCustom(0f, 0f, null);
         final Class<?> panelClazz = panelIns.getClass();
         final Class<?> posClazz = panelIns.getPosition().getClass();
+
+        uiCompPosField = findPosField(panelClazz);
 
         clearChildrenMethod = RolfLectionUtil.getMethod(
             "clearChildren", panelClazz);
@@ -36,11 +46,16 @@ public final class MethodFields {
             "getChildrenCopy", panelClazz);
         getChildrenNonCopyMethod = RolfLectionUtil.getMethod(
             "getChildrenNonCopy", panelClazz);
-        getFaderMethod = RolfLectionUtil.getMethod("getFader", panelClazz);
+        getFaderMethod = RolfLectionUtil.getMethod("getFader", uiInternalCompClass);
         isSlidOutMethod = RolfLectionUtil.getMethod("isSlidOut", panelClazz);
         addToPositionMethod = RolfLectionUtil.getMethod("add", posClazz, 1);
         removeFromPositionMethod = RolfLectionUtil.getMethod("remove", posClazz, 1);
         positionSetParentMethod = RolfLectionUtil.getMethod("setParent", posClazz, 1);
+        setCompParentMethod = RolfLectionUtil.getMethod("setParent", uiInternalCompClass, 1);
+        getCompParentMethod = RolfLectionUtil.getMethod("getParent", uiInternalCompClass);
+        getPosParentMethod = RolfLectionUtil.getMethod("getParent", posClazz);
+
+        positionConstructor = RolfLectionUtil.getConstructor(posClazz, new Class<?>[] {});
     }
 
     @SuppressWarnings("unchecked")
@@ -70,17 +85,65 @@ public final class MethodFields {
         return (boolean) RolfLectionUtil.invokeMethodDirectly(isSlidOutMethod, panel);
     }
 
+    public static final void setPositionParent(PositionAPI pos, PositionAPI parent) {
+        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, pos, parent);
+    }
+
     public static final PositionAPI addPositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
         final PositionAPI position = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, parentPos);
+        setPositionParent(position, parentPos);
         RolfLectionUtil.invokeMethodDirectly(addToPositionMethod, parentPos, position);
         return position;
     }
 
     public static final PositionAPI removePositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
         final PositionAPI position = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, (Object) null);
+        setPositionParent(position, null);
         RolfLectionUtil.invokeMethodDirectly(removeFromPositionMethod, parentPos, position);
         return position;
+    }
+
+    public static final void setParentOnly(UIComponentAPI comp, UIPanelAPI parent) {
+        RolfLectionUtil.invokeMethodDirectly(setCompParentMethod, comp, parent);
+    }
+
+    public static final UIPanelAPI getParent(UIComponentAPI comp) {
+        return (UIPanelAPI) RolfLectionUtil.invokeMethodDirectly(getCompParentMethod, comp);
+    }
+
+    public static final void setPos(UIPanelAPI panel, PositionAPI pos) {
+        RolfLectionUtil.setPrivateVariable(uiCompPosField, panel, pos);
+    }
+
+    public static final PositionAPI getPosParent(PositionAPI pos) {
+        return (PositionAPI) RolfLectionUtil.invokeMethodDirectly(getPosParentMethod, pos);
+    }
+
+    public static final PositionAPI createPosition() {
+        return (PositionAPI) RolfLectionUtil.instantiateClass(positionConstructor);
+    }
+
+    private static final Class<?> findInternalComponentInterface(Class<?> baseClass) {
+        for (Class<?> iface : baseClass.getInterfaces()) {
+            final Object setParentMethod = RolfLectionUtil.getMethodDeclared("setParent", iface, 1);
+            if (setParentMethod == null) continue;
+            if (RolfLectionUtil.getReturnType(setParentMethod) == void.class) return iface;
+        }
+        throw new IllegalStateException("InternalUIComponentInterface not found on " + baseClass.getName());
+    }
+
+    private static final Object findPosField(Class<?> cls) {
+        final UIPanelAPI probe = settings.createCustom(0f, 0f, null);
+        final PositionAPI target = probe.getPosition();
+        for (Object field : RolfLectionUtil.getAllFields(cls)) {
+            try {
+                final int mods = RolfLectionUtil.getFieldModifiers(field);
+                if (RolfLectionUtil.isStatic(mods)) continue;
+                if (RolfLectionUtil.getPrivateVariable(field, probe) == target) {
+                    return field;
+                }
+            } catch (Throwable ignored) {}
+        }
+        throw new IllegalStateException("Position field not found on " + cls.getName());
     }
 }

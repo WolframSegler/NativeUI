@@ -9,8 +9,8 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 
-import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.ui.ComponentFactory;
+import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.IdentifiedPanel;
@@ -29,56 +29,45 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         super();
     }
 
-    public UIContainer(PositionAPI pos) {
-        super(pos);
-    }
-
     public PositionAPI add(UIComponentAPI comp) {
-        if (UiUtil.uiComponentClass.isInstance(comp)) {
-            for (UIComponentAPI child : mChildren) {
-                if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) {
-                    return wrapper.getPosition();
-                }
-            }
+        comp = resolveComp(comp);
+        if (comp instanceof UIVanillaWrapper) return comp.getPosition();
+        if (MethodFields.uiInternalCompClass.isInstance(comp)) {
             comp = new UIVanillaWrapper(comp);
         }
 
         if (!mChildren.contains(comp)) {
             mChildren.add(comp);
-            final PositionAPI compPos = comp.getPosition();
-            // TODO mPos.add(compPos);
-            // TODO compPos.setParent(mPos);
-            // TODO comp.setParent(this);
+            addPos(comp);
 
             if (comp instanceof UIElementAPI element) {
+                element.setParent(this);
                 element.reportAttached();
+            } else {
+                MethodFields.setParentOnly(comp, this);
             }
         }
         return comp.getPosition();
     }
 
+    /**
+     * This call internally calls {@link #addComponent} on the {@link UIContainer}, which treats it as a usual {@link UIComponentAPI}, so the wrapping works.
+     */
     public PositionAPI add(TooltipMakerAPI tooltip) {
         return ComponentFactory.addTooltip(tooltip, 0f, false, this);
     }
 
     public void remove(UIComponentAPI comp) {
-        if (UiUtil.uiComponentClass.isInstance(comp)) {
-            for (UIComponentAPI child : mChildren) {
-                if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) {
-                    comp = wrapper;
-                    break;
-                }
-            }
-        }
+        comp = resolveComp(comp);
 
         if (mChildren.remove(comp)) {
-            final PositionAPI compPos = comp.getPosition();
-            // TODO mPos.remove(compPos);
-            // TODO compPos.setParent(null);
-            // TODO comp.setParent(null);
-
+            removePos(comp);
+            
             if (comp instanceof UIElementAPI element) {
+                element.setParent(null);
                 element.reportDetached();
+            } else {
+                MethodFields.setParentOnly(comp, null);
             }
         }
     }
@@ -103,7 +92,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
             if (type.isInstance(child)) return type.cast(child);
 
             if (child instanceof UIVanillaWrapper wrapper) {
-                final UIComponentAPI candidate = wrapper.getWrapped();
+                final UIComponentAPI candidate = wrapper.wrapped();
                 if (type.isInstance(candidate)) return type.cast(candidate);
             }
         }
@@ -123,22 +112,9 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     public PositionAPI addComponent(UIComponentAPI comp) { return add(comp); }
     public void removeComponent(UIComponentAPI comp) { remove(comp); }
 
-    public PositionAPI addPos(UIComponentAPI comp) {
-        final PositionAPI compPos = comp.getPosition();
-        // TODO mPos.addChild(compPos);
-        // TODO compPos.setParent(mPos);
-
-        return comp.getPosition();
-    }
-
-    public void removePos(UIComponentAPI comp) {
-        final PositionAPI compPos = comp.getPosition();
-        // TODO mPos.removeChild(compPos);
-        // TODO compPos.setParent(null);
-    }
-
     public void bringComponentToTop(UIComponentAPI comp) { bringToTop(comp); }
     public void bringToTop(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(comp);
             bringToFront();
@@ -146,12 +122,14 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     }
 
     public void bringToTopWithinItself(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(comp);
         }
     }
 
     public void sendToBottom(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(0, comp);
             sendToBack();
@@ -159,6 +137,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     }
 
     public void sendToBottomWithinItself(UIComponentAPI comp) {
+        comp = resolveComp(comp);
         if (mChildren.remove(comp)) {
             mChildren.add(0, comp);
         }
@@ -213,5 +192,14 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     @Deprecated
     public void remove(LabelAPI comp) {
         remove((UIComponentAPI) comp);
+    }
+
+    /** Returns the wrapper if the component is a vanilla element. */
+    private UIComponentAPI resolveComp(UIComponentAPI comp) {
+        if (!MethodFields.uiInternalCompClass.isInstance(comp)) return comp;
+        for (UIComponentAPI child : mChildren) {
+            if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) return wrapper;
+        }
+        return comp;
     }
 }

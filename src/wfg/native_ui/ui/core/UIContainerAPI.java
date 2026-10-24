@@ -25,11 +25,6 @@ public interface UIContainerAPI extends UIEntityAPI, UIPanelAPI {
     <T extends UIComponentAPI> T getChild(Class<T> type);
     UIComponentAPI getChild(String panelId);
 
-    /** adds position only */
-    PositionAPI addPos(UIComponentAPI comp);
-    /** removes position only */
-    void removePos(UIComponentAPI comp);
-
     default void renderBelowImpl(float alpha) {};
     default void renderAboveImpl(float alpha) {};
 

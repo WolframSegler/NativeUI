@@ -47,7 +47,7 @@ public final class DockPanelExample extends DockPanel {
     public void buildUI() {
         clearChildren();
 
-        final int width = (int) contentContainer.getWidth();
+        final int width = (int) mContentContainer.getWidth();
         final UIContainerAPI container = new UIContainer(width, 0f);
         final List<FactionSpecAPI> factions = new ArrayList<>(settings.getAllFactionSpecs().stream().filter(f -> f.isShowInIntelTab()).toList());
         factions.add(settings.getFactionSpec(Factions.PLAYER));
@@ -61,7 +61,7 @@ public final class DockPanelExample extends DockPanel {
             yCoord += ROW_H + pad;
         }
         container.setHeight(yCoord);
-        add(ComponentFactory.wrapWithScrollPanel(container, width, contentContainer.getHeight())).inTL(0f, 0f);
+        add(ComponentFactory.wrapWithScrollPanel(container, width, mContentContainer.getHeight())).inTL(0f, 0f);
     }
 
     private void onFactionSelected(FactionSpecAPI faction) {

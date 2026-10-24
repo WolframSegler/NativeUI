@@ -6,9 +6,11 @@ import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
+import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.UIEventBus;
 import wfg.native_ui.util.Arithmetic;
@@ -17,8 +19,14 @@ public class UIElement implements UIElementAPI {
     static final float FADE_SPEED_MULT = settings.getFloat("uiFadeSpeedMult");
 
     protected FaderUtil mFader = new FaderUtil(1f, 0.05f, 0.25f);
-    protected PositionAPI mPos;
+    protected PositionAPI mPos = MethodFields.createPosition();
     protected UIPanelAPI mParent;
+
+    /** 
+     * This is the element itself it not wrapped.
+     * If this element is added using {@link #wrap}, it is the wrapper.
+     */
+    protected UIComponentAPI mSelfInParent = this;
 
     protected float mOpacity = 1f;
 
@@ -27,14 +35,7 @@ public class UIElement implements UIElementAPI {
         mPos.setSize(width, height);
     }
 
-    public UIElement() {
-        // TODO this(settings.createPosition()); instead of this(null);
-        this(null);
-    }
-
-    public UIElement(PositionAPI pos) {
-        mPos = pos;
-    }
+    public UIElement() {}
 
     public PositionAPI getPosition() { return mPos; }
     public PositionAPI pos() { return mPos; }
@@ -45,7 +46,10 @@ public class UIElement implements UIElementAPI {
     public float getWidth() { return mPos.getWidth(); }
     public float getHeight() { return mPos.getHeight(); }
 
-    public void setPos(PositionAPI pos) { this.mPos = pos; }
+    public void setPos(PositionAPI pos) {
+        if (mSelfInParent != this) throw new UnsupportedOperationException("Cannot setPos on a wrapped element");
+        mPos = pos;
+    }
     public void setWidth(float w) { mPos.setSize(w, mPos.getHeight()); }
     public void setHeight(float h) { mPos.setSize(mPos.getWidth(), h); }
     public PositionAPI setSize(float w, float h) {
@@ -72,8 +76,7 @@ public class UIElement implements UIElementAPI {
 
     public UIPanelAPI getParent() { return mParent; }
     public PositionAPI setParent(UIPanelAPI parent) {
-        this.mParent = parent;
-        // TODO pos.setParent(parent.getPosition());
+        mParent = parent;
         return mPos;
     }
 
@@ -101,19 +104,44 @@ public class UIElement implements UIElementAPI {
 
 
     public void bringToFront() {
-        if (mParent != null) mParent.bringComponentToTop(this);
+        if (mParent != null) mParent.bringComponentToTop(mSelfInParent);
     }
     public void sendToBack() {
-        if (mParent != null) mParent.sendToBottom(this);
+        if (mParent != null) mParent.sendToBottom(mSelfInParent);
     }
     public void detach() {
-        if (mParent == null) return; 
-        mParent.removeComponent(this);
+        if (mParent != null) mParent.removeComponent(mSelfInParent);
+        mParent = null;
+        MethodFields.setPositionParent(mPos, null);
+        mSelfInParent = this;
     }
 
-    @Override
+    public PositionAPI addPos(UIComponentAPI comp) {
+        return MethodFields.addPositionOnly(comp, mPos);
+    }
+
+    public void removePos(UIComponentAPI comp) {
+        MethodFields.removePositionOnly(comp, mPos);
+    }
+
     public FaderUtil getFader() {
         return mFader;
+    }
+
+    public PositionAPI wrap(UIPanelAPI parent) {
+        if (mSelfInParent != this) throw new IllegalStateException("UIElement already wrapped");
+        if (mParent != null) throw new IllegalStateException("UIElement already attached; detach first");
+        if (!MethodFields.uiInternalCompClass.isInstance(parent)) {
+            throw new IllegalArgumentException("wrap() requires a vanilla parent");
+        }
+
+        mSelfInParent = new UICustomWrapper(this).panel();
+        parent.addComponent(mSelfInParent);
+        return setParent(parent);
+    }
+
+    public UIComponentAPI getSelfInParent() {
+        return mSelfInParent;
     }
 
     public void reportAttached() { UIEventBus.fireAttached(this); }

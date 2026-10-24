@@ -5,7 +5,7 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 public interface UIBuildableAPI extends UIComponentAPI {
 
     /**
-     * Called whenever the panel needs to build or rebuild its child elements.
+     * Called when the {@link UIComponentAPI} needs to build or rebuild its child elements.
      * Can be called during initial creation, refresh, or after clearing.
      */
     void buildUI();

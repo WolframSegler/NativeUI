@@ -13,67 +13,37 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
  * Any vanilla panel that gets attached to a NativeUI panel gets wrapped by this panel.
  * This panel is intended for this particular implementation of the core classes.
  */
-final class UIVanillaWrapper extends UIElement {
-    private final UIComponentAPI wrapped;
+public final class UIVanillaWrapper extends UIElement {
+    private final UIComponentAPI mWrapped;
 
-    UIVanillaWrapper(UIComponentAPI toBeWrapped) {
+    UIVanillaWrapper(UIComponentAPI wrapped) {
         super();
 
-        wrapped = toBeWrapped;
-        final PositionAPI compPos = wrapped.getPosition();
-        // TODO mPos.addChild(compPos);
-        // TODO compPos.setParent(mPos);
-        compPos.inBL(0f, 0f);
-        mPos.setSize(compPos.getWidth(), compPos.getHeight());
+        mWrapped = wrapped;
+        mPos = wrapped.getPosition();
+        mPos.inBL(0f, 0f);
     };
 
-    UIComponentAPI getWrapped() { return wrapped; }
-    boolean isWrapped(UIComponentAPI comp) { return comp == wrapped; }
+    public UIComponentAPI wrapped() { return mWrapped; }
+    public boolean isWrapped(UIComponentAPI comp) { return comp == mWrapped; }
 
-    /** Do not use for {@link UIVanillaWrapper} */
     @Override @Deprecated
-    public void setPos(PositionAPI pos) {}
-    @Override
-    public void setWidth(float w) { 
-        mPos.setSize(w, mPos.getHeight());
-        wrapped.getPosition().setSize(w, mPos.getHeight());
-    }
-    @Override
-    public void setHeight(float h) {
-        mPos.setSize(mPos.getWidth(), h);
-        wrapped.getPosition().setSize(mPos.getWidth(), h);
-    }
-    @Override
-    public PositionAPI setSize(float w, float h) {
-        wrapped.getPosition().setSize(w, h);
-        return mPos.setSize(w, h);
-    }
-
-    @Override
-    public void resizeBy(float dw, float dh) {
-        mPos.setSize(mPos.getWidth() + dw, mPos.getHeight() + dh);
-        wrapped.getPosition().setSize(mPos.getWidth() + dw, mPos.getHeight() + dh);
+    public void setPos(PositionAPI pos) {
+        throw new UnsupportedOperationException("UIVanillaWrapper manages its own position");
     }
 
     @Override
     public void renderImpl(float alpha) {
-        wrapped.render(alpha);
+        mWrapped.render(alpha);
     }
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
-        wrapped.processInput(events);
+        mWrapped.processInput(events);
     }
 
     @Override
     public void advanceImpl(float delta) {
-        wrapped.advance(delta);
-    }
-
-    @Override 
-    public void reportDetached() {
-        // TODO mPos.remove(compPos);
-        // TODO wrapped.getPosition().setParent(null);
-        super.reportDetached();
+        mWrapped.advance(delta);
     }
 }

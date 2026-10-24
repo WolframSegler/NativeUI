@@ -6,11 +6,11 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
-import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutisdeEventListener;
+import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.ComponentFactory;
 
-public class UITooltip extends StandardTooltipV2Expandable implements OutisdeEventListener {
+public class UITooltip extends StandardTooltipV2Expandable implements OutsideEventListener {
     private final OutsideEventDetector detector = new OutsideEventDetector(this);
     private final UIPanelAPI parent = Attachments.getScreenPanel();
 

@@ -3,7 +3,6 @@ package wfg.native_ui.internal.ui.core;
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.ui.PositionAPI;
 
 import wfg.native_ui.ui.component.UIComponentContainer;
 import wfg.native_ui.ui.core.UIElementFlags;
@@ -31,12 +30,6 @@ public class UIEntity extends UIElement implements UIEntityAPI {
     }
 
     public UIEntity() {
-        super();
-        initSystems();
-    }
-
-    public UIEntity(PositionAPI pos) {
-        super(pos);
         initSystems();
     }
 
