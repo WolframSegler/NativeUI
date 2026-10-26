@@ -285,13 +285,15 @@ public final class RenderUtils {
     }
 
     /**
-     * Draws a filled convex polygon using CCW vertices.
+     * Draws a filled convex polygon using CCW vertices, translated by {@code (x, y)}.
      *
-     * @param verts  float array of XY pairs: [x0, y0, x1, y1, ...]
-     * @param color  fill color
-     * @param alpha  transparency multiplier (0..1)
+     * @param verts float array of XY pairs relative to the origin: [x0, y0, x1, y1, ...]
+     * @param x x translation applied to every vertex
+     * @param y y translation applied to every vertex
+     * @param color fill color
+     * @param alpha transparency multiplier [0, 1]
      */
-    public static final void drawPolygon(float[] verts, Color color, float alpha) {
+    public static final void drawPolygon(float[] verts, float x, float y, Color color, float alpha) {
         if (verts == null || verts.length < 6) return; // at least 3 points
 
         GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -301,7 +303,7 @@ public final class RenderUtils {
 
         GL11.glBegin(GL11.GL_TRIANGLE_FAN);
         for (int i = 0; i < verts.length; i += 2) {
-            GL11.glVertex2f(verts[i], verts[i + 1]);
+            GL11.glVertex2f(x + verts[i], y + verts[i + 1]);
         }
         GL11.glEnd();
     }

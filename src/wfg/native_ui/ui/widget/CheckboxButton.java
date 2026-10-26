@@ -44,8 +44,8 @@ public class CheckboxButton extends Button {
     public float checkboxSize = 0f;
 
     /**
-     * @param labelText the text label displayed next to the checkbox. May be null if no label is desired.
-     * @param checkboxSizeEnum the vanilla checkbox asset variant to use.
+     * @param text the text label displayed next to the checkbox. May be null if no label is desired.
+     * @param type the vanilla checkbox asset variant to use.
      * @param btnSize the rendered size of the checkbox in pixels. The underlying sprite will be stretched to this size.
      */
     public CheckboxButton(int btnSize, String text, String font,

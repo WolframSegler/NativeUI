@@ -15,7 +15,7 @@ import wfg.native_ui.ui.core.UIEntityAPI;
  * Systems may have static utility members.
  * 
  * Each system is responsible for registering its corresponding component and system (for example {@link RawInputSystem}).
- * In the {@link #init()} method of the system, you should call:
+ * In the {@link #init} method of the system, you should call:
  * <pre>
  * element.comp().addCustomIfNotPresent(new CustomComp());
  * element.system().addCustomIfNotPresent(new CustomSystem()); // if the system needs other systems.

@@ -2,6 +2,7 @@ package wfg.native_ui.ui.widget;
 
 import java.util.function.Supplier;
 
+import wfg.native_ui.example.widget.DockButtonExample;
 import wfg.native_ui.ui.container.DockPanel;
 import wfg.native_ui.ui.interaction.UIClickable;
 

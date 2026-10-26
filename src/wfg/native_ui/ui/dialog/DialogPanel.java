@@ -30,7 +30,7 @@ A modal, fold-animated dialog panel with a built-in <em>holo</em> ({@link Foldin
 <p><strong>Important implementation notes</strong></p>
 <ul>
 <li><strong>Ownership:</strong> {@link DialogPanel} is owned and positioned by {@link DialogPanel#holo}.
-Do <em>not</em> assign {@link DialogPanel} to any other parent. Use {@link FoldingPanel#setNext()} instead.</li>
+Do <em>not</em> assign {@link DialogPanel} to any other parent. Use {@link FoldingPanel#setNext} instead.</li>
 <li><strong>Buttons:</strong> Buttons map to integer options stored in {@link DialogPanel#buttons}.</li>
 <li>Dismissing the dialog with confirmation keys exit with code <code>0</code>, while dismissing with cancel keys exit with code <code>1</code>.
 See {@link ModalDialog#optionOnKeyboardConfirm} and {@link ModalDialog#optionOnKeyboardCancel} for changing the defaults.</li>
@@ -127,7 +127,7 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
 
     @Override
     public void dismiss(int option) {
-        holo.foldIn(fader.getDurationOut() * 0.5f);
+        holo.foldIn(mFader.getDurationOut() * 0.5f);
         if (noiseOnConfirmDismiss || option != 0) {
             holo.flickerNoise(0f, 1f);
         }
@@ -138,7 +138,7 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
     public void show(float durIn, float durOut) {
         super.show(durIn, durOut);
 
-        holo.foldOut(fader.getDurationIn() * 0.5f);
+        holo.foldOut(mFader.getDurationIn() * 0.5f);
         holo.flickerNoise(0f, 1f);
     }
 

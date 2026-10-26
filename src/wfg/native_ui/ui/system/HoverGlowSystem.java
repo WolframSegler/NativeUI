@@ -88,14 +88,18 @@ public final class HoverGlowSystem extends BaseSystem {
     private final void drawGlowLayer(float alpha, InputSnapshotComp input, HoverGlowComp glow,
         UIEntityAPI element
     ) {
-
         final float brightness = getEffectiveBrightness(glow, input) * alpha;
-        final float[] verts = glow.faderMaskVertices != null ? glow.faderMaskVertices.clone() : null;
+        final PositionAPI pos = element.pos();
 
-        if (verts != null) {
-            RenderUtils.drawPolygon(verts, glow.color, brightness);
+        if (glow.faderMaskVertices != null) {
+            RenderUtils.drawPolygon(
+                glow.faderMaskVertices,
+                pos.getX(),
+                pos.getY(),
+                glow.color, brightness
+            );
+
         } else {
-            final PositionAPI pos = element.pos();
             RenderUtils.drawQuad(
                 pos.getX() + glow.offset.x,
                 pos.getY() + glow.offset.y,
@@ -113,7 +117,7 @@ public final class HoverGlowSystem extends BaseSystem {
             case OVERLAY, UNDERLAY -> 0.45f;
         };
 
-        if (glow.overrideBrightness >= 0f) {
+        if (glow.overrideBrightness > 0f) {
             return glow.overrideBrightness * scalar;
         }
 

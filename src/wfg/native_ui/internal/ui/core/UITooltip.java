@@ -15,6 +15,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
     private final UIPanelAPI parent = Attachments.getScreenPanel();
 
     private boolean pendingDetach = false;
+    private boolean detached = false;
 
     public UITooltip(float width, boolean expandable) {
         super(width, expandable);
@@ -28,6 +29,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
         attach();
         getFader().fadeIn();
         pendingDetach = false;
+        detached = false;
     }
 
     public void fadeOutAndHide() {
@@ -47,6 +49,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
         parent.removeComponent(this);
 
         pendingDetach = false;
+        detached = true;
         notiftyHidden();
     }
 
@@ -57,6 +60,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
     }
 
     public boolean isExpanded() { return expanded; }
+    public boolean isDetached() { return detached; }
     public PositionAPI pos() { return ((UIComponentAPI)this).getPosition(); }
     public void outsideClicked(boolean isLeft) { fadeOutAndHide(); }
     public void buttonPressed(int lwjgl_key) { fadeOutAndHide(); }

@@ -12,9 +12,11 @@ import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.util.FaderUtil;
+import com.fs.starfarer.api.util.FaderUtil.State;
 
 import wfg.native_ui.example.widget.ButtonExample;
 import wfg.native_ui.ui.component.HoverGlowComp;
+import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
 import wfg.native_ui.ui.core.UIBuildableAPI;
@@ -29,10 +31,10 @@ import wfg.native_ui.util.RenderUtils;
  * UI button component with visual enhancements: label, tooltip, hover glow, and custom background.
  *
  * <ul>
- *   <li>Displays an optional text label; the label is rebuilt when text/font/shortcut changes (see {@link #recreateLabel()}).</li>
+ *   <li>Displays an optional text label; the label is rebuilt when text/font/shortcut changes (see {@link #recreateLabel}).</li>
  *   <li>Supports a persistent hover/glow state (driven by {@link #checked}, {@link #quickMode} and {@link #disabled}).</li>
- *   <li>Use {@link #setEnabled()} to enable/disable the button. Disabled buttons use {@link #bgDisabledColor}/{@link #bgDisabledAlpha}.</li>
- *   <li>{@link #setShowTooltipWhileInactive()} controls whether the tooltip is shown when the button is disabled.</li>
+ *   <li>Use {@link #setEnabled} to enable/disable the button. Disabled buttons use {@link #bgDisabledColor}/{@link #bgDisabledAlpha}.</li>
+ *   <li>{@link #setShowTooltipWhileInactive} controls whether the tooltip is shown when the button is disabled.</li>
  * </ul>
  * 
  * <p><strong>Example: </strong> {@link ButtonExample}</p>
@@ -45,6 +47,7 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
 
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
     protected final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+    protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);
 
     public float bgAlpha = 0.9f;
     public float bgDisabledAlpha = 0.8f;
@@ -212,19 +215,6 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
         glow.faderMaskVertices = getFaderMaskVertices();
     }
 
-    @Override
-    public void renderBelowImpl(float alpha) {
-        final float w = getWidth();
-        final float h = getHeight();
-        final float cutSize = computeCut((int) w, (int) h);
-
-        final float[] cuts = cutStyle.toVector4();
-        for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
-        final float[] verts = RenderUtils.buildCornersVertices(getX(), getY(), w, h, cuts);
-
-        RenderUtils.drawPolygon(verts, getBgColor(), alpha * getBgAlpha());
-    }
-
     protected float computeCut(int w, int h) {
         if (overrideCutSize > 0) return overrideCutSize;
         return Math.min(w, h) * 0.2f;
@@ -367,11 +357,19 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
     public boolean isSkipPlayingPressedSoundOnce() { return false; }
 
     @Override
-    public void renderImpl(float alpha) {
+    public void renderBelowImpl(float alpha) {
         final float highlight = highlightFader.getBrightness() * highlightBrightness;
         glow.overrideBrightness = (highlight > 0f) ? highlight : -1f;
 
-        super.renderImpl(alpha);
+        RenderUtils.drawPolygon(glow.faderMaskVertices, getX(), getY(), getBgColor(), alpha * getBgAlpha());
+    }
+
+    @Override public void advanceImpl(float delta) {
+        super.advanceImpl(delta);
+
+        final boolean glow = isPersistentGlow() || input.hoveredLastFrame;
+        highlightFader.setState(glow ? State.IN : State.OUT);
+        highlightFader.advance(delta);
     }
 
     protected float[] getFaderMaskVertices() {
@@ -381,7 +379,7 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
         for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
 
         return RenderUtils.buildCornersVertices(
-            getX(), getY(), getWidth(), getHeight(), cuts
+            0f, 0f, getWidth(), getHeight(), cuts
         );
     }
 

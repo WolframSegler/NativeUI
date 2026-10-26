@@ -189,7 +189,6 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
     private static final int[] EMPTY_INT_ARRAY = new int[0];
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
-    /** {@hide} */
     public ArrayMap(int capacity, boolean identityHashCode) {
         mIdentityHashCode = identityHashCode;
         // If this is immutable, use the sentinal EMPTY_IMMUTABLE_INTS
@@ -231,7 +230,6 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
     }
 
     /**
-     * @hide
      * Like {@link #clear}, but doesn't reduce the capacity of the ArrayMap.
      */
     public void erase() {
@@ -348,7 +346,7 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
      * <p>The index must be between {@code 0} and {@link #size()}-1. Accessing an index
      * outside this range will throw an {@link ArrayIndexOutOfBoundsException}.</p>
      *
-     * @param index the index of the key to return, must be >= 0 and < {@link #size()}
+     * @param index the index of the key to return, must be >= 0 and &lt; {@link #size()}
      * @return the key at the specified index
      * @throws ArrayIndexOutOfBoundsException if the index is out of bounds
      */
@@ -366,7 +364,7 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
      * <p>The index must be between {@code 0} and {@link #size()}-1. Accessing an index
      * outside this range will throw an {@link ArrayIndexOutOfBoundsException}.</p>
      *
-     * @param index the index of the value to return, must be >= 0 and < {@link #size()}
+     * @param index the index of the value to return, must be >= 0 and &lt; {@link #size()}
      * @return the value at the specified index
      * @throws ArrayIndexOutOfBoundsException if the index is out of bounds
      */
@@ -469,7 +467,6 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
     /**
      * Special fast path for appending items to the end of the array without validation.
      * The array must already be large enough to contain the item.
-     * @hide
      */
     public void append(K key, V value) {
         int index = mSize;
@@ -494,7 +491,6 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
      * the array map is valid, throwing IllegalArgumentException if a problem is found. The
      * main use for this method is validating an array map after unpacking from an IPC, to
      * protect against malicious callers.
-     * @hide
      */
     public void validate() {
         final int N = mSize;
@@ -563,11 +559,6 @@ public final class ArrayMap<K, V> implements Map<K, V>, Serializable {
 
     /**
      * Remove the key/value mapping at the given index.
-     *
-     * <p>For indices outside of the range <code>0...size()-1</code>, the behavior is undefined for
-     * apps targeting {@link android.os.Build.VERSION_CODES#P} and earlier, and an
-     * {@link ArrayIndexOutOfBoundsException} is thrown for apps targeting
-     * {@link android.os.Build.VERSION_CODES#Q} and later.</p>
      *
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value that was stored at this index.

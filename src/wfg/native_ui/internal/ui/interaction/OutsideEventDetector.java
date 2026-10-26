@@ -26,7 +26,7 @@ public class OutsideEventDetector extends UIElement {
     }
 
     public final void attach() {
-        wrap(Attachments.getScreenPanel());
+        attachTo(Attachments.getScreenPanel());
         bringToFront();
     }
 

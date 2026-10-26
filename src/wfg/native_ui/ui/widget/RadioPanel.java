@@ -19,14 +19,14 @@ import wfg.native_ui.ui.widget.Button.CutStyle;
  * Radio selection panel that presents multiple mutually exclusive options.
  *
  * <p>Options must be added via {@link #addOption(String)} or {@link #addOption(String, boolean)}
- * before calling {@link #buildUI()}. The selected option can be queried or changed
- * using {@link #getSelectedIndex()} and {@link #setSelectedIndex()}.</p>
+ * before calling {@link #buildUI}. The selected option can be queried or changed
+ * using {@link #getSelectedIndex} and {@link #setSelectedIndex}.</p>
  *
  * <p>The panel supports a callback {@link #optionSelected} which is invoked whenever
  * the user selects a different option. The callback receives the index of the newly
  * selected option.</p>
  *
- * <p>The generated UI buttons are accessible through {@link #getButtons()} if further
+ * <p>The generated UI buttons are accessible through {@link #getButtons} if further
  * customization is required.</p>
  *
  * <p>Layout behavior:</p>

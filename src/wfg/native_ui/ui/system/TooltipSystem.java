@@ -70,6 +70,9 @@ public final class TooltipSystem extends BaseSystem {
 
         if (spec.internal_tp != null) {
             spec.internal_tp.updateFader(delta);
+            if (spec.internal_tp.isDetached()) {
+                spec.internal_tp = null;
+            }
         }
 
         final InputSnapshotComp input = element.comp().get(NativeComponents.INPUT_SNAPSHOT);

@@ -21,7 +21,6 @@ import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.internal.util.ToastRenderer;
 import wfg.native_ui.ui.Attachments;
-import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.util.NativeUiUtils;
 
@@ -29,28 +28,28 @@ import wfg.native_ui.util.NativeUiUtils;
 /**
  * A holographic notification that slides on/off screen from the left or right edge.
  * It has three layers: the handle, the hologram and the countdown bar, all managed by {@link ToastRenderer}.
- * The countdown is optional, and can be modified using {@link #setToastProgress()}.
+ * The countdown is optional, and can be modified using {@link #setToastProgress}.
  * 
  * <ul>
  *   <li>The constructor attaches the toast to the given parent immediately - do not
- *   add it again. The open position is calculated via {@link #calculateTargetPos()},
+ *   add it again. The open position is calculated via {@link #calculateTargetPos},
  *   and the closed position is derived from {@link #mDockDir}.</li>
- *   <li>Open/close is driven by {@link #open()} / {@link #close()}. The animated visibility
- *   progress [0, 1] is retrieved via {@link #getOpenProgress()}; the toast detaches itself from
+ *   <li>Open/close is driven by {@link #open} / {@link #close}. The animated visibility
+ *   progress [0, 1] is retrieved via {@link #getOpenProgress}; the toast detaches itself from
  *   the parent once the close animation finishes.</li>
  *   <li>Content is added to an internal {@link UIContainerAPI} exposed by
- *   {@link #getContent()}.</li>
- *   <li>Call {@link #changeOffset()} to nudge the anchored position, or
- *   {@link #changeDirection()} to swap the dock side at runtime, the handle mirrors
+ *   {@link #getContent}.</li>
+ *   <li>Call {@link #changeOffset} to nudge the anchored position, or
+ *   {@link #changeDirection} to swap the dock side at runtime, the handle mirrors
  *   accordingly.</li>
  * </ul>
  *
  * <p>Lifecycle
  * <ul>
- *   <li>A right-click anywhere inside the toast dismisses it via {@link #close()}.</li>
+ *   <li>A right-click anywhere inside the toast dismisses it via {@link #close}.</li>
  *   <li>By default a toast counts down from {@code 1f} to {@code 0f} over
  *   {@link #mToastProgressTime} seconds and closes itself. Call
- *   {@link #setToastProgress()} with a non-positive value to make it persistent.</li>
+ *   {@link #setToastProgress} with a non-positive value to make it persistent.</li>
  * </ul>
  *
  * <p><strong>Example:</strong> {@link ToastExample}</p>
@@ -87,11 +86,7 @@ public class Toast extends UIElement {
     public Toast(final UIPanelAPI parent, float width, float height, final Side dir) {
         super();
 
-        if (MethodFields.uiInternalCompClass.isInstance(parent)) {
-            wrap(parent);
-        } else {
-            parent.addComponent(this);
-        }
+        attachTo(parent);
         mFader.forceOut();
         mFader.setState(State.IDLE);
 

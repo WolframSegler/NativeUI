@@ -10,11 +10,11 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import wfg.native_ui.internal.ui.core.UIElement;
 
 public class ModalInterceptor extends UIElement {
-    final ModalDialog dialog;
+    final ModalDialog mDialog;
 
     public ModalInterceptor(ModalDialog dialog) {
         super(screenW, screenH);
-        this.dialog = dialog;
+        mDialog = dialog;
     }
 
     @Override
@@ -22,8 +22,8 @@ public class ModalInterceptor extends UIElement {
         for (InputEventAPI e : events) {
             if (e.isConsumed()) continue;
 
-            if (e.isLMBDownEvent() && !dialog.pos().containsEvent(e)) {
-                dialog.outsideClickAbsorbed(e);
+            if (e.isLMBDownEvent() && !mDialog.pos().containsEvent(e)) {
+                mDialog.outsideClickAbsorbed(e);
             }
 
             e.consume();
@@ -32,8 +32,8 @@ public class ModalInterceptor extends UIElement {
 
     @Override
     public void advanceImpl(float delta) {
-        if (dialog.isBeingDismissed() && !dialog.suspendEventInterception &&
-            dialog.getFaderBrightness() < 0.5f
+        if (mDialog.isBeingDismissed() && !mDialog.suspendEventInterception &&
+            mDialog.getFaderBrightness() < 0.5f
         ) { detach(); }
     }
 }

@@ -1,6 +1,7 @@
 package wfg.native_ui.ui.core;
 
 import wfg.native_ui.ui.component.UIComponentContainer;
+import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
 import wfg.native_ui.ui.system.UISystemContainer;
 
 /**

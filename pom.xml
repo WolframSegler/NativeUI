@@ -58,6 +58,44 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <doclint>none</doclint>
+          <encoding>UTF-8</encoding>
+          <charset>UTF-8</charset>
+          <quiet>true</quiet>
+          <sourcepath>${project.build.sourceDirectory}</sourcepath>
+          <sourceFileExcludes>
+            <sourceFileExclude>test/**/*.java</sourceFileExclude>
+          </sourceFileExcludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>3.1.0</version>
         <executions>
@@ -75,6 +113,9 @@
                 <delete dir="${project.build.directory}/generated-sources"/>
                 <delete dir="${project.build.directory}/generated-test-sources"/>
                 <delete dir="${project.build.directory}/surefire-reports"/>
+                <delete dir="${project.build.directory}/apidocs"/>
+                <delete dir="${project.build.directory}/javadoc-bundle-options"/>
+                <delete file="${project.build.directory}/maven-javadoc-plugin-stale-data.txt"/>
               </target>
             </configuration>
           </execution>

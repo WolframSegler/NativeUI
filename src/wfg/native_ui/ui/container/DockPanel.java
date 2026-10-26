@@ -19,7 +19,6 @@ import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.ui.Attachments;
-import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.functional.CallbackRunnable;
@@ -30,19 +29,19 @@ import wfg.native_ui.util.UIConstants;
  *
  * <ul>
  *   <li>The constructor attaches the panel to the given parent immediately - do not
- *   add it again. The panel calculates its open position via {@link #calculateTargetPos()}
+ *   add it again. The panel calculates its open position via {@link #calculateTargetPos}
  *   and computes the closed (off-screen) position based on the chosen {@link Side}.</li>
- *   <li>Open/close is driven by {@link #open()} / {@link #close()}. The animated visibility progress
+ *   <li>Open/close is driven by {@link #open} / {@link #close}. The animated visibility progress
  *   value [0, 1] is stored in {@link #mProgress}; animation timing is controlled by {@link #mDurIn}
  *   and {@link #mDurOut}.</li>
- *   <li>Call {@link #changeOffset()} to nudge the final anchored position, or
- *   {@link #changeDirection()} to change the dock side at runtime (the border will be updated).</li>
+ *   <li>Call {@link #changeOffset} to nudge the final anchored position, or
+ *   {@link #changeDirection} to change the dock side at runtime (the border will be updated).</li>
  * </ul>
  *
  * <p>Lifecycle
  * <ul>
  *   <li>By default the panel attaches an {@link OutsideEventDetector} when opened and closes when
- *   an outside click or the cancel button is pressed. Override {@link #outsideClicked()} / {@link #buttonPressed()}
+ *   an outside click or the cancel button is pressed. Override {@link #outsideClicked} / {@link #buttonPressed}
  *   only if you intend to change that behavior.</li>
  *   <li>If {@link #mRemoveWhenClosed} is true the panel will remove itself from the parent when its
  *   close animation finishes.</li>
@@ -89,11 +88,7 @@ public abstract class DockPanel extends UIElement implements
     public DockPanel(final UIPanelAPI parent, float width, float height, final Side dir, float padding) {
         super(width + padding*2, height + padding*2);
 
-        if (MethodFields.uiInternalCompClass.isInstance(parent)) {
-            wrap(parent);
-        } else {
-            parent.addComponent(this);
-        }
+        attachTo(parent);
 
         mDetector = new OutsideEventDetector(this);
 

@@ -13,13 +13,13 @@ import org.lwjgl.input.Keyboard;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.codex2.CodexDialog;
 
 import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.functional.RunnableWithCode;
 import wfg.native_ui.util.RenderUtils;
 
@@ -40,10 +40,10 @@ public class ModalDialog extends UIContainer {
     protected boolean suspendEventInterception = false;
     protected float centerX, centerY;
 
-    protected final UIComponentAPI inputInterceptor;
-    protected final Set<Integer> optionSet = new HashSet<>();
-    protected final FaderUtil fader = new FaderUtil(0f, 0.5f, 0.2f);
-    protected final UIPanelAPI interceptorParent;
+    protected final UIElementAPI mInputInterceptor;
+    protected final Set<Integer> mOptionSet = new HashSet<>();
+    protected final FaderUtil mFader = new FaderUtil(0f, 0.5f, 0.2f);
+    protected final UIPanelAPI mInterceptorParent;
 
     public ModalDialog() {
         this(Attachments.getScreenPanel(), 500, 200, null);
@@ -59,13 +59,13 @@ public class ModalDialog extends UIContainer {
 
     public ModalDialog(UIPanelAPI interceptorParent, float width, float height, RunnableWithCode dialogDismissed) {
         super(width, height);
-        this.interceptorParent = interceptorParent;
+        mInterceptorParent = interceptorParent;
 
         delegate = dialogDismissed;
-        inputInterceptor = new ModalInterceptor(this);
+        mInputInterceptor = new ModalInterceptor(this);
     }
 
-    public UIComponentAPI getInterceptor() { return inputInterceptor; }
+    public UIElementAPI getInterceptor() { return mInputInterceptor; }
 
     public void setCenter(float cx, float cy) {
         centerX = cx;
@@ -74,20 +74,18 @@ public class ModalDialog extends UIContainer {
     }
 
     public void show(float durIn, float durOut) {
-        fader.setDuration(durIn, durOut);
-        interceptorParent.removeComponent(inputInterceptor);
-        interceptorParent.addComponent(inputInterceptor);
+        mFader.setDuration(durIn, durOut);
+        reAttachInputInterceptor();
 
-        final PositionAPI pos = interceptorParent.getPosition();
-        inputInterceptor.getPosition().setSize(pos.getWidth(), pos.getHeight()).inMid();
+        final PositionAPI pos = mInterceptorParent.getPosition();
         if (useCustomCenter) {
             mPos.inBL(
                 centerX - pos.getX() - pos.getWidth() / 2f,
                 centerY - pos.getY() - pos.getHeight() / 2f);
         } else mPos.inMid();
 
-        if (fadeInAndOut) fader.fadeIn();
-        else fader.forceIn();
+        if (fadeInAndOut) mFader.fadeIn();
+        else mFader.forceIn();
 
         dismissOption = -1;
     }
@@ -97,23 +95,23 @@ public class ModalDialog extends UIContainer {
     public void dismiss(int option) {
         dismissOption = option;
         if (fadeInAndOut) {
-            if (optionSet.contains(option)) fader.forceOut();
-            else fader.fadeOut();
+            if (mOptionSet.contains(option)) mFader.forceOut();
+            else mFader.fadeOut();
         }
 
         if (delegate != null) delegate.run(option);
     }
 
     public void makeOptionInstant(int option) {
-        optionSet.add(option);
+        mOptionSet.add(option);
     }
 
     public final float getFaderBrightness() {
-        return fader.getBrightness();
+        return mFader.getBrightness();
     }
 
     protected boolean isFullyShown() {
-        return fader.getBrightness() == 1f;
+        return mFader.getBrightness() == 1f;
     }
 
     protected boolean isBeingDismissed() {
@@ -122,15 +120,20 @@ public class ModalDialog extends UIContainer {
 
     public void setSuspendEventInterception(boolean bool) {
         if (bool && !suspendEventInterception) {
-            interceptorParent.removeComponent(inputInterceptor);
+            mInputInterceptor.detach();
         } else if (!bool && suspendEventInterception) {
-            interceptorParent.removeComponent(inputInterceptor);
-            interceptorParent.addComponent(inputInterceptor);
-            final PositionAPI pos = interceptorParent.getPosition();
-            inputInterceptor.getPosition().setSize(pos.getWidth(), pos.getHeight()).inMid();
+            reAttachInputInterceptor();
         }
 
         suspendEventInterception = bool;
+    }
+
+    private final void reAttachInputInterceptor() {
+        mInputInterceptor.detach();
+        mInputInterceptor.attachTo(mInterceptorParent);
+
+        final PositionAPI pos = mInterceptorParent.getPosition();
+        mInputInterceptor.getPosition().setSize(pos.getWidth(), pos.getHeight()).inBL(0f, 0f);
     }
 
     @Override
@@ -183,7 +186,7 @@ public class ModalDialog extends UIContainer {
 
     @Override
     public void advanceImpl(float delta) {
-        fader.advance(delta);
+        mFader.advance(delta);
     }
 
     @Override

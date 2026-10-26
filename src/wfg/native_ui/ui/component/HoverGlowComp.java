@@ -25,7 +25,7 @@ public final class HoverGlowComp extends BaseComponent {
     public float glowBrightness = 0.6f;
     /** Used when element is LMB pressed */
     public float flashBrightness = 0.9f;
-    /** If >= 0f, overrides the brightness directly and bypasses the fader and flash logic. */
+    /** If > 0f, overrides the brightness directly and bypasses the fader and flash logic. */
     public float overrideBrightness = -1f;
     public Color color = Color.WHITE;
     /** The sprite is binded if glow type is {@link GlowType#ADDITIVE} */

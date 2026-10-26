@@ -11,6 +11,7 @@ import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.OutlineComp;
 import wfg.native_ui.ui.component.OutlineComp.OutlineType;
 import wfg.native_ui.ui.core.UIElementFlags.HasOutline;
+import wfg.native_ui.ui.system.BaseSystem;
 import wfg.native_ui.util.RenderUtils;
 
 
@@ -66,8 +67,18 @@ public class AbstractSpriteElement<
 
     @Override
     public void renderImpl(float alpha) {
-        super.renderImpl(alpha);
+        for (BaseSystem system : system().getAll()) {
+            system.renderBelow(this, alpha);
+        }
         
+        renderSprite(alpha);
+
+        for (BaseSystem system : system().getAll()) {
+            system.renderAbove(this, alpha);
+        }
+    }
+
+    private final void renderSprite(float alpha) {
         final float x = getX();
         final float y = getY();
         final float w = getWidth();

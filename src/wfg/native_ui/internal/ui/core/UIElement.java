@@ -10,7 +10,9 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
+import rolflectionlib.ui.UiUtil;
 import wfg.native_ui.ui.MethodFields;
+import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.UIEventBus;
 import wfg.native_ui.util.Arithmetic;
@@ -24,7 +26,7 @@ public class UIElement implements UIElementAPI {
 
     /** 
      * This is the element itself it not wrapped.
-     * If this element is added using {@link #wrap}, it is the wrapper.
+     * Else, it is the wrapper.
      */
     protected UIComponentAPI mSelfInParent = this;
 
@@ -128,16 +130,24 @@ public class UIElement implements UIElementAPI {
         return mFader;
     }
 
-    public PositionAPI wrap(UIPanelAPI parent) {
-        if (mSelfInParent != this) throw new IllegalStateException("UIElement already wrapped");
+    public final PositionAPI attachTo(UIPanelAPI parent) {
+        if (mSelfInParent != this) throw new IllegalStateException("UIElement already wrapped; detach first");
         if (mParent != null) throw new IllegalStateException("UIElement already attached; detach first");
-        if (!MethodFields.uiInternalCompClass.isInstance(parent)) {
-            throw new IllegalArgumentException("wrap() requires a vanilla parent");
+
+        if (parent instanceof UIContainerAPI) {
+            parent.addComponent(this);
+            return mPos;
         }
 
-        mSelfInParent = new UICustomWrapper(this).panel();
-        parent.addComponent(mSelfInParent);
-        return setParent(parent);
+        if (UiUtil.uiComponentClass.isInstance(parent)) {
+            final UIComponentAPI wrapper = new UICustomWrapper(this).panel();
+            parent.addComponent(wrapper);
+            mSelfInParent = wrapper;
+            return setParent(parent);
+        }
+
+        throw new IllegalArgumentException(
+            "parent is neither UIContainerAPI nor vanilla (" + parent.getClass().getName() + ")");
     }
 
     public UIComponentAPI getSelfInParent() {

@@ -51,17 +51,24 @@ public interface UIElementAPI extends UIComponentAPI {
     FaderUtil getFader();
 
     /**
-     * Wraps this element with a vanilla {@link CustomPanelAPI} and adds the wrapper panel to the parent.
-     * Used to add a custom {@link UIComponentAPI} implementation to a vanilla {@link UIPanelAPI}.
-     * Returns the position of this element.
-     * <p>Not idempotent: Throws if the element is already wrapped or already attached to a parent.
-     * Call {@link #detach} before re-wrapping.
+     * Attaches this element to {@code parent}, wrapping it in a vanilla {@link CustomPanelAPI} if needed.
+     *
+     * <ul>
+     *   <li>If {@code parent} is a {@link UIContainerAPI}, the element is added directly.</li>
+     *   <li>If {@code parent} is a vanilla panel, the element is wrapped and added.</li>
+     * </ul>
+     *
+     * <p>It enforces a single-parent invariant: detach the element before attaching it elsewhere.
+     *
+     * @return this element's {@link PositionAPI} for chaining calls.
+     * @throws IllegalStateException if this element is already wrapped or already attached.
+     * @throws IllegalArgumentException if {@code parent} is neither a {@link UIContainerAPI} nor a vanilla panel.
      */
-    PositionAPI wrap(UIPanelAPI parent);
+    PositionAPI attachTo(UIPanelAPI parent);
 
     /**
      * The representation of this element in its parent's children list.
      * Returns {@code this} when not wrapped, or the wrapper panel when wrapped.
      */
-    public UIComponentAPI getSelfInParent();
+    UIComponentAPI getSelfInParent();
 }

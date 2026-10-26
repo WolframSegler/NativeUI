@@ -134,36 +134,36 @@ public final class BorderRenderer {
         RenderUtils.setGlColor(Color.white, alpha);
         if (!hideBottom && !hideLeft) {
             bottom_left.bindTexture();
-            NineSliceUtils.drawCorner(false, false, corner_size, corner_size, x, y);
+            NineSliceUtils.drawCorner(false, false, x, y, corner_size, corner_size);
         }
         if (!hideBottom && !hideRight) {
             bottom_right.bindTexture();
-            NineSliceUtils.drawCorner(false, false, corner_size, corner_size, x + width - corner_size, y);
+            NineSliceUtils.drawCorner(false, false, x + width - corner_size, y, corner_size, corner_size);
         }
         if (!hideTop && !hideLeft) {
             top_left.bindTexture();
-            NineSliceUtils.drawCorner(false, false, corner_size, corner_size, x, y + height - corner_size);
+            NineSliceUtils.drawCorner(false, false, x, y + height - corner_size, corner_size, corner_size);
         }
         if (!hideTop && !hideRight) {
             top_right.bindTexture();
-            NineSliceUtils.drawCorner(false, false, corner_size, corner_size, x + width - corner_size, y + height - corner_size);
+            NineSliceUtils.drawCorner(false, false, x + width - corner_size, y + height - corner_size, corner_size, corner_size);
         }
 
         if (!hideLeft) {
             left_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, corner_size, corner_size, x, innerY, corner_size, innerH);
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, x, innerY, corner_size, innerH);
         }
         if (!hideRight) {
             right_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, corner_size, corner_size, x + width - corner_size, innerY, corner_size, innerH);
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, x + width - corner_size, innerY, corner_size, innerH);
         }
         if (!hideTop) {
             top_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, corner_size, corner_size, innerX, y + height - corner_size, innerW, corner_size);
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, innerX, y + height - corner_size, innerW, corner_size);
         }
         if (!hideBottom) {
             bottom_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, corner_size, corner_size, innerX, y, innerW, corner_size);
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, innerX, y, innerW, corner_size);
         }
 
         GL11.glDisable(GL11.GL_BLEND);

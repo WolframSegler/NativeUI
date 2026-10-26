@@ -6,7 +6,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 - Core UI classes [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java), [`UIEntity`](src/wfg/native_ui/internal/ui/core/UIEntity.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) for full control over the UI hierarchy. `UIContainer` auto-wraps vanilla children on `add()`.
 - [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) and [`Components`](src/wfg/native_ui/ui/component/BaseComponent.java) for tooltips, hoverGlow etc. to reduce boilerplate, with a more composition-oriented approach. Native systems can be attached by implementing [`UIElementFlags`](src/wfg/native_ui/ui/core/UIElementFlags.java).
 - [`UIEventBus`](src/wfg/native_ui/ui/event/UIEventBus.java) is used by [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) to let mods cross-communicate and handle attachment and detachment events.
-- Bidirectional interop: NativeUI containers wrap vanilla children, and NativeUI elements attach to vanilla parents via `UIElementAPI.wrap()` + `addComponent()`.
+- Bidirectional interop: NativeUI containers wrap vanilla children, and NativeUI elements attach to vanilla parents via `UIElementAPI.attachTo()`.
 
 # UI Elements
 - [`UIClickable`](src/wfg/native_ui/ui/functional/UIClickable.java) has click handling and click sounds. Can take in a callback.
@@ -38,7 +38,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 
 # Usage
 - All panels that wish to use Systems must implement [`UIEntityAPI`](src/wfg/native_ui/ui/core/UIEntityAPI.java).
-- Adding a NativeUI element to a vanilla panel requires `wrap()`: `vanillaParent.addComponent(myPanel.wrap())`. Passing the element directly throws `ClassCastException`. See [`wrap()`](src/wfg/native_ui/ui/core/UIElementAPI.java) for details.
+- Adding a NativeUI element to a vanilla panel requires `attachTo()`. Passing the element directly throws `ClassCastException`. See [`attachTo()`](src/wfg/native_ui/ui/core/UIElementAPI.java) for details.
 
 <br><br><br>
 

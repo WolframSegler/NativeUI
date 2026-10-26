@@ -213,7 +213,7 @@ Then call the methods directly on the class:
 - Use `PositionAPI pos()` instead of `getPosition()`.
 - Use the convenience methods instead of first querying the position: `getX()`, `getY()`, `getCenterX()`, `getCenterY()`, `getWidth()`, `getHeight()`,
 - `UIElementAPI` implements `UIComponentAPI`.
-- `wrap(UIPanelAPI parent)` wraps this using a vanilla `CustomPanelAPI` that delegates to this element, then attaches the wrapper to the parent. Use it to add the element to a vanilla parent: `element.wrap(vanillaParent)`. Throws if the element is already wrapped, has a parent or the parent parameter is not a vanilla panel.
+- `attachTo(UIPanelAPI parent)` either adds to parent directly, or if the parent is vanilla, wraps this using a vanilla `CustomPanelAPI` that delegates to this element, then attaches the wrapper to the parent. Use it to add the element to a vanilla parent: `element.attachTo(vanillaParent)`. Throws if the element is already wrapped or attached.
 - Direct control over the parent: `UIPanelAPI getParent()`, `PositionAPI setParent(UIPanelAPI)`. `setParent` returns this element's PositionAPI for chaining.
 - `advance`, `render` and `processInput` are final and call `advanceImpl`, `renderImpl` and `processInputImpl` instead. So override the `Impl` methods.
 - `UIElement` has four members: `mFader`, `mPos`, `mParent` and `mOpacity`. All protected.
@@ -355,16 +355,16 @@ Custom systems must still be registered manually (see `init()` example above). T
 
 Two wrappers bridge NativeUI and vanilla UI. The direction determines which type wraps which.
 
-### Custom inside Vanilla - `wrap()`
+### Custom inside Vanilla - `attachTo()`
 
-A vanilla `UIPanel` cannot host a custom `UIComponentAPI` implementation directly; it requires its internal `UIComponent` class. `UIElementAPI.wrap(UIPanelAPI parent)` solves this by wrapping this with a vanilla `CustomPanelAPI` that delegates to the wrapped element. It also attaches the wrapper to the provided parent.
+A vanilla `UIPanel` cannot host a custom `UIComponentAPI` implementation directly; it requires its internal `UIComponent` class. `UIElementAPI.attachTo(UIPanelAPI parent)` solves this by wrapping this with a vanilla `CustomPanelAPI` when needed that delegates to the wrapped element.
 
 ```java
 final MyNativePanel panel = new MyNativePanel();
-panel.wrap(vanillaParent); // ✅ safe, wrapper is vanilla
+panel.attachTo(vanillaParent); // ✅ safe, wrapper is vanilla
 ```
 
-The wrapper uses the `PositionAPI` of the wrapped element. `wrap` is not idempotent; Throws if the element is already wrapped, has a parent or the parent parameter is not a vanilla panel.
+The wrapper uses the `PositionAPI` of the wrapped element. `attachTo` is not idempotent; Throws if the element is already wrapped or attached.
 
 ### Vanilla inside Custom - automatic
 
@@ -416,20 +416,20 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 
 ### Usage
 
-To add a NativeUI element to a vanilla parent panel, wrap it with `wrap(UIPanelAPI parent)`:
+To add a NativeUI element to a parent panel, call `attachTo(UIPanelAPI parent)`. If the parent is vanilla, the element is wrapped; if it is a `UIContainerAPI`, it is added directly.
 
 ```java
 final UIPanelAPI parent = Attachments.getCurrentTab();
 final MyNativePanel myPanel = new MyNativePanel();
 
-myPanel.wrap(parent); // ✅ correct
-// parent.addComponent(myPanel); // ❌ ClassCastException
+myPanel.attachTo(parent); // ✅ correct
+// parent.addComponent(myPanel); // ❌ may throw ClassCastException if parent is vanilla.
 ```
 - **Never** call `parent.addComponent(myNativePanel)` with a raw custom panel. The vanilla `UIPanel` expects its internal `UIComponent` class and will throw `ClassCastException`.
-- `wrap()` attaches the wrapper `CustomPanelAPI` to the provided parent, so do not attach it separately.
-- `wrap()` is not idempotent, use `detach()` to reset it.
+- If the parent is vanilla, the wrapper is attached to the parent by `attachTo`; do not attach it separately. If the parent is a `UIContainerAPI`, the element itself is added directly.
+- `attachTo` is not idempotent; Throws if the element is already wrapped or attached.
 
-> **Note on wrapAndAdd**. Alex has indicated a `wrapAndAdd(UIComponentAPI, FaderUtil)` method will be available with Starsector v0.98.5, combining the wrap and add steps. Do **not** use it. The framework's preferred approach is `wrap(parent)`, which works today and will continue to work after the update. `wrapAndAdd` is mentioned only as a reference for future readers.
+> **Note on wrapAndAdd**. Alex has indicated a `wrapAndAdd(UIComponentAPI, FaderUtil)` method will be available with Starsector v0.98.5, combining the wrap and add steps. Do **not** use it. The framework's preferred approach is `attachTo(parent)`, which works today and will continue to work after the update. `wrapAndAdd` is mentioned only as a reference for future readers.
 
 ## UIEventBus
 `UIEventBus` is a **cross‑mod communication channel** that notifies listeners about panel lifecycle events.  

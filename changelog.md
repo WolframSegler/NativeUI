@@ -24,6 +24,7 @@ Version 0.5.0-beta
 - Fixed override bugs in DockPanel.
 - Added a notification toast.
 - Added two thin wrappers to go from vanilla to custom and from custom to vanilla.
+- Updated UIElementAPI to handle vanilla -> custom panel wrapping easier. The wrapIfNeeded method handles it seamlessly.
 
 Version 0.4.4-beta
 - Not compatible with v0.4.3-beta

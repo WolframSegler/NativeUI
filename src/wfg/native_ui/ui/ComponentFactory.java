@@ -52,14 +52,14 @@ public final class ComponentFactory {
     }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor
     ) { addCaptionValueBlock(panel, captionTxt, valueTxt, captionColor, highlight); }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor, Color valueColor
@@ -70,14 +70,14 @@ public final class ComponentFactory {
     }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor, float maxW
     ) { addCaptionValueBlock(panel, captionTxt, valueTxt, captionColor, highlight, maxW); }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor, Color valueColor, float maxW
@@ -88,7 +88,7 @@ public final class ComponentFactory {
     }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt, String valueTxt,
         String captionFont, String valueFont, Color captionColor, Color valueColor,
@@ -189,7 +189,7 @@ public final class ComponentFactory {
             true
         );
         if (content instanceof UIElementAPI element) {
-            element.wrap(scrollPanel).inTL(0f, 0f);
+            element.attachTo(scrollPanel).inTL(0f, 0f);
         } else {
             scrollPanel.addComponent(content).inTL(0f, 0f);
         }

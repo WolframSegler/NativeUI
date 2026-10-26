@@ -16,15 +16,15 @@ import wfg.native_ui.ui.functional.CallbackRunnable;
  *   <li>Plays mouseover/click sounds and fires an action callback when activated.</li>
  *   <li>If {@link #onClicked} is null the component will toggle its internal {@link #checked} state when activated;
  *   if a callback is provided the callback is invoked instead and the component will NOT toggle automatically.</li>
- *   <li>Supports keyboard shortcut (via {@link #setShortcut()}).</li>
- *   <li>Use {@link #setEnabled()} to enable/disable the component.</li>
+ *   <li>Supports keyboard shortcut (via {@link #setShortcut}).</li>
+ *   <li>Use {@link #setEnabled} to enable/disable the component.</li>
  *   <li>If {@link #disabledWhileInvisible} is false the component can still be activated while fully transparent;
  *   otherwise it is inert.</li>
  * </ul>
  *
- * <p>Interaction details & caveats:
+ * <p>Interaction details and caveats:
  * <ul>
- *   <li>Click handling is routed through the internal {@link InteractionComp}. Calling {@link #click()} with
+ *   <li>Click handling is routed through the internal {@link InteractionComp}. Calling {@link #click} with
  *   {@code ignoreState=true} invokes the activation handler regardless of {@code clickable/disabled} state.</li>
  *   <li>Right‑click behavior is opt‑in via {@link #rightClicksOkWhenDisabled} and obeys {@link #clickable}.</li>
  *   <li>Providing an {@link #onClicked} callback means you are responsible for changing {@link #checked} if you want
