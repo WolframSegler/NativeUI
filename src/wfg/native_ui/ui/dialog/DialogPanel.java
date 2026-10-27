@@ -137,6 +137,7 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
 
     public void show(float durIn, float durOut) {
         super.show(durIn, durOut);
+        holo.bringToFront();
 
         holo.foldOut(mFader.getDurationIn() * 0.5f);
         holo.flickerNoise(0f, 1f);

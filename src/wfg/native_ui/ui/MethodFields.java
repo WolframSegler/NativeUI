@@ -90,6 +90,7 @@ public final class MethodFields {
     }
 
     public static final PositionAPI addPositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
+        if (comp == null) return null;
         final PositionAPI position = comp.getPosition();
         setPositionParent(position, parentPos);
         RolfLectionUtil.invokeMethodDirectly(addToPositionMethod, parentPos, position);
@@ -97,6 +98,7 @@ public final class MethodFields {
     }
 
     public static final PositionAPI removePositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
+        if (comp == null) return null;
         final PositionAPI position = comp.getPosition();
         setPositionParent(position, null);
         RolfLectionUtil.invokeMethodDirectly(removeFromPositionMethod, parentPos, position);

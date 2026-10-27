@@ -525,5 +525,4 @@ All methods are `static`. Import via `import wfg.native_ui.util.NativeUiUtils;`.
 - **MultiSelect** -> `wfg.native_ui.example.widget.MultiSelectExample`
 - **RadioPanel** -> `wfg.native_ui.example.widget.RadioPanelExample`
 - **Slider** -> `wfg.native_ui.example.widget.SliderExample`
-- **TextField** -> `wfg.native_ui.example.widget.TextFieldExample`
 - **ToastExample** -> `wfg.native_ui.example.widget.ToastExample`

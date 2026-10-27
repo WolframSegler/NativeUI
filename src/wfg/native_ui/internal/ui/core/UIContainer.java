@@ -163,22 +163,22 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
 
     @Override
     public void advanceImpl(float delta) {
-        super.advanceImpl(delta);
-
         final int size = mChildren.size();
         final UIComponentAPI[] snap = mChildren.toArray(mChildSnapshot);
         if (snap != mChildSnapshot) mChildSnapshot = snap;
         for (int i = 0; i < size; i++) snap[i].advance(delta);
+
+        super.advanceImpl(delta);
     }
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
-        super.processInputImpl(events);
-
         final int size = mChildren.size();
         final UIComponentAPI[] snap = mChildren.toArray(mChildSnapshot);
         if (snap != mChildSnapshot) mChildSnapshot = snap;
         for (int i = size - 1; i >= 0; i--) snap[i].processInput(events);
+
+        super.processInputImpl(events);
     }
 
 

@@ -14,7 +14,6 @@ import org.lwjgl.input.Keyboard;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.codex2.CodexDialog;
 
 import wfg.native_ui.internal.ui.core.UIContainer;
@@ -40,9 +39,8 @@ public class ModalDialog extends UIContainer {
     protected boolean suspendEventInterception = false;
     protected float centerX, centerY;
 
-    protected final UIElementAPI mInputInterceptor;
+    protected final ModalInterceptor mInputInterceptor;
     protected final Set<Integer> mOptionSet = new HashSet<>();
-    protected final FaderUtil mFader = new FaderUtil(0f, 0.5f, 0.2f);
     protected final UIPanelAPI mInterceptorParent;
 
     public ModalDialog() {
@@ -59,6 +57,9 @@ public class ModalDialog extends UIContainer {
 
     public ModalDialog(UIPanelAPI interceptorParent, float width, float height, RunnableWithCode dialogDismissed) {
         super(width, height);
+        mFader.setBrightness(0f);
+        mFader.setDuration(0.5f, 0.2f);
+
         mInterceptorParent = interceptorParent;
 
         delegate = dialogDismissed;
@@ -106,10 +107,6 @@ public class ModalDialog extends UIContainer {
         mOptionSet.add(option);
     }
 
-    public final float getFaderBrightness() {
-        return mFader.getBrightness();
-    }
-
     protected boolean isFullyShown() {
         return mFader.getBrightness() == 1f;
     }
@@ -139,6 +136,8 @@ public class ModalDialog extends UIContainer {
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
         if (suspendEventInterception || isBeingDismissed()) return;
+
+        super.processInputImpl(events);
 
         for (InputEventAPI e : events) {
             if (e.isConsumed()) continue;
@@ -185,17 +184,14 @@ public class ModalDialog extends UIContainer {
     }
 
     @Override
-    public void advanceImpl(float delta) {
-        mFader.advance(delta);
-    }
-
-    @Override
     public void renderImpl(float alpha) {
         RenderUtils.drawQuad(
             0f, 0f, screenW, screenH, Color.BLACK,
-            alpha * backgroundDimAmount * getFaderBrightness(),
+            alpha * backgroundDimAmount,
             false
         );
+
+        super.renderImpl(alpha);
     }
 
     public void outsideClickAbsorbed(InputEventAPI event) {};

@@ -33,7 +33,7 @@ public class ModalInterceptor extends UIElement {
     @Override
     public void advanceImpl(float delta) {
         if (mDialog.isBeingDismissed() && !mDialog.suspendEventInterception &&
-            mDialog.getFaderBrightness() < 0.5f
+            mDialog.getFader().getBrightness() < 0.5f
         ) { detach(); }
     }
 }

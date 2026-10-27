@@ -15,13 +15,13 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 
-import wfg.native_ui.internal.ui.core.UIContainer;
+import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.internal.util.BorderRenderer;
 import wfg.native_ui.internal.util.NoiseRenderer;
 import wfg.native_ui.internal.util.PanelFillRenderer;
 import wfg.native_ui.ui.Attachments;
 
-public class FoldingPanel extends UIContainer {
+public class FoldingPanel extends UIElement {
     private static final SpriteAPI SCANLINE_11 = settings.getSprite("ui", "scanline11");
     private static final SpriteAPI NOISE = settings.getSprite("ui", "noise");
 
@@ -32,16 +32,16 @@ public class FoldingPanel extends UIContainer {
     public float noiseAlpha = 0.7f;
     public float borderAlpha = 1f;
 
-    private float mInnerOffset = 0f;
-    private UIComponentAPI mCurrentPanel;
-    private UIComponentAPI mNextPanel;
-    private BorderRenderer mBorderRenderer;
-    private PanelFillRenderer mBackgroundLayer;
-    private PanelFillRenderer mForegroundLayer;
-    private NoiseRenderer mNoiseRenderer;
-    private final FaderUtil mFoldFader = new FaderUtil(1f, 0f);
-    private int mBackgroundAlphaMin = 125;
-    private int mBackgroundAlphaMax = 175;
+    private float innerOffset = 0f;
+    private UIComponentAPI currentPanel;
+    private UIComponentAPI nextPanel;
+    private BorderRenderer borderRenderer;
+    private PanelFillRenderer backgroundLayer;
+    private PanelFillRenderer foregroundLayer;
+    private NoiseRenderer noiseRenderer;
+    private final FaderUtil foldFader = new FaderUtil(1f, 0f);
+    private int backgroundAlphaMin = 125;
+    private int backgroundAlphaMax = 175;
 
     public FoldingPanel(UIPanelAPI parent, float width, float height, String borderPrefix,
         float borderThickness
@@ -50,11 +50,10 @@ public class FoldingPanel extends UIContainer {
         attachTo(parent);
 
         this.borderThickness = borderThickness;
-        mInnerOffset = borderThickness + opad;
+        innerOffset = borderThickness + opad;
 
-        mBorderRenderer = new BorderRenderer(borderPrefix, false, width + mInnerOffset * 2f, height + mInnerOffset * 2f);
+        borderRenderer = new BorderRenderer(borderPrefix, false, width + innerOffset * 2f, height + innerOffset * 2f);
         initializeBackground();
-        mNoiseRenderer.fadeOut(0.4f);
     }
 
     public FoldingPanel(float width, float height, String borderPrefix, float borderThickness) {
@@ -74,12 +73,12 @@ public class FoldingPanel extends UIContainer {
     }
 
     public void setBorder(String prefix) {
-        mBorderRenderer = new BorderRenderer(prefix, false, getWidth(), getHeight());
+        borderRenderer = new BorderRenderer(prefix, false, getWidth(), getHeight());
     }
 
     public void setBackgroundAlpha(int min, int max) {
-        mBackgroundAlphaMin = min;
-        mBackgroundAlphaMax = max;
+        backgroundAlphaMin = min;
+        backgroundAlphaMax = max;
         initializeBackground();
     }
 
@@ -87,63 +86,69 @@ public class FoldingPanel extends UIContainer {
         final float width = getWidth() - borderThickness * 2f;
         final float height = getHeight() - borderThickness * 2f;
 
-        mBackgroundLayer = new PanelFillRenderer(SCANLINE_11, width, height);
-        mBackgroundLayer.setColors(
-            new Color(0, 0, 0, 125), new Color(0, 0, 0, mBackgroundAlphaMin));
-        mBackgroundLayer.setOverlayColors(
-            new Color(0, 0, 0, 175), new Color(0, 0, 0, mBackgroundAlphaMax));
+        backgroundLayer = new PanelFillRenderer(SCANLINE_11, width, height);
+        backgroundLayer.setColors(
+            new Color(0, 0, 0, 125), new Color(0, 0, 0, backgroundAlphaMin));
+        backgroundLayer.setOverlayColors(
+            new Color(0, 0, 0, 175), new Color(0, 0, 0, backgroundAlphaMax));
 
-        mBackgroundLayer.useAdditiveBlend = false;
+        backgroundLayer.useAdditiveBlend = false;
 
-        mForegroundLayer = new PanelFillRenderer(SCANLINE_11, width, height);
-        mForegroundLayer.useAdditiveBlend = true;
-        mForegroundLayer.setColors(new Color(10, 38, 44, 0), new Color(10, 38, 44, 0));
-        mNoiseRenderer = new NoiseRenderer(NOISE, width, height);
+        foregroundLayer = new PanelFillRenderer(SCANLINE_11, width, height);
+        foregroundLayer.useAdditiveBlend = true;
+        foregroundLayer.setColors(new Color(10, 38, 44, 0), new Color(10, 38, 44, 0));
+        noiseRenderer = new NoiseRenderer(NOISE, width, height);
+        noiseRenderer.fadeOut(0.4f);
     }
 
     public void foldOut(float dur) {
-        mFoldFader.setDurationIn(dur);
-        mFoldFader.fadeIn();
+        foldFader.setDurationIn(dur);
+        foldFader.fadeIn();
     }
 
     public void forceFoldIn() {
-        mFoldFader.forceOut();
+        foldFader.forceOut();
     }
 
     public void forceFoldOut() {
-        mFoldFader.forceIn();
+        foldFader.forceIn();
     }
 
     public void foldIn(float dur) {
-        mFoldFader.setDurationOut(dur);
-        mFoldFader.fadeOut();
+        foldFader.setDurationOut(dur);
+        foldFader.fadeOut();
     }
 
     public void setNext(UIComponentAPI comp) {
         if (comp == null) return;
-        mNoiseRenderer.fadeIn(0.2f, 0.2f);
-        if (!transitionEnabled) mNoiseRenderer.fader.forceIn();
+        noiseRenderer.fadeIn(0.2f, 0.2f);
+        if (!transitionEnabled) noiseRenderer.fader.forceIn();
 
-        mNextPanel = comp;
+        nextPanel = comp;
         final float w = getContentWidth();
         final float h = getContentHeight();
-        if (mCurrentPanel != null) removePos(mCurrentPanel);
+        if (currentPanel != null) removePos(currentPanel);
         comp.getPosition().setSize(w, h);
-        addPos(comp).inBL(mInnerOffset, mInnerOffset);
-
+        addPos(comp).inBL(innerOffset, innerOffset);
         if (!transitionEnabled) {
-            mCurrentPanel = mNextPanel;
-            mNextPanel = null;
-            mNoiseRenderer.fader.forceOut();
+            currentPanel = nextPanel;
+            nextPanel = null;
+            noiseRenderer.fader.forceOut();
         }
     }
 
+    @Override
     public PositionAPI setSize(float width, float height) {
-        setSize(width, height);
+        super.setSize(width, height);
         initializeBackground();
 
-        if (mCurrentPanel != null) {
-            mCurrentPanel.getPosition().setSize(
+        if (currentPanel != null) {
+            currentPanel.getPosition().setSize(
+                getContentWidth(), getContentHeight()
+            );
+        }
+        if (nextPanel != null) {
+            nextPanel.getPosition().setSize(
                 getContentWidth(), getContentHeight()
             );
         }
@@ -151,54 +156,54 @@ public class FoldingPanel extends UIContainer {
     }
 
     public float getContentWidth() {
-        return getWidth() - mInnerOffset * 2f;
+        return getWidth() - innerOffset * 2f;
     }
 
     public float getContentHeight() {
-        return getHeight() - mInnerOffset * 2f;
+        return getHeight() - innerOffset * 2f;
     }
 
     public void flickerNoise(float inDuration, float outDuration) {
-        mNoiseRenderer.fadeIn(inDuration, outDuration);
+        noiseRenderer.fadeIn(inDuration, outDuration);
     }
 
     @Override
     public void advanceImpl(float delta) {
-        if (mNextPanel != null && mNoiseRenderer.isMaxBrightness()) {
-            mCurrentPanel = mNextPanel;
-            mNextPanel = null;
+        if (nextPanel != null && noiseRenderer.isMaxBrightness()) {
+            currentPanel = nextPanel;
+            nextPanel = null;
             if (!transitionEnabled) {
-                mNoiseRenderer.fader.forceOut();
+                noiseRenderer.fader.forceOut();
             }
         }
 
-        if (mFoldFader.getBrightness() != 0f || !mFoldFader.isIdle()) {
-            mBackgroundLayer.advance(delta);
-            mForegroundLayer.advance(delta);
-            mNoiseRenderer.advance(delta);
-            mFoldFader.advance(delta);
-            if (mCurrentPanel != null) {
-                mCurrentPanel.advance(delta);
+        if (foldFader.getBrightness() != 0f || !foldFader.isIdle()) {
+            backgroundLayer.advance(delta);
+            foregroundLayer.advance(delta);
+            noiseRenderer.advance(delta);
+            foldFader.advance(delta);
+            if (currentPanel != null) {
+                currentPanel.advance(delta);
             }
         }
     }
 
-    public FaderUtil getmFoldFader() {
-        return mFoldFader;
+    public FaderUtil getFoldFader() {
+        return foldFader;
     }
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
-        if (mCurrentPanel != null && mFoldFader.getBrightness() >= 0.75f && mNextPanel == null) {
-            mCurrentPanel.processInput(events);
+        if (currentPanel != null && foldFader.getBrightness() >= 0.75f && nextPanel == null) {
+            currentPanel.processInput(events);
         }
     }
 
     @Override
-    public void renderBelowImpl(float alpha) {
-        if (mFoldFader.getBrightness() == 0f && mFoldFader.isIdle()) return;
+    public void renderImpl(float alpha) {
+        if (foldFader.getBrightness() == 0f && foldFader.isIdle()) return;
 
-        final float brightness = mFoldFader.getBrightness() * alpha;
+        final float brightness = foldFader.getBrightness() * alpha;
         final float heightScale = Math.min(1f, brightness / 0.75f);
         final float transitionAlpha = Math.max(0f, (brightness - 0.75f) / 0.25f);
         final float borderAlphaFactor = Math.min(1f, brightness / 0.25f);
@@ -212,14 +217,14 @@ public class FoldingPanel extends UIContainer {
         final float bx = x + borderThickness;
         final float by = y + borderThickness;
 
-        final int scissorX = (int) ((x + mInnerOffset) * uiScale);
-        final int scissorY = (int) ((y + mInnerOffset) * uiScale);
-        final int scissorW = (int) ((w - mInnerOffset * 2f) * uiScale);
-        final int scissorH = (int) ((h - mInnerOffset * 2f) * uiScale);
+        final int scissorX = (int) ((x + innerOffset) * uiScale);
+        final int scissorY = (int) ((y + innerOffset) * uiScale);
+        final int scissorW = (int) ((w - innerOffset * 2f) * uiScale);
+        final int scissorH = (int) ((h - innerOffset * 2f) * uiScale);
 
         if (renderBackground) {
-            mBorderRenderer.setSize(w, h);
-            mBorderRenderer.render(x, y, brightness * borderAlphaFactor * borderAlpha);
+            borderRenderer.setSize(w, h);
+            borderRenderer.render(x, y, brightness * borderAlphaFactor * borderAlpha);
         }
 
         if (brightness < 1f || isAlwaysScissor) {
@@ -228,24 +233,24 @@ public class FoldingPanel extends UIContainer {
 
         GL11.glScissor((int) x, (int) y, (int) w, (int) h);
         if (renderBackground) {
-            mBackgroundLayer.renderVerticalGradient(bx, by,
+            backgroundLayer.renderVerticalGradient(bx, by,
                 brightness * borderAlphaFactor
             );
         }
 
         GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
-        if (mCurrentPanel != null) {
-            final float mult = (transitionEnabled && renderBackground) ? 1f - mNoiseRenderer.getBrightness() : 1f;
+        if (currentPanel != null) {
+            final float mult = (transitionEnabled && renderBackground) ? 1f - noiseRenderer.getBrightness() : 1f;
 
-            mCurrentPanel.render(transitionAlpha * brightness * mult);
+            currentPanel.render(transitionAlpha * brightness * mult);
         }
 
         GL11.glScissor((int) x, (int) y, (int) w, (int) h);
         if (renderBackground) {
-            mForegroundLayer.renderVerticalGradient(bx, by,
+            foregroundLayer.renderVerticalGradient(bx, by,
                 brightness * borderAlphaFactor
             );
-            mNoiseRenderer.render(bx, by,
+            noiseRenderer.render(bx, by,
                 brightness * noiseAlpha
             );
         }
@@ -255,6 +260,6 @@ public class FoldingPanel extends UIContainer {
         }
     }
 
-    public UIComponentAPI getCurr() { return mCurrentPanel; }
-    public UIComponentAPI getNext() { return mNextPanel; }
+    public UIComponentAPI getCurr() { return currentPanel; }
+    public UIComponentAPI getNext() { return nextPanel; }
 }
