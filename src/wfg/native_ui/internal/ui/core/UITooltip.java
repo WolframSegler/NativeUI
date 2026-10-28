@@ -9,16 +9,27 @@ import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.ComponentFactory;
+import wfg.native_ui.ui.component.TooltipComp;
 
 public class UITooltip extends StandardTooltipV2Expandable implements OutsideEventListener {
+    private enum TooltipState { SHOWING, DISMISSING, FINISHED }
+
+    private final TooltipComp spec;
     private final OutsideEventDetector detector = new OutsideEventDetector(this);
     private final UIPanelAPI parent = Attachments.getScreenPanel();
+    private TooltipState state = TooltipState.SHOWING;
 
-    private boolean pendingDetach = false;
-    private boolean detached = false;
+    public static UITooltip create(TooltipComp spec) { return new UITooltip(spec); }
 
-    public UITooltip(float width, boolean expandable) {
-        super(width, expandable);
+    private UITooltip(TooltipComp spec) {
+        super(spec.width - 10f, spec.expandable);
+        this.spec = spec;
+
+        setShowBorder(true);
+        setShowBackground(true);
+        setSelfRemove(false);
+        setBgAlpha(spec.bgAlpha);
+        setCodexEntryId(spec.codexID);
 
         detector.consumeMouseMove = false;
         detector.consumeMouseScroll = false;
@@ -26,48 +37,57 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
         detector.triggerOnKeyUp = true;
         detector.isRemoveOnAction = false;
 
-        setShowBorder(true);
-        setShowBackground(true);
-        setSelfRemove(true);
+        createImpl(false);
     }
 
-    public void attachAndFadeIn() {
-        attach();
+    @Override
+    public void createImpl(boolean expanded) {
+        if (expanded) {
+            expandString = spec.expandTxt == null ? "%s more info" : spec.expandTxt;
+        } else {
+            unexpandString = spec.unexpandTxt == null ? "%s hide" : spec.unexpandTxt;
+        }
+        spec.builder.buildTp(this, expanded);
+    }
+    
+    public final void attach() {
+        beforeShown();
+
+        detector.attach();
+        ComponentFactory.addTooltip(this, 0f, false, parent);
+        parent.bringComponentToTop(this);
         getFader().fadeIn();
-        pendingDetach = false;
-        detached = false;
+        spec.positioner.position(this, false);
+
+        notifyShown();
     }
 
-    public void fadeOutAndHide() {
+    public final void detach() {
+        if (state == TooltipState.FINISHED) return;
+        state = TooltipState.FINISHED;
+        detector.detach();
+        parent.removeComponent(this);
+
+        notiftyHidden();
+    }
+
+    public void dismiss() {
+        if (state != TooltipState.SHOWING) return;
+        state = TooltipState.DISMISSING;
         getFader().fadeOut();
-        pendingDetach = true;
     }
 
-    public void updateFader(float delta) {
-        if (pendingDetach && getFader().isFadedOut()) {
+    @Override
+    public void advanceImpl(float delta) {
+        super.advanceImpl(delta);
+        if (state == TooltipState.DISMISSING && getFader().isFadedOut()) {
             detach();
         }
     }
 
-    public final void detach() {
-        detector.detach();
-        parent.removeComponent(this);
-
-        pendingDetach = false;
-        detached = true;
-        notiftyHidden();
-    }
-
-    public final void attach() {
-        detector.attach();
-        ComponentFactory.addTooltip(this, 0f, false, parent);
-        parent.bringComponentToTop(this);
-    }
-
     public boolean isExpanded() { return expanded; }
-    public boolean isDetached() { return detached; }
+    public boolean isFinished() { return state == TooltipState.FINISHED; }
     public PositionAPI pos() { return ((UIComponentAPI)this).getPosition(); }
-    public void outsideClicked(boolean isLeft) { detach(); }
-    public void buttonPressed(int lwjgl_key) { detach(); }
-    public void createImpl(boolean expanded) {}
+    public void outsideClicked(boolean isLeft) { spec.internal_dismissedThisHover = true; dismiss(); }
+    public void buttonPressed(int lwjgl_key) { spec.internal_dismissedThisHover = true; dismiss(); }
 }

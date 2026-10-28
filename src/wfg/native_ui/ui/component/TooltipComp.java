@@ -31,6 +31,10 @@ public final class TooltipComp extends BaseComponent {
      * Internal - only used by {@link TooltipSystem}.
      */
     public int internal_lastVisibleFrameCounter;
+    /**
+     * Tracks the dismissal state of the tooltip for current hover.
+     */
+    public boolean internal_dismissedThisHover;
 
     @FunctionalInterface
     public static interface TooltipBuilder {

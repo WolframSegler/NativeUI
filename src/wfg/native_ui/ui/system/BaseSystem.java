@@ -27,6 +27,7 @@ public abstract class BaseSystem {
 
     /**Adds components or systems to the element that will be needed */
     public abstract void init(final UIEntityAPI element);
+    /** When this {@link UIEntityAPI} is removed from the UI tree. Not reliable. */
     public void onRemove(final UIEntityAPI element) {}
 
     public void processInput(final UIEntityAPI element, final List<InputEventAPI> events) {}
