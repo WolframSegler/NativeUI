@@ -26,6 +26,11 @@ public final class TooltipComp extends BaseComponent {
     public UITooltip internal_tp;
     /** Internal - only used by {@link TooltipSystem}. */
     public float internal_hoverTime = 0f;
+    /**
+     * Frames since this element last rendered with positive alpha.
+     * Internal - only used by {@link TooltipSystem}.
+     */
+    public int internal_lastVisibleFrameCounter;
 
     @FunctionalInterface
     public static interface TooltipBuilder {

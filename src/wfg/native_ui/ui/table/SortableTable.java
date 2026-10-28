@@ -156,7 +156,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
                 cumulativeYOffset += ROW_HEIGHT;
             }
     
-            content.setHeight(cumulativeXOffset);
+            content.setHeight(cumulativeYOffset);
             add(ComponentFactory.wrapWithScrollPanel(content, getWidth(), getHeight() - (HEADER_HEIGHT + pad)))
                 .inTL(0f, HEADER_HEIGHT + pad);
         }

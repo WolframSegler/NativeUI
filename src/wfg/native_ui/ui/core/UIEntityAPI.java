@@ -42,4 +42,7 @@ public interface UIEntityAPI extends UIElementAPI {
 
     /** Uses {@link UIElementFlags} to attach native systems by doing instanceof checks. */
     void initSystems();
+
+    /** Notifies this entity that it has been removed from the UI tree. Not reliable. */
+    void notifyRemoved();
 }

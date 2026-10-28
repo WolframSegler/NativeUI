@@ -23,6 +23,12 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
         detector.consumeMouseMove = false;
         detector.consumeMouseScroll = false;
         detector.triggerByModKey = true;
+        detector.triggerOnKeyUp = true;
+        detector.isRemoveOnAction = false;
+
+        setShowBorder(true);
+        setShowBackground(true);
+        setSelfRemove(true);
     }
 
     public void attachAndFadeIn() {
@@ -38,7 +44,6 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
     }
 
     public void updateFader(float delta) {
-        advance(delta);
         if (pendingDetach && getFader().isFadedOut()) {
             detach();
         }
@@ -62,7 +67,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
     public boolean isExpanded() { return expanded; }
     public boolean isDetached() { return detached; }
     public PositionAPI pos() { return ((UIComponentAPI)this).getPosition(); }
-    public void outsideClicked(boolean isLeft) { fadeOutAndHide(); }
-    public void buttonPressed(int lwjgl_key) { fadeOutAndHide(); }
+    public void outsideClicked(boolean isLeft) { detach(); }
+    public void buttonPressed(int lwjgl_key) { detach(); }
     public void createImpl(boolean expanded) {}
 }

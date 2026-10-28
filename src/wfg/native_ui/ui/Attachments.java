@@ -90,7 +90,7 @@ public final class Attachments {
      */
     public static final UIPanelAPI getScreenPanel() {
         switch (settings.getCurrentState()) {
-            case CAMPAIGN: return getCoreUI();
+            case CAMPAIGN: return getCampaignScreenPanel();
             case COMBAT: getCombatScreenPanel();
             case TITLE: default: return getTitleScreenPanel();
         }

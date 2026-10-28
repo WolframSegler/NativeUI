@@ -59,19 +59,28 @@ public final class TooltipSystem extends BaseSystem {
     private static final float SCROLL_COOLDOWN = 0.15f;
 
     @Override
+    public void renderBelow(UIEntityAPI element, float alpha) {
+        final TooltipComp spec = element.comp().get(NativeComponents.TOOLTIP);
+
+        if (alpha > 0f) spec.internal_lastVisibleFrameCounter = 0;
+    }
+
+    @Override
     public void advance(UIEntityAPI element, float delta) {
         final TooltipComp spec = element.comp().get(NativeComponents.TOOLTIP);
 
-        if (element.getOpacity() <= 0f || element.getFader().isFadedOut() || !spec.enabled) {
+        spec.internal_lastVisibleFrameCounter++;
+        if (element.getOpacity() <= 0f || element.getFader().isFadedOut() || !spec.enabled ||
+            spec.internal_lastVisibleFrameCounter > 3
+        ) {
             forceHideTooltip(spec);
-            spec.internal_hoverTime = 0f;
             return;
         }
 
         if (spec.internal_tp != null) {
             spec.internal_tp.updateFader(delta);
             if (spec.internal_tp.isDetached()) {
-                spec.internal_tp = null;
+                forceHideTooltip(spec);
             }
         }
 
@@ -149,11 +158,8 @@ public final class TooltipSystem extends BaseSystem {
                 spec.builder.buildTp(this, expanded);
             }
         };
-        tp.setShowBorder(true);
-        tp.setShowBackground(true);
-        tp.setSelfRemove(true);
-        tp.setBgAlpha(spec.bgAlpha);
 
+        tp.setBgAlpha(spec.bgAlpha);
         if (spec.codexID != null) tp.setCodexEntryId(spec.codexID);
 
         return tp;

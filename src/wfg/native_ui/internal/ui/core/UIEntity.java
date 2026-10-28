@@ -102,4 +102,11 @@ public class UIEntity extends UIElement implements UIEntityAPI {
             system.advance(this, delta);
         }
     }
+
+    @Override
+    public void notifyRemoved() {
+        for (BaseSystem system : system().getAll()) {
+            system.onRemove(this);
+        }    
+    }
 }

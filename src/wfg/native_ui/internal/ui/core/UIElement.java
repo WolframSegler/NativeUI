@@ -156,4 +156,15 @@ public class UIElement implements UIElementAPI {
 
     public void reportAttached() { UIEventBus.fireAttached(this); }
     public void reportDetached() { UIEventBus.fireDetached(this); }
+
+    /**
+     * Creates and returns a wrapper around this element, <em>without</em> attaching it to any
+     * parent. Use when a vanilla API performs its own attachment.
+     */
+    public final UIComponentAPI wrapDetached() {
+        if (mSelfInParent != this) throw new IllegalStateException("UIElement already wrapped; detach first");
+        final UIComponentAPI wrapper = new UICustomWrapper(this).panel();
+        mSelfInParent = wrapper;
+        return wrapper;
+    }
 }

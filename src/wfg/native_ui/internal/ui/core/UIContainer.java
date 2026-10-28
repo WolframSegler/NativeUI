@@ -13,6 +13,7 @@ import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementAPI;
+import wfg.native_ui.ui.core.UIEntityAPI;
 import wfg.native_ui.ui.event.IdentifiedPanel;
 import wfg.native_ui.ui.system.BaseSystem;
 
@@ -57,8 +58,8 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         return ComponentFactory.addTooltip(tooltip, 0f, false, this);
     }
 
-    public void remove(UIComponentAPI comp) {
-        comp = resolveComp(comp);
+    public void remove(UIComponentAPI toRemove) {
+        final UIComponentAPI comp = resolveComp(toRemove);
 
         if (mChildren.remove(comp)) {
             removePos(comp);
@@ -69,6 +70,10 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
             } else {
                 MethodFields.setParentOnly(comp, null);
             }
+        }
+
+        if (toRemove instanceof UIEntityAPI entity) {
+            entity.notifyRemoved();
         }
     }
 
