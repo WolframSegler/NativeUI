@@ -9,13 +9,14 @@ import org.lwjgl.input.Keyboard;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import wfg.native_ui.internal.ui.core.UIEntity;
+import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.ui.Attachments;
-import wfg.native_ui.ui.core.UIElementFlags.HasDebugBg;
 
-public class OutsideEventDetector extends UIEntity implements HasDebugBg {
-    private final OutsideEventListener listener;
+public class OutsideEventDetector extends UIElement {
+    private final OutsideEventListener mListener;
+    private final UIPanelAPI mTargetParent;
 
     public boolean consumeMouseMove = true;
     public boolean consumeMouseScroll = true;
@@ -24,12 +25,17 @@ public class OutsideEventDetector extends UIEntity implements HasDebugBg {
     public boolean triggerOnKeyUp = false;
     
     public OutsideEventDetector(OutsideEventListener owner) {
+        this(owner, Attachments.getScreenPanel());
+    }
+
+    public OutsideEventDetector(OutsideEventListener owner, UIPanelAPI targetParent) {
         super(screenW, screenH);
-        listener = owner;
+        mListener = owner;
+        mTargetParent = targetParent;
     }
 
     public final void attach() {
-        attachTo(Attachments.getScreenPanel());
+        attachTo(mTargetParent);
         bringToFront();
     }
 
@@ -42,9 +48,9 @@ public class OutsideEventDetector extends UIEntity implements HasDebugBg {
                 ) { event.consume(); continue; }
 
                 if ((event.isMouseDownEvent() || event.isMouseUpEvent()) &&
-                    !event.isConsumed() && !listener.pos().containsEvent(event)
+                    !event.isConsumed() && !mListener.pos().containsEvent(event)
                 ) {
-                    listener.outsideClicked(event.isLMBEvent());
+                    mListener.outsideClicked(event.isLMBEvent());
                     if (isRemoveOnAction) {
                         detach(); return;
                     }
@@ -52,7 +58,7 @@ public class OutsideEventDetector extends UIEntity implements HasDebugBg {
 
             } else if (event.isKeyboardEvent()) {
                 if (event.isModifierKey()) {
-                    if (triggerByModKey) listener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
+                    if (triggerByModKey) mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
                     if (isRemoveOnAction) {
                         detach(); return;
                     }
@@ -63,7 +69,7 @@ public class OutsideEventDetector extends UIEntity implements HasDebugBg {
                     event.consume(); continue;
                 }
 
-                listener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
+                mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
                 if (isRemoveOnAction) {
                     detach(); return;
                 }

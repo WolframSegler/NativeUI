@@ -90,7 +90,7 @@ public abstract class DockPanel extends UIElement implements
 
         attachTo(parent);
 
-        mDetector = new OutsideEventDetector(this);
+        mDetector = new OutsideEventDetector(this, parent);
 
         mContentContainer = new UIContainer(width, height);
         super.addPos(mContentContainer);
