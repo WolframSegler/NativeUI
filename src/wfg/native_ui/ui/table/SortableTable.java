@@ -88,10 +88,10 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     private TableRow pendingRow = null;
     private TableRow mSelectedRow;
 
-    public TableRow getPendingRow() { return pendingRow;}
-    public TableRow getSelectedRow() { return mSelectedRow;}
-    public List<ColumnManager> getColumns() { return mColumns;}
-    public List<TableRow> getRows() { return mRows;}
+    public TableRow getPendingRow() { return pendingRow; }
+    public TableRow getSelectedRow() { return mSelectedRow; }
+    public List<ColumnManager> getColumns() { return mColumns; }
+    public List<TableRow> getRows() { return mRows; }
 
     public SortableTable(float width, float height) {
         this(width, height, 20, 28);
@@ -270,7 +270,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
         public Object customData = null;
         
         protected final List<Object> mCellData = new ArrayList<>();
-        protected final List<cellAlg> mCellAlignment = new ArrayList<>();
+        protected final List<CellAlg> mCellAlignment = new ArrayList<>();
         protected final List<Object> mSortValues = new ArrayList<>();
         protected final List<Color> mUseColor = new ArrayList<>();
 
@@ -292,7 +292,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             int cumulativeXOffset = 0;
             for (int i = 0; i < mCellData.size(); i++) {
                 final Object cell = mCellData.get(i);
-                final cellAlg alignment = mCellAlignment.get(i);
+                final CellAlg alignment = mCellAlignment.get(i);
                 final Color useColor = mUseColor.get(i);
                 final float logicalW = getColumns().get(i).width;
                 final float visualW = logicalW - (i == mCellData.size() - 1 ? 0 : columnGap);
@@ -317,10 +317,10 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
 
                     label.setColor(useColor != null ? useColor : textColor);
 
-                } else if (cell instanceof AbstractSpriteElement sprite) {
-                    comp = sprite;
-                    compWidth = sprite.pos().getWidth();
-                    compHeight = sprite.pos().getHeight();
+                } else if (cell instanceof SpriteAPI sprite) {
+                    comp = new SpriteElement(sprite.getWidth(), sprite.getHeight(), sprite, null, null);
+                    compWidth = comp.getPosition().getWidth();
+                    compHeight = comp.getPosition().getHeight();
 
                 } else if (cell instanceof LabelAPI label) {
                     comp = (UIComponentAPI) label;
@@ -346,7 +346,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             }
         }
 
-        private float calcXOffset(float baseX, float colWidth, float compWidth, cellAlg alignment) {
+        private float calcXOffset(float baseX, float colWidth, float compWidth, CellAlg alignment) {
             switch (alignment) {
                 case LEFT:
                     return baseX;
@@ -378,7 +378,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             if (color != null) textColor = color;
         }
         
-        public void addCell(Object cell, cellAlg alg, Object sort, Color textColor) {
+        public void addCell(Object cell, CellAlg alg, Object sort, Color textColor) {
             mCellData.add(cell);
             mCellAlignment.add(alg);
             mSortValues.add(sort);
@@ -447,7 +447,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
      * Supports the following types:
      * String, LabelAPI, {@link AbstractSpriteElement}, {@link UIComponentAPI}
      */
-    public void addCell(Object cell, cellAlg alg, Object sortValue, Color textColor) {
+    public void addCell(Object cell, CellAlg alg, Object sortValue, Color textColor) {
         if (pendingRow == null) {
             pendingRow = new TableRow(getWidth() - pad*2, ROW_HEIGHT);
         }
@@ -565,7 +565,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     /**
      * Determines how the panels inside a cell are positioned
      */
-    public enum cellAlg {
+    public enum CellAlg {
         LEFT,
         MID,
         RIGHT,
