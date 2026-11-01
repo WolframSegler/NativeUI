@@ -144,7 +144,7 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
     }
 
     @Override
-    public void outsideClickAbsorbed(InputEventAPI event) {
+    public void absorbed(InputEventAPI event) {
         holo.flickerNoise(0f, 0.5f);
     }
 

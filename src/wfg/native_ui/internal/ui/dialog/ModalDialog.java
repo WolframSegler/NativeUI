@@ -17,12 +17,14 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.codex2.CodexDialog;
 
 import wfg.native_ui.internal.ui.core.UIContainer;
+import wfg.native_ui.internal.ui.interaction.EventInterceptor;
+import wfg.native_ui.internal.ui.interaction.EventInterceptor.EventInterceptorListener;
 import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.functional.RunnableWithCode;
 import wfg.native_ui.util.RenderUtils;
 
-public class ModalDialog extends UIContainer {
+public class ModalDialog extends UIContainer implements EventInterceptorListener {
     public RunnableWithCode delegate;
     public int optionOnKeyboardCancel = 1;
     public int optionOnKeyboardConfirm = 0;
@@ -39,7 +41,7 @@ public class ModalDialog extends UIContainer {
     protected boolean suspendEventInterception = false;
     protected float centerX, centerY;
 
-    protected final ModalInterceptor mInputInterceptor;
+    protected final EventInterceptor mInputInterceptor;
     protected final Set<Integer> mOptionSet = new HashSet<>();
     protected final UIPanelAPI mInterceptorParent;
 
@@ -63,7 +65,7 @@ public class ModalDialog extends UIContainer {
         mInterceptorParent = interceptorParent;
 
         delegate = dialogDismissed;
-        mInputInterceptor = new ModalInterceptor(this);
+        mInputInterceptor = new EventInterceptor(this);
     }
 
     public UIElementAPI getInterceptor() { return mInputInterceptor; }
@@ -111,8 +113,12 @@ public class ModalDialog extends UIContainer {
         return mFader.getBrightness() == 1f;
     }
 
-    protected boolean isBeingDismissed() {
+    public boolean dismissInterceptor() {
         return dismissOption >= 0;
+    }
+
+    public boolean suspendInterceptor() {
+        return suspendEventInterception;
     }
 
     public void setSuspendEventInterception(boolean bool) {
@@ -135,7 +141,7 @@ public class ModalDialog extends UIContainer {
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
-        if (suspendEventInterception || isBeingDismissed()) return;
+        if (suspendEventInterception || dismissInterceptor()) return;
 
         super.processInputImpl(events);
 
@@ -193,6 +199,4 @@ public class ModalDialog extends UIContainer {
 
         super.renderImpl(alpha);
     }
-
-    public void outsideClickAbsorbed(InputEventAPI event) {};
 }
