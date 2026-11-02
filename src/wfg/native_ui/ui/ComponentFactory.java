@@ -23,7 +23,9 @@ import wfg.native_ui.ui.widget.Button;
 import wfg.native_ui.ui.widget.CheckboxButton;
 
 public final class ComponentFactory {
-    private ComponentFactory() {}
+    private ComponentFactory() {};
+
+    public static final int SCROLL_PANEL_WIDTH_PAD = 5;
 
     /**
      * Use {@link CheckboxButton} if you want the checkbox sprite.
@@ -180,7 +182,7 @@ public final class ComponentFactory {
             content.getPosition().getWidth(), content.getPosition().getHeight()
         );
         RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setSizeMethod, scrollPanel,
-            viewWidth + 5f, viewHeight
+            viewWidth + SCROLL_PANEL_WIDTH_PAD, viewHeight
         );
         RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setMaxShadowHeightMethod, scrollPanel,
             15f

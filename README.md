@@ -18,6 +18,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 - Carbon copy of the vanilla [`Slider`](src/wfg/native_ui/ui/widget/Slider.java) used in settings (the blue one).
 - [`SortableTable`](src/wfg/native_ui/ui/table/SortableTable.java) similar to `UITable` in functionality, avoiding the obfuscated vanilla table.
 - [`GridTable`](src/wfg/native_ui/ui/table/GridTable.java) stacks widgets in a grid with uniform gaps in-between.
+- [`ListTable`](src/wfg/native_ui/ui/table/ListTable.java) stacks uniform-height widgets vertically in a single scrolling column. Prefer this over a `ScrollPanelAPI` or `TooltipMakerAPI`.
 - [`SpriteElement`](src/wfg/native_ui/ui/visual/AbstractSpriteElement.java) with optional tooltip; essentially a `SpriteAPI` wrapper.
 - [`ScrollPanel`](src/wfg/native_ui/ui/container/ScrollPanel.java) for vertical and horizontal scroll.
 - [`DialogPanel`](src/wfg/native_ui/ui/dialog/DialogPanel.java) is the vanilla Folding Dialog Panel but without the annoying vanilla API.

@@ -114,7 +114,7 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
     }
 
     public boolean dismissInterceptor() {
-        return dismissOption >= 0;
+        return dismissOption >= 0 && mFader.getBrightness() < 0.5f;
     }
 
     public boolean suspendInterceptor() {
@@ -136,7 +136,7 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
         mInputInterceptor.attachTo(mInterceptorParent);
 
         final PositionAPI pos = mInterceptorParent.getPosition();
-        mInputInterceptor.getPosition().setSize(pos.getWidth(), pos.getHeight()).inBL(0f, 0f);
+        mInputInterceptor.setSize(pos.getWidth(), pos.getHeight()).inBL(0f, 0f);
     }
 
     @Override

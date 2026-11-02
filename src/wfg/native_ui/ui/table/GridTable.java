@@ -30,31 +30,31 @@ import wfg.native_ui.util.Arithmetic;
 public abstract class GridTable<T, W extends WidgetAPI<W>> extends UIContainer implements UIBuildableAPI {
     
     /** Gap between widgets, both horizontally and vertically. */
-    protected final int gap;
-    protected final int widgetW;
-    protected final int widgetH;
+    protected final int mGap;
+    protected final int mWidgetW;
+    protected final int mWidgetH;
 
     /** List of currently displayed widgets. */
-    protected final List<W> widgets = new ArrayList<>();
+    protected final ArrayList<W> mWidgets = new ArrayList<>();
     /** Currently selected widget, if selection is enabled. */
-    protected W selectedWidget = null;
+    protected W mSelectedWidget = null;
 
     /** Scrollable container built via {@link ComponentFactory}. */
-    protected ScrollPanelAPI scrollContainer;
+    protected ScrollPanelAPI mScrollContainer;
     /** The content container that holds the {@link WidgetAPI}'s. */
-    protected UIContainerAPI content;
+    protected UIContainerAPI mContent;
     /** Last known scroll offset, restored on rebuild. */
-    protected float scrollOffset = 0f;
+    protected float mScrollOffset = 0f;
     /** Determines whether widget selection is enabled. */
-    protected boolean isSelectionEnabled = false;
+    protected boolean mIsSelectionEnabled = false;
     /** The gap value is used for outer margins (between widgets and panel edges). */
-    protected boolean uniformOuterGap = true;
+    protected boolean mUniformOuterGap = true;
     /**
      * Leftover horizontal space is distributed evenly as additional gap
      * between widgets, making the grid to span the full width while keeping
      * the outer margin equal to the base gap. If false, widgets are left‑aligned.
      */
-    protected boolean justifyGrid = false;
+    protected boolean mJustifyGrid = false;
 
     public GridTable(float width, float height, int widgetW, int widgetH) {
         this(width, height, widgetW, widgetH, hpad);
@@ -62,9 +62,9 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends UIContainer i
 
     public GridTable(float width, float height, int widgetW, int widgetH, int gap) {
         super(width, height);
-        this.widgetW = widgetW;
-        this.widgetH = widgetH;
-        this.gap = gap;
+        mWidgetW = widgetW;
+        mWidgetH = widgetH;
+        mGap = gap;
     }
 
     /** @return the list of data items to display. */
@@ -88,8 +88,8 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends UIContainer i
     @Override
     public void buildUI() {
         clearChildren();
-        widgets.clear();
-        selectedWidget = null;
+        mWidgets.clear();
+        mSelectedWidget = null;
 
         final List<T> items = getDataList();
         if (items.isEmpty()) {
@@ -99,63 +99,75 @@ public abstract class GridTable<T, W extends WidgetAPI<W>> extends UIContainer i
             return;
         }
 
-        if (scrollContainer != null) scrollOffset = scrollContainer.getYOffset();
-        content = new UIContainer(getWidth(), 0f);
+        if (mScrollContainer != null) mScrollOffset = mScrollContainer.getYOffset();
+        mContent = new UIContainer(computeContentContainerWidth(), 0f);
 
-        final float margin = uniformOuterGap ? gap : 0f;
-        final float availableW = getWidth() - 2 * margin;
-        final int cols = calculateColumns();
-
-        final float effGap;
-        if (justifyGrid && cols > 1) {
-            final float baseTotalW = cols * widgetW + (cols - 1) * gap;
-            final float extraSpace = availableW - baseTotalW;
-
-            effGap = gap + extraSpace / (cols - 1);
-        } else {
-            effGap = gap;
-        }
+        final float margin = computeMargin();
+        final int cols = computeColCount();
+        final float verGap = computeVerticalGap();
 
         for (int i = 0; i < items.size(); i++) {
             final T item = items.get(i);
             final W widget = createWidget(item, i);
-            widgets.add(widget);
+            mWidgets.add(widget);
 
-            if (isSelectionEnabled) {
+            if (mIsSelectionEnabled) {
                 widget.getInteraction().onClicked = (w, isLeft) -> onWidgetClicked(w);
             }
 
             final int row = i / cols;
             final int col = i % cols;
 
-            final float x = margin + col * (widgetW + effGap);
-            final float y = margin + row * (widgetH + gap);
+            final float x = margin + col * (mWidgetW + verGap);
+            final float y = margin + row * (mWidgetH + mGap);
 
-            content.add(widget).inTL(x, y);
+            mContent.add(widget).inTL(x, y);
         }
 
         final int rows = (items.size() + cols - 1) / cols;
-        final float contentHeight = margin + rows * (widgetH + gap);
-        content.setHeight(contentHeight);
+        final float contentHeight = margin + rows * (mWidgetH + mGap);
+        mContent.setHeight(contentHeight);
 
-        final float visibleHeight = getHeight() - margin;
-        scrollContainer = ComponentFactory.wrapWithScrollPanel(content, getWidth(), visibleHeight);
-        add(scrollContainer).inTL(0f, margin);
+        final float visibleHeight = getHeight();
+        mScrollContainer = ComponentFactory.wrapWithScrollPanel(mContent, computeContentContainerWidth(), visibleHeight);
+        add(mScrollContainer).inTL(0f, 0f);
 
         final float maxScroll = Math.max(0f, contentHeight - visibleHeight);
-        scrollContainer.setYOffset(Arithmetic.clamp(scrollOffset, 0f, maxScroll));
+        mScrollContainer.setYOffset(Arithmetic.clamp(mScrollOffset, 0f, maxScroll));
     }
 
     public final void scrollToBottom() {
-        if (content == null) return;
-        final float visibleHeight = getHeight() - gap;
-        final float maxScroll = Math.max(0f, content.getHeight() - visibleHeight);
-        scrollContainer.setYOffset(maxScroll);
+        if (mScrollContainer == null) return;
+        final float maxScroll = Math.max(0f, mContent.getHeight() - getHeight());
+        mScrollContainer.setYOffset(maxScroll);
     }
 
-    protected final int calculateColumns() {
-        final float margin = uniformOuterGap ? gap : 0f;
-        final float availableW = getWidth() - 2 * margin;
-        return Math.max(1, (int) ((availableW + gap) / (widgetW + gap)));
+    protected  final int computeMargin() {
+        return mUniformOuterGap ? mGap : 0;
+    }
+
+    protected  final float computeContentContainerWidth() {
+        return getWidth() - ComponentFactory.SCROLL_PANEL_WIDTH_PAD;
+    }
+
+    protected  final float computeContentWidth() {
+        return computeContentContainerWidth() - (2 * computeMargin());
+    }
+
+    protected  final int computeColCount() {
+        final float contentW = computeContentWidth();
+        return Math.max(1, (int) ((contentW + mGap) / (mWidgetW + mGap)));
+    }
+
+    protected  final float computeVerticalGap() {
+        final int cols = computeColCount();
+        if (!mJustifyGrid || cols <= 1) return mGap;
+
+
+        final float contentW = computeContentWidth();
+        final float baseTotalW = cols * mWidgetW + (cols - 1) * mGap;
+        final float extraSpace = contentW - baseTotalW;
+
+        return mGap + extraSpace / (cols - 1);
     }
 }

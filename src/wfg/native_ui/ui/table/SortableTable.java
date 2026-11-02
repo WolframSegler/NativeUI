@@ -147,7 +147,8 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
 
 
         if (!mRows.isEmpty()) {
-            final UIContainerAPI content = new UIContainer(getWidth(), 0f);
+            final float contentW = getWidth() - ComponentFactory.SCROLL_PANEL_WIDTH_PAD;
+            final UIContainerAPI content = new UIContainer(contentW, 0f);
     
             int cumulativeYOffset = 0;
             for (TableRow row : mRows) {
@@ -157,7 +158,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             }
     
             content.setHeight(cumulativeYOffset);
-            add(ComponentFactory.wrapWithScrollPanel(content, getWidth(), getHeight() - (HEADER_HEIGHT + pad)))
+            add(ComponentFactory.wrapWithScrollPanel(content, contentW, getHeight() - (HEADER_HEIGHT + pad)))
                 .inTL(0f, HEADER_HEIGHT + pad);
         }
     }

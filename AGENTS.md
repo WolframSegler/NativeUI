@@ -510,6 +510,7 @@ All methods are `static`. Import via `import wfg.native_ui.util.NativeUiUtils;`.
 - **DialogPanel** -> `wfg.native_ui.example.dialog.DialogPanelExample`
 - **UIClickable** -> `wfg.native_ui.example.interaction.UIClickableExample`
 - **GridTable** -> `wfg.native_ui.example.table.GridTableExample`
+- **ListTable** -> `wfg.native_ui.example.table.ListTableExample`
 - **SortableTable** -> `wfg.native_ui.example.table.SortableTableExample`
 - **IdentityMarker** -> no example (trivial identifier wrapper)
 - **AbstractSpriteElement** -> no example (abstract base class; use `SpriteElement`)

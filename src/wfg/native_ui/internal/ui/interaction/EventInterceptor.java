@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.util.FaderUtil;
 
 import wfg.native_ui.internal.ui.core.UIElement;
 
@@ -34,9 +33,7 @@ public class EventInterceptor extends UIElement {
 
     @Override
     public void advanceImpl(float delta) {
-        if (mOwner.dismissInterceptor() && !mOwner.suspendInterceptor() &&
-            mOwner.getFader().getBrightness() < 0.5f
-        ) { detach(); }
+        if (mOwner.dismissInterceptor() && !mOwner.suspendInterceptor()) { detach(); }
     }
 
     public static interface EventInterceptorListener {
@@ -44,6 +41,5 @@ public class EventInterceptor extends UIElement {
         PositionAPI pos();
         boolean dismissInterceptor();
         boolean suspendInterceptor();
-        FaderUtil getFader();
     }
 }
