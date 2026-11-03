@@ -161,6 +161,10 @@ public abstract class DockPanel extends UIElement implements
     public void advanceImpl(final float delta) {
         mContentContainer.advance(delta);
 
+        if (mIsOpen && mDetector.getParent() == null) {
+            close();
+        }
+
         final float target = mIsOpen ? 1f : 0f;
         final float speed = mIsOpen ?
             (mDurIn > 0f ? 1f / mDurIn : Float.POSITIVE_INFINITY) :
