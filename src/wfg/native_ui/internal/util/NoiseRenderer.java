@@ -20,8 +20,8 @@ public final class NoiseRenderer {
     public float renderH;
 
     private final SpriteAPI mSprite;
-    private final NoiseGenerator noise = new NoiseGenerator();
-    private long randomNum = 0L;
+    private final NoiseGenerator mNoise = new NoiseGenerator();
+    private long mRandomNum = 0L;
 
     public NoiseRenderer(SpriteAPI sprite, float width, float height) {
         mSprite = sprite;
@@ -30,7 +30,7 @@ public final class NoiseRenderer {
     }
 
     public float getNoiseBrightness() {
-        return (0.5f + 0.5f * noise.getIntensity()) * fader.getBrightness();
+        return (0.5f + 0.5f * mNoise.getIntensity()) * fader.getBrightness();
     }
 
     public float getBrightness() {
@@ -60,15 +60,15 @@ public final class NoiseRenderer {
         fader.advance(delta);
 
         if (fader.getBrightness() > 0f) {
-            noise.advance(delta);
-            randomNum = Misc.random.nextLong();
+            mNoise.advance(delta);
+            mRandomNum = Misc.random.nextLong();
         }
     }
 
     public void render(float x, float y, float intensityMultiplier) {
         final float intensity = getNoiseBrightness() * intensityMultiplier;
         if (intensity > 0f) {
-            final Random rand = randomNum == 0L ? new Random() : new Random(randomNum);
+            final Random rand = mRandomNum == 0L ? new Random() : new Random(mRandomNum);
 
             render(mSprite, intensity, x, y, rand.nextFloat(), rand.nextFloat(), 1f * renderW / mSprite.getWidth(), 1f * renderH / mSprite.getHeight());
         }

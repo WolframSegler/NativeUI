@@ -17,7 +17,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 
 public final class NativeUiUtils {
-    private NativeUiUtils() {}
+    private NativeUiUtils() {};
     public static final int APICodexHeight = 28;
 
     public static final void resetFlowLeft(final TooltipMakerAPI tooltip, float gap) {

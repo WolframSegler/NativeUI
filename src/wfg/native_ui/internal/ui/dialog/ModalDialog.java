@@ -37,9 +37,9 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
     public boolean fadeInAndOut = true;
     public boolean keyboardShortcutsToAcceptEnabled = true;
 
-    protected boolean useCustomCenter = false;
-    protected boolean suspendEventInterception = false;
-    protected float centerX, centerY;
+    protected boolean mUseCustomCenter = false;
+    protected boolean mSuspendEventInterception = false;
+    protected float mCenterX, mCenterY;
 
     protected final EventInterceptor mInputInterceptor;
     protected final Set<Integer> mOptionSet = new HashSet<>();
@@ -71,9 +71,9 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
     public UIElementAPI getInterceptor() { return mInputInterceptor; }
 
     public void setCenter(float cx, float cy) {
-        centerX = cx;
-        centerY = cy;
-        useCustomCenter = true;
+        mCenterX = cx;
+        mCenterY = cy;
+        mUseCustomCenter = true;
     }
 
     public void show(float durIn, float durOut) {
@@ -81,10 +81,10 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
         reAttachInputInterceptor();
 
         final PositionAPI pos = mInterceptorParent.getPosition();
-        if (useCustomCenter) {
+        if (mUseCustomCenter) {
             mPos.inBL(
-                centerX - pos.getX() - pos.getWidth() / 2f,
-                centerY - pos.getY() - pos.getHeight() / 2f);
+                mCenterX - pos.getX() - pos.getWidth() / 2f,
+                mCenterY - pos.getY() - pos.getHeight() / 2f);
         } else mPos.inMid();
 
         if (fadeInAndOut) mFader.fadeIn();
@@ -118,17 +118,17 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
     }
 
     public boolean suspendInterceptor() {
-        return suspendEventInterception;
+        return mSuspendEventInterception;
     }
 
     public void setSuspendEventInterception(boolean bool) {
-        if (bool && !suspendEventInterception) {
+        if (bool && !mSuspendEventInterception) {
             mInputInterceptor.detach();
-        } else if (!bool && suspendEventInterception) {
+        } else if (!bool && mSuspendEventInterception) {
             reAttachInputInterceptor();
         }
 
-        suspendEventInterception = bool;
+        mSuspendEventInterception = bool;
     }
 
     private final void reAttachInputInterceptor() {
@@ -141,7 +141,7 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
-        if (suspendEventInterception || dismissInterceptor()) return;
+        if (mSuspendEventInterception || dismissInterceptor()) return;
 
         super.processInputImpl(events);
 

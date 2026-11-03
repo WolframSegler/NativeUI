@@ -10,7 +10,7 @@ import static wfg.native_ui.util.Globals.settings;
 import java.awt.Color;
 
 public final class RenderUtils {
-    private RenderUtils() {}
+    private RenderUtils() {};
     private static final SpriteAPI LINE_TEX = settings.getSprite("graphics/hud/line4x4.png");
     private static final Color BLACK_HIGHLIGHT = new Color(0, 0, 0, 127);
 

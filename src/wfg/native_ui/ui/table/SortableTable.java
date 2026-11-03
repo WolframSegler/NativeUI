@@ -83,12 +83,12 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     public int columnGap = 5;
     public int tooltipWidth = 400;
 
-    private int selectedSortColumnIndex = -1;
-    private boolean ascending = true;
-    private TableRow pendingRow = null;
+    private int mSelectedSortColumnIndex = -1;
+    private boolean mAscending = true;
+    private TableRow mPendingRow = null;
     private TableRow mSelectedRow;
 
-    public TableRow getPendingRow() { return pendingRow; }
+    public TableRow getPendingRow() { return mPendingRow; }
     public TableRow getSelectedRow() { return mSelectedRow; }
     public List<ColumnManager> getColumns() { return mColumns; }
     public List<TableRow> getRows() { return mRows; }
@@ -449,15 +449,15 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
      * String, LabelAPI, {@link AbstractSpriteElement}, {@link UIComponentAPI}
      */
     public void addCell(Object cell, CellAlg alg, Object sortValue, Color textColor) {
-        if (pendingRow == null) {
-            pendingRow = new TableRow(getWidth() - pad*2, ROW_HEIGHT);
+        if (mPendingRow == null) {
+            mPendingRow = new TableRow(getWidth() - pad*2, ROW_HEIGHT);
         }
 
-        pendingRow.addCell(cell, alg, sortValue, textColor);
+        mPendingRow.addCell(cell, alg, sortValue, textColor);
     }
 
     /**
-     * Uses the added cells to create a row and clears the {@link SortableTable#pendingRow}.
+     * Uses the added cells to create a row and clears the {@link SortableTable#mPendingRow}.
      * The amount of cells must match the column amount.
      * @param customData stored by RowManager instance.
      * @param tp optional TooltipBuilder.
@@ -469,41 +469,41 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     public void pushRow(Object customData, TooltipBuilder tp, ClickHandler<TableRow> onRowClicked,
         String codexID, Color textColor, Color highlight
     ) {
-        if (pendingRow == null || pendingRow.mCellData.isEmpty()) {
+        if (mPendingRow == null || mPendingRow.mCellData.isEmpty()) {
             throw new IllegalStateException("Cannot push row: no cells have been added yet. "
                 + "Call addCell() before pushRow().");
 
-        } else if (pendingRow.mCellData.size() != mColumns.size()) {
+        } else if (mPendingRow.mCellData.size() != mColumns.size()) {
             throw new IllegalStateException("Cannot push row: cell count mismatch. "
                 + "The number of cells must match the number of columns.");
 
         }
-        pendingRow.setTextColor(textColor);
-        pendingRow.customData = customData;
-        if (codexID != null) pendingRow.tooltip.codexID = codexID;
-        if (highlight != null) pendingRow.glow.color = highlight;
-        if (onRowClicked != null) pendingRow.interaction.onClicked = onRowClicked;
-        if (tp != null) pendingRow.tooltip.builder = tp;
+        mPendingRow.setTextColor(textColor);
+        mPendingRow.customData = customData;
+        if (codexID != null) mPendingRow.tooltip.codexID = codexID;
+        if (highlight != null) mPendingRow.glow.color = highlight;
+        if (onRowClicked != null) mPendingRow.interaction.onClicked = onRowClicked;
+        if (tp != null) mPendingRow.tooltip.builder = tp;
         
-        pendingRow.buildUI();
-        mRows.add(pendingRow);
+        mPendingRow.buildUI();
+        mRows.add(mPendingRow);
 
-        pendingRow = null;
+        mPendingRow = null;
     }
 
     public void sortRows(int index) {
-        if (index == selectedSortColumnIndex) {
-            ascending = !ascending;
+        if (index == mSelectedSortColumnIndex) {
+            mAscending = !mAscending;
         }
 
-        sortRows(index, ascending);
+        sortRows(index, mAscending);
     }
 
     public void sortRows(int index, boolean ascending) {
         if (mRows.isEmpty()) return;
 
-        this.ascending = ascending;
-        selectedSortColumnIndex = index;
+        this.mAscending = ascending;
+        mSelectedSortColumnIndex = index;
 
         final Object value = mRows.get(0).getSortValue(index);
 
@@ -528,19 +528,19 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     }
 
     private final Comparator<TableRow> stringComparator = (a, b) -> {
-        String valA = (String) a.getSortValue(selectedSortColumnIndex);
-        String valB = (String) b.getSortValue(selectedSortColumnIndex);
+        String valA = (String) a.getSortValue(mSelectedSortColumnIndex);
+        String valB = (String) b.getSortValue(mSelectedSortColumnIndex);
 
         int cmp = valA.compareTo(valB);
-        return ascending ? cmp : -cmp;
+        return mAscending ? cmp : -cmp;
     };
 
     private final Comparator<TableRow> numberComparator = (a, b) -> {
-        Number valA = (Number) a.getSortValue(selectedSortColumnIndex);
-        Number valB = (Number) b.getSortValue(selectedSortColumnIndex);
+        Number valA = (Number) a.getSortValue(mSelectedSortColumnIndex);
+        Number valB = (Number) b.getSortValue(mSelectedSortColumnIndex);
 
         int cmp = Double.compare(valA.doubleValue(), valB.doubleValue());
-        return ascending ? cmp : -cmp;
+        return mAscending ? cmp : -cmp;
     };
 
     public TableRow selectLastRow() {

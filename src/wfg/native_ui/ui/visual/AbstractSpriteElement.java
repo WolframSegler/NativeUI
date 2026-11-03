@@ -21,17 +21,9 @@ import wfg.native_ui.util.RenderUtils;
  * 
  * <p><b>Usage:</b>
  * <ul>
- *   <li>To subclass and customize, extend {@link AbstractSpriteElement} with your own {@code PanelType}.</li>
+ *   <li>To subclass and customize, extend {@link AbstractSpriteElement} with your own {@link PanelType}.</li>
  *   <li>To directly instantiate a generic panel without subclassing, use the inner {@link SpriteElement} class.</li>
  * </ul>
- * 
- * <p><b>Example:</b>
- * <pre>
- * SpriteElement sprite = new SpriteElement(64, 64, "ui/icons/sprite", Color.WHITE, null);
- * sprite.outline.color = Color.RED;
- * 
- * panel.addComponent(sprite.getPanel());
- * </pre>
  */
 public class AbstractSpriteElement<
     PanelType extends AbstractSpriteElement<PanelType>

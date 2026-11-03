@@ -10,26 +10,26 @@ import wfg.native_ui.ui.interaction.UIClickable;
  * <p><strong>Example: </strong> {@link DockButtonExample}</p>
  */
 public class DockClickable<T extends DockPanel> extends UIClickable<DockClickable<T>> {
-    private T dock;
-    private final Supplier<T> dockFactory;
+    private T mDock;
+    private final Supplier<T> mDockFactory;
 
     public DockClickable(int width, int height, Supplier<T> dockFactory) {
         super(width, height, null);
-        this.dockFactory = dockFactory;
+        this.mDockFactory = dockFactory;
         onClicked = btn -> {
-            if (dock == null) createDock();
-            if (dock == null) return;
+            if (mDock == null) createDock();
+            if (mDock == null) return;
 
-            if (dock.isOpen()) dock.close();
-            else dock.open(true);
+            if (mDock.isOpen()) mDock.close();
+            else mDock.open(true);
         };
         
         setQuickMode(true);
     }
 
     private void createDock() {
-        dock = dockFactory.get();
-        dock.mRemoveWhenClosed = true;
-        dock.mOnRemoved = d -> dock = null;
+        mDock = mDockFactory.get();
+        mDock.mRemoveWhenClosed = true;
+        mDock.mOnRemoved = d -> mDock = null;
     }
 }

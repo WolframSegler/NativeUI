@@ -13,7 +13,7 @@ import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 
 /**
- * A text wrapper with tooltip, audio feedback, and UI context support.
+ * A text wrapper with tooltip and audio feedback.
  *
  * <p><strong>Example: </strong> {@link TextWrapperExample}</p>
  */

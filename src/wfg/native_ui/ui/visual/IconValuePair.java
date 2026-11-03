@@ -20,8 +20,8 @@ import wfg.native_ui.util.NumFormat;
  * <p><strong>Example: </strong> {@link IconValuePairExample}</p>
  */
 public class IconValuePair extends UIContainer {
-    private final SpriteElement iconBase;
-    private final LabelAPI valueLbl;
+    private final SpriteElement mIconBase;
+    private final LabelAPI mValueLbl;
 
     public IconValuePair(float w, float h, String iconID, double value, boolean withX, Color color) {
         this(w, h, settings.getSprite(iconID), value, withX, color);
@@ -42,22 +42,22 @@ public class IconValuePair extends UIContainer {
     ) {
         super(w, h);
 
-        iconBase = new SpriteElement(h, h, icon, null, null);
+        mIconBase = new SpriteElement(h, h, icon, null, null);
         final String valueStr = (withX ? Strings.X : "") + NumFormat.engNotate(value);
-        valueLbl = settings.createLabel(valueStr, font == null ? Fonts.DEFAULT_SMALL : font);
-        valueLbl.setColor(color == null ? highlight : color);
-        valueLbl.getPosition().setSize(w - h - pad, h);
-        valueLbl.setAlignment(Alignment.LMID);
+        mValueLbl = settings.createLabel(valueStr, font == null ? Fonts.DEFAULT_SMALL : font);
+        mValueLbl.setColor(color == null ? highlight : color);
+        mValueLbl.getPosition().setSize(w - h - pad, h);
+        mValueLbl.setAlignment(Alignment.LMID);
 
-        add(iconBase).inBL(0f, 0f);
-        add(valueLbl).inBR(0f, 0f);
+        add(mIconBase).inBL(0f, 0f);
+        add(mValueLbl).inBR(0f, 0f);
     }
 
     public final SpriteElement icon() {
-        return iconBase;
+        return mIconBase;
     }
 
     public final LabelAPI label() {
-        return valueLbl;
+        return mValueLbl;
     }
 }

@@ -4,7 +4,8 @@ import org.lwjgl.opengl.GL11;
 
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
-public class NineSliceUtils {
+public final class NineSliceUtils {
+    private NineSliceUtils() {};
     private static final float EPSILON = 0.001f;
 
     /**

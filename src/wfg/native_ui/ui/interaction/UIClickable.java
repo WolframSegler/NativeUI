@@ -14,7 +14,7 @@ import wfg.native_ui.ui.functional.CallbackRunnable;
  *
  * <ul>
  *   <li>Plays mouseover/click sounds and fires an action callback when activated.</li>
- *   <li>If {@link #onClicked} is null the component will toggle its internal {@link #checked} state when activated;
+ *   <li>If {@link #onClicked} is null the component will toggle its internal {@link #mChecked} state when activated;
  *   if a callback is provided the callback is invoked instead and the component will NOT toggle automatically.</li>
  *   <li>Supports keyboard shortcut (via {@link #setShortcut}).</li>
  *   <li>Use {@link #setEnabled} to enable/disable the component.</li>
@@ -27,7 +27,7 @@ import wfg.native_ui.ui.functional.CallbackRunnable;
  *   <li>Click handling is routed through the internal {@link InteractionComp}. Calling {@link #click} with
  *   {@code ignoreState=true} invokes the activation handler regardless of {@code clickable/disabled} state.</li>
  *   <li>Right‑click behavior is opt‑in via {@link #rightClicksOkWhenDisabled} and obeys {@link #clickable}.</li>
- *   <li>Providing an {@link #onClicked} callback means you are responsible for changing {@link #checked} if you want
+ *   <li>Providing an {@link #onClicked} callback means you are responsible for changing {@link #mChecked} if you want
  *   toggle semantics.</li>
  * </ul>
  * 
@@ -48,9 +48,9 @@ public class UIClickable<T extends UIClickable<T>> extends UIContainer implement
     public String pressedSound = "ui_button_pressed";
     public CallbackRunnable<T> onClicked;
 
-    protected boolean disabled = false;
-    protected boolean checked = false;
-    protected boolean quickMode = false;
+    protected boolean mDisabled = false;
+    protected boolean mChecked = false;
+    protected boolean mQuickMode = false;
 
     public UIClickable(float width, float height, CallbackRunnable<T> callback) {
         super(width, height);
@@ -69,29 +69,29 @@ public class UIClickable<T extends UIClickable<T>> extends UIContainer implement
             if (event != null) event.consume();
 
             playPressSound();
-            if (disabled && !performActionWhenDisabled) return;
+            if (mDisabled && !performActionWhenDisabled) return;
 
             if (onClicked != null) {
                 onClicked.run(self());
-            } else if (!quickMode) {
-                checked = !checked;
+            } else if (!mQuickMode) {
+                mChecked = !mChecked;
             }
         };
     }
 
-    public boolean isEnabled() { return !disabled; }
+    public boolean isEnabled() { return !mDisabled; }
     public void setEnabled(boolean enabled) {
-        disabled = !enabled;
+        mDisabled = !enabled;
     }
 
-    public boolean isChecked() { return checked; }
+    public boolean isChecked() { return mChecked; }
     public void setChecked(boolean bool) {
-        checked = bool;
+        mChecked = bool;
     }
 
-    public boolean isQuickMode() { return quickMode; }
+    public boolean isQuickMode() { return mQuickMode; }
     public void setQuickMode(boolean mode) {
-        quickMode = mode;
+        mQuickMode = mode;
     }
 
     public void click(boolean ignoreState) {
@@ -110,7 +110,7 @@ public class UIClickable<T extends UIClickable<T>> extends UIContainer implement
 
     protected final void playPressSound() {
         if (!soundEnabled) return;
-        final String audio = disabled && !performActionWhenDisabled ? disabledSound : pressedSound;
+        final String audio = mDisabled && !performActionWhenDisabled ? disabledSound : pressedSound;
         Global.getSoundPlayer().playUISound(audio, 1, 1);
     }
 }

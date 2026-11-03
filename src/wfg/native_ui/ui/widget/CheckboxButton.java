@@ -95,8 +95,8 @@ public class CheckboxButton extends Button {
 
         for (InputEventAPI event : events) {
             if (event.isMouseMoveEvent() && !event.isConsumed()) {
-                if (label.getPosition().containsEvent(event)) {
-                    label.flash(0f, 0.3f);
+                if (mLabel.getPosition().containsEvent(event)) {
+                    mLabel.flash(0f, 0.3f);
                 }
             }
         }
@@ -115,10 +115,10 @@ public class CheckboxButton extends Button {
     }
 
     private final void customLblMods() {
-        final float lblSize = label.computeTextWidth(label.getText());
+        final float lblSize = mLabel.computeTextWidth(mLabel.getText());
         setAlignment(Alignment.LMID);
-        label.getPosition().setSize(lblSize, checkboxSize);
-        label.getPosition().inBL(checkboxSize + hpad, 0f);
+        mLabel.getPosition().setSize(lblSize, checkboxSize);
+        mLabel.getPosition().inBL(checkboxSize + hpad, 0f);
         setSizeWithoutRecreate(checkboxSize + hpad + lblSize, checkboxSize);
     }
 }

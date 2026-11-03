@@ -25,12 +25,12 @@ public class PieChart extends UIEntity implements
     public float anglePerSegment = 3f;
     public Direction startDirection = Direction.NORTH;
 
-    private final ArrayList<PieSlice> data;
+    private final ArrayList<PieSlice> mData;
 
     public PieChart(int width, int height, ArrayList<PieSlice> data) {
         super(width, height);
 
-        this.data = data;
+        this.mData = data;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class PieChart extends UIEntity implements
 
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        for (PieSlice slice : data) {
+        for (PieSlice slice : mData) {
             final float sweepDeg = slice.fraction * 360f;
             final int segments = Math.max(1, (int) Math.ceil(sweepDeg / anglePerSegment));
 

@@ -33,20 +33,20 @@ public final class BorderRenderer {
     public boolean compensateForHiddenSides = true;
     public Color centerColor = Color.white;
 
-    private final SpriteAPI bottom_left;
-    private final SpriteAPI bottom_right;
-    private final SpriteAPI bottom_mid;
-    private final SpriteAPI center;
-    private final SpriteAPI left_mid;
-    private final SpriteAPI right_mid;
-    private final SpriteAPI top_left;
-    private final SpriteAPI top_right;
-    private final SpriteAPI top_mid;
-    private final float corner_size;
-    private final float fudge;
-    private int hiddenSidesMask = 0;
-    private float width;
-    private float height;
+    private final SpriteAPI mBottomLeft;
+    private final SpriteAPI mBottomRight;
+    private final SpriteAPI mBottomMid;
+    private final SpriteAPI mCenter;
+    private final SpriteAPI mLeftMid;
+    private final SpriteAPI mRightMid;
+    private final SpriteAPI mTopLeft;
+    private final SpriteAPI mTopRight;
+    private final SpriteAPI mTopMid;
+    private final float mCornerSize;
+    private final float mFudge;
+    private int mHiddenSidesMask = 0;
+    private float mWidth;
+    private float mHeight;
 
     public BorderRenderer(String prefix, boolean whiteCenter, float w, float h) {
         this(prefix, whiteCenter);
@@ -55,20 +55,20 @@ public final class BorderRenderer {
 
     // TODO fix UIConstants#UI_BORDER_2 rendering bug
     public BorderRenderer(String prefix, boolean whiteCenter) {
-        bottom_left = settings.getSprite("ui", prefix + "_bot_left");
-        bottom_right = settings.getSprite("ui", prefix + "_bot_right");
-        bottom_mid = settings.getSprite("ui", prefix + "_bot");
-        center = settings.getSprite("ui", whiteCenter ? "center_white" : "panel00_center");
-        left_mid = settings.getSprite("ui", prefix + "_left");
-        right_mid = settings.getSprite("ui", prefix + "_right");
-        top_left = settings.getSprite("ui", prefix + "_top_left");
-        top_right = settings.getSprite("ui", prefix + "_top_right");
-        top_mid = settings.getSprite("ui", prefix + "_top");
-        corner_size = bottom_left.getWidth();
+        mBottomLeft = settings.getSprite("ui", prefix + "_bot_left");
+        mBottomRight = settings.getSprite("ui", prefix + "_bot_right");
+        mBottomMid = settings.getSprite("ui", prefix + "_bot");
+        mCenter = settings.getSprite("ui", whiteCenter ? "center_white" : "panel00_center");
+        mLeftMid = settings.getSprite("ui", prefix + "_left");
+        mRightMid = settings.getSprite("ui", prefix + "_right");
+        mTopLeft = settings.getSprite("ui", prefix + "_top_left");
+        mTopRight = settings.getSprite("ui", prefix + "_top_right");
+        mTopMid = settings.getSprite("ui", prefix + "_top");
+        mCornerSize = mBottomLeft.getWidth();
 
-        center.setSize(corner_size, corner_size);
+        mCenter.setSize(mCornerSize, mCornerSize);
 
-        fudge = switch (prefix) {
+        mFudge = switch (prefix) {
             case UIConstants.UI_BORDER_1 -> 3f;
             case UIConstants.UI_BORDER_2 -> 4f;
             case UIConstants.UI_BORDER_3 -> 3f;
@@ -85,85 +85,85 @@ public final class BorderRenderer {
     }
 
     public final void setSize(float width, float height) {
-        this.width = width;
-        this.height = height;
+        this.mWidth = width;
+        this.mHeight = height;
     }
 
     public final void hideSide(Side side) {
-        hiddenSidesMask |= bitForSide(side);
+        mHiddenSidesMask |= bitForSide(side);
     }
 
     public final void showSide(Side side) {
-        hiddenSidesMask &= ~bitForSide(side);
+        mHiddenSidesMask &= ~bitForSide(side);
     }
 
     public final void clearSides() {
-        hiddenSidesMask = 0;
+        mHiddenSidesMask = 0;
     }
 
     public final void render(float x, float y, float alpha) {
-        final boolean hideTop = (hiddenSidesMask & HIDE_TOP) != 0;
-        final boolean hideLeft = (hiddenSidesMask & HIDE_LEFT) != 0;
-        final boolean hideRight = (hiddenSidesMask & HIDE_RIGHT) != 0;
-        final boolean hideBottom = (hiddenSidesMask & HIDE_BOTTOM) != 0;
+        final boolean hideTop = (mHiddenSidesMask & HIDE_TOP) != 0;
+        final boolean hideLeft = (mHiddenSidesMask & HIDE_LEFT) != 0;
+        final boolean hideRight = (mHiddenSidesMask & HIDE_RIGHT) != 0;
+        final boolean hideBottom = (mHiddenSidesMask & HIDE_BOTTOM) != 0;
 
-        final float leftOffset = (compensateForHiddenSides && hideLeft) ? -corner_size : 0f;
-        final float bottomOffset = (compensateForHiddenSides && hideBottom) ? -corner_size : 0f;
-        final float rightOffset = (compensateForHiddenSides && hideRight) ? corner_size : 0f;
-        final float topOffset = (compensateForHiddenSides && hideTop) ? corner_size : 0f;
+        final float leftOffset = (compensateForHiddenSides && hideLeft) ? -mCornerSize : 0f;
+        final float bottomOffset = (compensateForHiddenSides && hideBottom) ? -mCornerSize : 0f;
+        final float rightOffset = (compensateForHiddenSides && hideRight) ? mCornerSize : 0f;
+        final float topOffset = (compensateForHiddenSides && hideTop) ? mCornerSize : 0f;
 
-        final float innerX = x + corner_size + leftOffset;
-        final float innerY = y + corner_size + bottomOffset;
-        final float innerW = width - 2f * corner_size - leftOffset + rightOffset;
-        final float innerH = height - 2f * corner_size - bottomOffset + topOffset;
+        final float innerX = x + mCornerSize + leftOffset;
+        final float innerY = y + mCornerSize + bottomOffset;
+        final float innerW = mWidth - 2f * mCornerSize - leftOffset + rightOffset;
+        final float innerH = mHeight - 2f * mCornerSize - bottomOffset + topOffset;
 
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
 
         if (renderCenter) {
-            final float cx = innerX - fudge;
-            final float cy = innerY - fudge;
-            final float cw = innerW + 2f * fudge;
-            final float ch = innerH + 2f * fudge;
+            final float cx = innerX - mFudge;
+            final float cy = innerY - mFudge;
+            final float cw = innerW + 2f * mFudge;
+            final float ch = innerH + 2f * mFudge;
             RenderUtils.setGlColor(centerColor, alpha);
-            center.bindTexture();
-            NineSliceUtils.drawStretch(false, false, corner_size, corner_size, cx, cy, cw, ch);
+            mCenter.bindTexture();
+            NineSliceUtils.drawStretch(false, false, mCornerSize, mCornerSize, cx, cy, cw, ch);
         }
 
         RenderUtils.setGlColor(Color.white, alpha);
         if (!hideBottom && !hideLeft) {
-            bottom_left.bindTexture();
-            NineSliceUtils.drawCorner(false, false, x, y, corner_size, corner_size);
+            mBottomLeft.bindTexture();
+            NineSliceUtils.drawCorner(false, false, x, y, mCornerSize, mCornerSize);
         }
         if (!hideBottom && !hideRight) {
-            bottom_right.bindTexture();
-            NineSliceUtils.drawCorner(false, false, x + width - corner_size, y, corner_size, corner_size);
+            mBottomRight.bindTexture();
+            NineSliceUtils.drawCorner(false, false, x + mWidth - mCornerSize, y, mCornerSize, mCornerSize);
         }
         if (!hideTop && !hideLeft) {
-            top_left.bindTexture();
-            NineSliceUtils.drawCorner(false, false, x, y + height - corner_size, corner_size, corner_size);
+            mTopLeft.bindTexture();
+            NineSliceUtils.drawCorner(false, false, x, y + mHeight - mCornerSize, mCornerSize, mCornerSize);
         }
         if (!hideTop && !hideRight) {
-            top_right.bindTexture();
-            NineSliceUtils.drawCorner(false, false, x + width - corner_size, y + height - corner_size, corner_size, corner_size);
+            mTopRight.bindTexture();
+            NineSliceUtils.drawCorner(false, false, x + mWidth - mCornerSize, y + mHeight - mCornerSize, mCornerSize, mCornerSize);
         }
 
         if (!hideLeft) {
-            left_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, 1f, 1f, x, innerY, corner_size, innerH);
+            mLeftMid.bindTexture();
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, x, innerY, mCornerSize, innerH);
         }
         if (!hideRight) {
-            right_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, 1f, 1f, x + width - corner_size, innerY, corner_size, innerH);
+            mRightMid.bindTexture();
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, x + mWidth - mCornerSize, innerY, mCornerSize, innerH);
         }
         if (!hideTop) {
-            top_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, 1f, 1f, innerX, y + height - corner_size, innerW, corner_size);
+            mTopMid.bindTexture();
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, innerX, y + mHeight - mCornerSize, innerW, mCornerSize);
         }
         if (!hideBottom) {
-            bottom_mid.bindTexture();
-            NineSliceUtils.drawStretch(false, false, 1f, 1f, innerX, y, innerW, corner_size);
+            mBottomMid.bindTexture();
+            NineSliceUtils.drawStretch(false, false, 1f, 1f, innerX, y, innerW, mCornerSize);
         }
 
         GL11.glDisable(GL11.GL_BLEND);
