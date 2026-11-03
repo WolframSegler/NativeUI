@@ -103,8 +103,8 @@ public class CheckboxButton extends Button {
     }
 
     @Override
-    public void recreateLabel() {
-        super.recreateLabel();
+    public void buildUI() {
+        super.buildUI();
 
         customLblMods();
     }

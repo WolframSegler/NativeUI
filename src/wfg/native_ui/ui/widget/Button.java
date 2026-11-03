@@ -17,21 +17,22 @@ import com.fs.starfarer.api.util.FaderUtil.State;
 import wfg.native_ui.example.widget.ButtonExample;
 import wfg.native_ui.ui.component.HoverGlowComp;
 import wfg.native_ui.ui.component.InputSnapshotComp;
+import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.ui.functional.CallbackRunnable;
 import wfg.native_ui.ui.functional.ShortcutHandler;
 import wfg.native_ui.ui.interaction.UIClickable;
+import wfg.native_ui.ui.table.WidgetAPI;
 import wfg.native_ui.util.RenderUtils;
 
 /**
  * UI button component with visual enhancements: mLabel, tooltip, hover glow, and custom background.
  *
  * <ul>
- *   <li>Displays an optional text mLabel; the mLabel is rebuilt when text/font/shortcut changes (see {@link #recreateLabel}).</li>
+ *   <li>Displays an optional text mLabel; the mLabel is rebuilt when text/font/shortcut changes (see {@link #buildUI}).</li>
  *   <li>Supports a persistent hover/glow state (driven by {@link #mChecked}, {@link #mQuickMode} and {@link #mDisabled}).</li>
  *   <li>Use {@link #setEnabled} to enable/disable the button. Disabled buttons use {@link #bgDisabledColor}/{@link #bgDisabledAlpha}.</li>
  *   <li>{@link #setShowTooltipWhileInactive} controls whether the tooltip is shown when the button is disabled.</li>
@@ -39,7 +40,7 @@ import wfg.native_ui.util.RenderUtils;
  * 
  * <p><strong>Example: </strong> {@link ButtonExample}</p>
  */
-public class Button extends UIClickable<Button> implements UIBuildableAPI, ButtonAPI,
+public class Button extends UIClickable<Button> implements WidgetAPI<Button>, ButtonAPI,
     HasHoverGlow, HasTooltip
 {
     private static final float GLOW_BRIGHTNESS = 0.2f;
@@ -95,28 +96,10 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
 
         buildUI();
     }
-
-    public void recreateLabel() {
-        final LabelAPI newlbl = settings.createLabel(mLabelText, mLabelFont);
-
-        final String shortcutTxt = (!mAppendShortcutToText || interaction.shortcut == 0) ? "" :
-            " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
-
-        newlbl.setText(mLabelText + shortcutTxt);
-        newlbl.getPosition().setSize(getWidth(), getHeight());
-        newlbl.setColor(mLabel.getColor());
-        newlbl.setAlignment(mAlg);
-        if (mAppendShortcutToText) {
-            newlbl.setHighlightColor(highlight);
-            newlbl.setHighlight(Keyboard.getKeyName(interaction.shortcut));
-        }
-
-        remove(mLabel);
-        mLabel = newlbl;
-        add(mLabel).inBL(0f, 0f);
-    }
-
+    
     public void buildUI() {
+        final Color color = (mLabel != null) ? mLabel.getColor() : btnTxtColor;
+
         if (mLabel != null) remove(mLabel);
 
         final String shortcutTxt = (!mAppendShortcutToText || interaction.shortcut == 0) ? "" :
@@ -124,13 +107,12 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
 
         mLabel = settings.createLabel(mLabelText + shortcutTxt, mLabelFont);
         mLabel.getPosition().setSize(getWidth(), getHeight());
-        mLabel.setColor(btnTxtColor);
+        mLabel.setColor(color);
         mLabel.setAlignment(mAlg);
         if (mAppendShortcutToText) {
             mLabel.setHighlightColor(highlight);
             mLabel.setHighlight(Keyboard.getKeyName(interaction.shortcut));
         }
-
         add(mLabel).inBL(0f, 0f);
     }
 
@@ -164,29 +146,29 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
     @Override
     public void setShortcut(int keyCode) {
         super.setShortcut(keyCode);
-        recreateLabel();
+        buildUI();
     }
 
     public void setShortcutAndAppendToText(int keyCode) {
         super.setShortcut(keyCode);
         mAppendShortcutToText = true;
-        recreateLabel();
+        buildUI();
     }
 
     public String getText() { return mLabelText; }
     public void setText(String text) {
         mLabelText = text;
-        recreateLabel();
+        buildUI();
     }
 
     public void setFont(String font) {
         mLabelFont = font;
-        recreateLabel();
+        buildUI();
     }
 
     public void setAppendShortcutToText(boolean a) {
         mAppendShortcutToText = a;
-        recreateLabel();
+        buildUI();
     }
 
     public Color getLabelColor() {
@@ -197,15 +179,15 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
         mLabel.setColor(color);
     }
 
-    public void setAlignment(Alignment mAlg) {
-        this.mAlg = mAlg;
-        mLabel.setAlignment(mAlg);
+    public void setAlignment(Alignment alg) {
+        mAlg = alg;
+        mLabel.setAlignment(alg);
     }
 
     @Override
     public PositionAPI setSize(float w, float h) {
         setSizeWithoutRecreate(w, h);
-        recreateLabel();
+        buildUI();
 
         return mPos;
     }
@@ -236,6 +218,10 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
 
     protected float getBgAlpha() {
         return mDisabled ? bgDisabledAlpha : bgAlpha;
+    }
+
+    public InteractionComp<Button> getInteraction() {
+        return interaction;
     }
 
     public void setCutStyle(CutStyle style) {

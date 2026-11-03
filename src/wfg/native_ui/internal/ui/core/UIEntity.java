@@ -30,6 +30,7 @@ public class UIEntity extends UIElement implements UIEntityAPI {
     }
 
     public UIEntity() {
+        super();
         initSystems();
     }
 
