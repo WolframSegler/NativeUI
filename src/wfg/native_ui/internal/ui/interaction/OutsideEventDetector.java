@@ -58,13 +58,17 @@ public class OutsideEventDetector extends UIElement {
 
             } else if (event.isKeyboardEvent()) {
                 if (event.isModifierKey()) {
-                    if (triggerByModKey) mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
-                    if (isRemoveOnAction) {
-                        detach(); return;
+                    if (triggerByModKey) {
+                        mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
+                        if (isRemoveOnAction) {
+                            detach(); return;
+                        }
                     }
+
                     event.consume();
                     continue;
                 }
+
                 if (event.isKeyUpEvent() && !triggerOnKeyUp) {
                     event.consume(); continue;
                 }
