@@ -32,9 +32,9 @@ public final class AudioFeedbackSystem extends BaseSystem {
         final InputSnapshotComp input = element.comp().get(NativeComponents.INPUT_SNAPSHOT);
 
         if (audio == null || !audio.enabled) return;
-        audio.internal_accumulatedGameTicks++;
+        audio.iAccumulatedGameTicks++;
 
-        if (audio.internal_accumulatedGameTicks < INIT_COMP_TICKS) return;
+        if (audio.iAccumulatedGameTicks < INIT_COMP_TICKS) return;
 
         if (input.hoverStarted) {
             player.playUISound(audio.mouseOverSound, 1f, 1f);

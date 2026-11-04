@@ -14,6 +14,8 @@ import wfg.native_ui.ui.component.TooltipComp;
 public class UITooltip extends StandardTooltipV2Expandable implements OutsideEventListener {
     private enum TooltipState { SHOWING, DISMISSING, FINISHED }
 
+    private static final int OWNER_ORPHAN_THRESHOLD = 2;
+
     private final TooltipComp mSpec;
     private final OutsideEventDetector mDetector = new OutsideEventDetector(this);
     private final UIPanelAPI mParent = Attachments.getScreenPanel();
@@ -80,7 +82,11 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
     @Override
     public void advanceImpl(float delta) {
         super.advanceImpl(delta);
-        if (mState == TooltipState.DISMISSING && getFader().isFadedOut()) {
+        mSpec.iOrphanFrames++;
+
+        if (mSpec.iOrphanFrames > OWNER_ORPHAN_THRESHOLD ||
+            mState == TooltipState.DISMISSING && getFader().isFadedOut()
+        ) {
             detach();
         }
     }
@@ -89,9 +95,9 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
     public boolean isFinished() { return mState == TooltipState.FINISHED; }
     public PositionAPI pos() { return ((UIComponentAPI)this).getPosition(); }
     public void outsideClicked(boolean isLeft) {
-        mSpec.internal_dismissedThisHover = true; dismiss();
+        mSpec.iDismissedThisHover = true; dismiss();
     }
     public void buttonPressed(int lwjgl_key) {
-        mSpec.internal_dismissedThisHover = true; dismiss();
+        mSpec.iDismissedThisHover = true; dismiss();
     }
 }

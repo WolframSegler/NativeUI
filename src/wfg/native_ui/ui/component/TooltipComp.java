@@ -23,18 +23,18 @@ public final class TooltipComp extends BaseComponent {
     public TooltipPositioner positioner = TooltipPositioner.DEFAULT;
 
     /** Internal - only used by {@link TooltipSystem}. */
-    public UITooltip internal_tp;
+    public UITooltip iTooltip;
     /** Internal - only used by {@link TooltipSystem}. */
-    public float internal_hoverTime = 0f;
+    public float iHoverTime = 0f;
+    /** Tracks the dismissal state of the tooltip for current hover. */
+    public boolean iDismissedThisHover;
+    /** Used by {@link UITooltip} to detect if its owner is dead. */
+    public int iOrphanFrames;
     /**
      * Frames since this element last rendered with positive alpha.
      * Internal - only used by {@link TooltipSystem}.
      */
-    public int internal_lastVisibleFrameCounter;
-    /**
-     * Tracks the dismissal state of the tooltip for current hover.
-     */
-    public boolean internal_dismissedThisHover;
+    public int iLastVisibleFrameCounter;
 
     @FunctionalInterface
     public static interface TooltipBuilder {

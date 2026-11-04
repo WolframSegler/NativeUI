@@ -7,6 +7,7 @@ import org.lwjgl.input.Mouse;
 
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.FaderUtil.State;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.internal.ui.core.UITooltip;
@@ -58,25 +59,27 @@ public final class TooltipSystem extends BaseSystem {
     private static final float TOOLTIP_DELAY = 0.3f; // TODO replace with SettingsAPI.getTooltipDelay()
     private static final float SCROLL_COOLDOWN = 0.15f;
     private static final int VISIBILITY_GRACE_FRAMES = 3;
+    private static final float VISIBILITY_OPACITY_REQUIRED = 0.7f;
 
     @Override
     public void renderBelow(UIEntityAPI element, float alpha) {
         final TooltipComp spec = element.comp().get(NativeComponents.TOOLTIP);
-        if (alpha > 0f) spec.internal_lastVisibleFrameCounter = 0;
+        if (alpha >= VISIBILITY_OPACITY_REQUIRED) spec.iLastVisibleFrameCounter = 0;
     }
 
     @Override
     public void advance(UIEntityAPI element, float delta) {
         final TooltipComp spec = element.comp().get(NativeComponents.TOOLTIP);
         final InputSnapshotComp input = element.comp().get(NativeComponents.INPUT_SNAPSHOT);
-        spec.internal_lastVisibleFrameCounter++;
+        spec.iLastVisibleFrameCounter++;
+        spec.iOrphanFrames = 0;
 
         if (shouldForceHide(spec, element)) {
             focusLost(element);
             return;
         }
 
-        if (spec.internal_tp != null && spec.internal_tp.isFinished()) {
+        if (spec.iTooltip != null && spec.iTooltip.isFinished()) {
             focusLost(element);
             return;
         }
@@ -85,25 +88,25 @@ public final class TooltipSystem extends BaseSystem {
         final boolean suppressed = input.LMBDownLastFrame || input.RMBDownLastFrame
             || Mouse.isButtonDown(2) || Mouse.getDWheel() != 0;
 
-        if (!hovering) spec.internal_dismissedThisHover = false;
+        if (!hovering) spec.iDismissedThisHover = false;
 
         final boolean shouldShow = hovering
             && !suppressed
             && spec.builder != null
-            && !spec.internal_dismissedThisHover;
+            && !spec.iDismissedThisHover;
 
         if (shouldShow) {
-            spec.internal_hoverTime += delta;
-            if (spec.internal_hoverTime > TOOLTIP_DELAY && spec.internal_tp == null) {
-                spec.internal_tp = UITooltip.create(spec);
-                spec.internal_tp.attach();
+            spec.iHoverTime += delta;
+            if (spec.iHoverTime > TOOLTIP_DELAY && spec.iTooltip == null) {
+                spec.iTooltip = UITooltip.create(spec);
+                spec.iTooltip.attach();
             }
-            if (spec.internal_tp != null) {
-                spec.positioner.position(spec.internal_tp, spec.internal_tp.isExpanded());
+            if (spec.iTooltip != null) {
+                spec.positioner.position(spec.iTooltip, spec.iTooltip.isExpanded());
             }
         } else {
-            spec.internal_hoverTime = suppressed ? -SCROLL_COOLDOWN : 0f;
-            if (spec.internal_tp != null) spec.internal_tp.dismiss();
+            spec.iHoverTime = suppressed ? -SCROLL_COOLDOWN : 0f;
+            if (spec.iTooltip != null) spec.iTooltip.dismiss();
         }
     }
 
@@ -114,15 +117,15 @@ public final class TooltipSystem extends BaseSystem {
 
     public void focusLost(UIEntityAPI element) {
         final TooltipComp spec = element.comp().get(NativeComponents.TOOLTIP);
-        if (spec.internal_tp != null) spec.internal_tp.detach();
-        spec.internal_tp = null;
-        spec.internal_hoverTime = 0f;
+        if (spec.iTooltip != null) spec.iTooltip.detach();
+        spec.iTooltip = null;
+        spec.iHoverTime = 0f;
     }
 
     private static final boolean shouldForceHide(TooltipComp spec, UIEntityAPI element) {
-        return spec.internal_lastVisibleFrameCounter > VISIBILITY_GRACE_FRAMES ||
+        return spec.iLastVisibleFrameCounter > VISIBILITY_GRACE_FRAMES ||
             element.getOpacity() <= 0f ||
-            element.getFader().isFadedOut() ||
+            element.getFader().getState() == State.OUT ||
             !spec.enabled;
     }
 }
