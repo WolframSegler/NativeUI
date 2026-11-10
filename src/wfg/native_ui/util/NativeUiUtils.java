@@ -138,7 +138,7 @@ public final class NativeUiUtils {
     }
 
     /**
-     * Small utility to anchor the panel without actually using PositionAPI anchors.
+     * Anchor the panel without actually using PositionAPI anchors.
      * Makes UI lifecycle dependencies easier to manage.
      * Does not handle screen bounds or overflow.
      */
@@ -149,7 +149,7 @@ public final class NativeUiUtils {
         final PositionAPI Ppos = panel.getPosition();
         final PositionAPI Apos = anchor.getPosition();
 
-        Ppos.inBL(0, 0); // Reset the position. It's still relative
+        Ppos.inBL(0f, 0f); // Reset the position. It's still relative
         final float panelX = Ppos.getX();
         final float panelY = Ppos.getY();
         final float panelW = Ppos.getWidth();
@@ -160,14 +160,14 @@ public final class NativeUiUtils {
         final float anchorW = Apos.getWidth();
         final float anchorH = Apos.getHeight();
 
+        if (anchor instanceof TooltipMakerAPI) {
+            throw new IllegalArgumentException("anchor cannot be a TooltipMakerAPI");
+        }
+
         int widthCompensation = 0;
 
-        if (panel instanceof TooltipMakerAPI ^ anchor instanceof TooltipMakerAPI) {
-            boolean panelIsTooltip = panel instanceof TooltipMakerAPI;
-            TooltipMakerAPI tooltip = panelIsTooltip ? 
-                (TooltipMakerAPI) panel : (TooltipMakerAPI) anchor;
-            int comp = (int) ((tooltip.getPosition().getWidth() - tooltip.getWidthSoFar()) / 2f);
-            widthCompensation = panelIsTooltip ? comp : -comp;
+        if (panel instanceof TooltipMakerAPI tp) {
+            widthCompensation = (int) ((tp.getPosition().getWidth() - tp.getWidthSoFar()) / 2f);
         }
 
         int heightCompensation = 0;
@@ -218,7 +218,7 @@ public final class NativeUiUtils {
             break;
 
         case TopMid:
-            offsetX = anchorX - panelX + (anchorW - panelW - widthCompensation*2) / 2f;
+            offsetX = anchorX - panelX + (anchorW - panelW) / 2f;
             offsetY = anchorY + anchorH - panelY + gap;
             break;
 
@@ -233,7 +233,7 @@ public final class NativeUiUtils {
             break;
 
         case BottomMid:
-            offsetX = anchorX - panelX + (anchorW - panelW - widthCompensation*2) / 2f;
+            offsetX = anchorX - panelX + (anchorW - panelW) / 2f;
             offsetY = anchorY - panelY - panelH - gap;
             break;
 
@@ -248,7 +248,7 @@ public final class NativeUiUtils {
             break;
 
         case MidTopRight:
-            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap - widthCompensation;
+            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap + widthCompensation;
             offsetY = anchorY + (anchorH / 2f) - panelY - panelH;
             break;
 
@@ -258,7 +258,7 @@ public final class NativeUiUtils {
             break;
 
         case MidBottomRight:
-            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap - widthCompensation;
+            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap + widthCompensation;
             offsetY = anchorY + (anchorH / 2f) - panelY;
             break;
         }

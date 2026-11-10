@@ -21,6 +21,7 @@ import wfg.native_ui.ui.functional.CallbackRunnable;
 import wfg.native_ui.ui.system.TooltipSystem;
 import wfg.native_ui.ui.widget.Button;
 import wfg.native_ui.ui.widget.CheckboxButton;
+import wfg.native_ui.util.RenderUtils;
 
 public final class ComponentFactory {
     private ComponentFactory() {};
@@ -31,10 +32,18 @@ public final class ComponentFactory {
      * Use {@link CheckboxButton} if you want the checkbox sprite.
      */
     public static final Button createCheckboxWithText(
-        int btnSize, String text, String font, CallbackRunnable<Button> onClick, 
+        int btnSize, String text, String font, CallbackRunnable<Button> onClick,
         Color txtColor, int textAndBtnGap
     ) {
-        final Button checkbox = new Button(btnSize, btnSize, null, null, onClick);
+        final Button checkbox = new Button(btnSize, btnSize, null, null, onClick) {
+            @Override
+            protected float[] getFaderMaskVertices() {
+                final float cutSize = computeCut(btnSize, btnSize);
+                final float[] cuts = mCutStyle.toVector4();
+                for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
+                return RenderUtils.buildCornersVertices(0f, 0f, btnSize, btnSize, cuts);
+            }
+        };
         checkbox.bgAlpha = 1f;
         checkbox.bgDisabledAlpha = 1f;
         checkbox.bgSelectedColor = new Color(60, 230, 250);
@@ -43,12 +52,11 @@ public final class ComponentFactory {
         final LabelAPI label = settings.createLabel(
             text, font == null ? Fonts.DEFAULT_SMALL : font
         );
-        final int lblH = (int) label.computeTextHeight(text);
         label.setColor(txtColor == null ? base : txtColor);
 
-        final int maxH = Math.max(lblH, btnSize);
-
-        checkbox.add(label).inBL(btnSize + textAndBtnGap, (maxH - lblH) / 2f);
+        final float labelW = label.getPosition().getWidth();
+        checkbox.setSize(btnSize + textAndBtnGap + labelW, btnSize);
+        checkbox.add(label).inLMid(btnSize + textAndBtnGap);
 
         return checkbox;
     }

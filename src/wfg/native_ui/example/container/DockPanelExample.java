@@ -98,7 +98,7 @@ public final class DockPanelExample extends DockPanel {
             final int iconSize = 28;
 
             final SpriteElement crestIcon = new SpriteElement(iconSize, iconSize, faction.getCrest(), null, null);
-            add(crestIcon).inBL(pad, (ROW_H - iconSize) / 2f);
+            add(crestIcon).inLMid(pad);
 
             final LabelAPI nameLabel = settings.createLabel(faction.getDisplayName(), Fonts.ORBITRON_12);
             nameLabel.setColor(faction.getBaseUIColor());

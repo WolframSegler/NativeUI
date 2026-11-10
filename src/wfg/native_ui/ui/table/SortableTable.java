@@ -221,9 +221,8 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             lbl.autoSizeToWidth(getWidth());
             lbl.setColor(base);
             lbl.setAlignment(Alignment.MID);
-            final float lblHeight = lbl.computeTextHeight(lbl.getText());
 
-            add(lbl).inBL(0f, (getHeight() - lblHeight) / 2f );
+            add(lbl).inLMid(0f);
 
             if (showSortIcon) {
                 final SpriteElement sortIcon = new SpriteElement(
@@ -300,13 +299,11 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
 
                 final UIComponentAPI comp;
                 final float compWidth;
-                final float compHeight;
 
                 if (cell instanceof Number) {
                     final LabelAPI label = settings.createLabel(String.valueOf(cell), Fonts.DEFAULT_SMALL);
                     comp = (UIComponentAPI) label;
                     compWidth = label.getPosition().getWidth();
-                    compHeight = label.getPosition().getHeight();
 
                     label.setColor(useColor != null ? useColor : textColor);
 
@@ -314,34 +311,29 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
                     final LabelAPI label = settings.createLabel(txt, Fonts.DEFAULT_SMALL);
                     comp = (UIComponentAPI) label;
                     compWidth = label.getPosition().getWidth();
-                    compHeight = label.getPosition().getHeight();
 
                     label.setColor(useColor != null ? useColor : textColor);
 
                 } else if (cell instanceof SpriteAPI sprite) {
                     comp = new SpriteElement(sprite.getWidth(), sprite.getHeight(), sprite, null, null);
                     compWidth = comp.getPosition().getWidth();
-                    compHeight = comp.getPosition().getHeight();
 
                 } else if (cell instanceof LabelAPI label) {
                     comp = (UIComponentAPI) label;
                     compWidth = label.getPosition().getWidth();
-                    compHeight = label.getPosition().getHeight();
 
                     label.setColor(useColor != null ? useColor : textColor);
 
                 } else if (cell instanceof UIComponentAPI panel) {
                     comp = panel;
                     compWidth = panel.getPosition().getWidth();
-                    compHeight = panel.getPosition().getHeight();
 
                 } else {
                     throw new IllegalArgumentException("Unsupported cell type: " + cell.getClass());
                 }
 
                 final float xOffset = calcXOffset(cumulativeXOffset, visualW, compWidth, alignment);
-                final float yOffset = (ROW_HEIGHT - compHeight) / 2f;
-                add(comp).inBL(xOffset, yOffset);
+                add(comp).inLMid(xOffset);
 
                 cumulativeXOffset += logicalW;
             }
