@@ -275,7 +275,7 @@ relativeTo(target, baseAnchorX, baseAnchorY, selfAlignX, selfAlignY, marginX, ma
 
 ## Components
 NativeUI uses a composition‑oriented, ECS‑inspired model. Every `UIEntity` holds a `UIComponentContainer`, which stores components; systems provide behaviour.
-If a feature is reused by many different elements, it should be a **component + system** pair (e.g., tooltips, hover glow). UIElement-specific logic stays as local code.
+If a feature is reused by many different elements, it should be a **component + system** pair (e.g., tooltips, glow). UIElement-specific logic stays as local code.
 
 ### UIComponentContainer
 - **Native components**: fixed set defined by the `NativeComponents` enum (e.g., `BACKGROUND`, `TOOLTIP`, `INTERACTION`). Accessed via `get(NativeComponents.TYPE)` and `set(NativeComponents.TYPE, comp)`.

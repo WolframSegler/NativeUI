@@ -20,18 +20,18 @@ import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.component.AudioFeedbackComp;
 import wfg.native_ui.ui.component.BackgroundComp;
-import wfg.native_ui.ui.component.HoverGlowComp;
+import wfg.native_ui.ui.component.GlowComp;
 import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.OutlineComp;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
+import wfg.native_ui.ui.component.GlowComp.GlowType;
 import wfg.native_ui.ui.component.TooltipComp.TooltipBuilder;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
 import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
-import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
 import wfg.native_ui.ui.core.UIElementFlags.HasOutline;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
@@ -164,11 +164,11 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     }
 
     public class HeaderPanel extends UIContainer implements UIBuildableAPI, HasTooltip,
-        HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction
+        HasOutline, HasBackground, HasGlow, HasAudioFeedback, HasInteraction
     {
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
         public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
-        public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+        public final GlowComp glow = comp().get(NativeComponents.GLOW);
         public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
         public final InteractionComp<HeaderPanel> interaction = comp().get(NativeComponents.INTERACTION);
         public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
@@ -259,10 +259,10 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     }
 
     public class TableRow extends UIContainer implements UIBuildableAPI,
-        HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
+        HasTooltip, HasGlow, HasOutline, HasAudioFeedback, HasInteraction
     {
         public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-        public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+        public final GlowComp glow = comp().get(NativeComponents.GLOW);
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
         public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
         public final InteractionComp<TableRow> interaction = comp().get(NativeComponents.INTERACTION);
@@ -547,7 +547,8 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
         TableRow target = null;
         for (TableRow row : mRows) {
             boolean result = row == mRows.get(mRows.size() - 1);
-            row.glow.persistent = result;
+            if (result) row.glow.flash();
+            row.glow.setHighlighted(result);
 
             if (result) {
                 target = row;
@@ -559,7 +560,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
 
     public void selectRow(TableRow selectedRow) {
         for (TableRow row : mRows) {
-            row.glow.persistent = row == selectedRow;
+            row.glow.setHighlighted(row == selectedRow);
         }
     }
 

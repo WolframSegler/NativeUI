@@ -26,8 +26,6 @@ public interface UIEntityAPI extends UIElementAPI {
 
     /**
      * Returns the container holding components attached to this element.
-     * Components may include background renderers, hover glows, audio hooks, or
-     * other behavior/decorator objects.
      */
     UIComponentContainer getUIComponentContainer();
 

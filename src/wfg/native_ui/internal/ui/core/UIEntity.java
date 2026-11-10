@@ -11,7 +11,7 @@ import wfg.native_ui.ui.system.AudioFeedbackSystem;
 import wfg.native_ui.ui.system.BackgroundSystem;
 import wfg.native_ui.ui.system.BaseSystem;
 import wfg.native_ui.ui.system.DebugBgSystem;
-import wfg.native_ui.ui.system.HoverGlowSystem;
+import wfg.native_ui.ui.system.GlowSystem;
 import wfg.native_ui.ui.system.InteractionSystem;
 import wfg.native_ui.ui.system.NativeSystems;
 import wfg.native_ui.ui.system.OutlineSystem;
@@ -63,8 +63,8 @@ public class UIEntity extends UIElement implements UIEntityAPI {
             system().setIfNotPresent(NativeSystems.OUTLINE, OutlineSystem.get(), this);
         }
 
-        if (this instanceof UIElementFlags.HasHoverGlow) {
-            system().setIfNotPresent(NativeSystems.HOVER_GLOW, HoverGlowSystem.get(), this);
+        if (this instanceof UIElementFlags.HasGlow) {
+            system().setIfNotPresent(NativeSystems.GLOW, GlowSystem.get(), this);
         }
 
         if (this instanceof UIElementFlags.HasTooltip) {

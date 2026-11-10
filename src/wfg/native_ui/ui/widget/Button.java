@@ -11,29 +11,26 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.util.FaderUtil;
-import com.fs.starfarer.api.util.FaderUtil.State;
 
 import wfg.native_ui.example.widget.ButtonExample;
-import wfg.native_ui.ui.component.HoverGlowComp;
-import wfg.native_ui.ui.component.InputSnapshotComp;
+import wfg.native_ui.ui.component.GlowComp;
 import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.ui.functional.CallbackRunnable;
 import wfg.native_ui.ui.functional.ShortcutHandler;
 import wfg.native_ui.ui.interaction.UIClickable;
 import wfg.native_ui.ui.table.WidgetAPI;
+import wfg.native_ui.util.NativeUiUtils;
 import wfg.native_ui.util.RenderUtils;
 
 /**
- * UI button component with visual enhancements: mLabel, tooltip, hover glow, and custom background.
+ * UI button component with visual enhancements: mLabel, tooltip, glow, and custom background.
  *
  * <ul>
  *   <li>Displays an optional text mLabel; the mLabel is rebuilt when text/font/shortcut changes (see {@link #buildUI}).</li>
- *   <li>Supports a persistent hover/glow state (driven by {@link #mChecked}, {@link #mQuickMode} and {@link #mDisabled}).</li>
  *   <li>Use {@link #setEnabled} to enable/disable the button. Disabled buttons use {@link #bgDisabledColor}/{@link #bgDisabledAlpha}.</li>
  *   <li>{@link #setShowTooltipWhileInactive} controls whether the tooltip is shown when the button is disabled.</li>
  * </ul>
@@ -41,18 +38,18 @@ import wfg.native_ui.util.RenderUtils;
  * <p><strong>Example: </strong> {@link ButtonExample}</p>
  */
 public class Button extends UIClickable<Button> implements WidgetAPI<Button>, ButtonAPI,
-    HasHoverGlow, HasTooltip
+    HasGlow, HasTooltip
 {
-    private static final float GLOW_BRIGHTNESS = 0.2f;
-    private static final float FLASH_BRIGHTNESS = 0.3f;
+    private static final float GLOW_BRIGHTNESS = 0.65f;
+    private static final float HIGHLIGHT_BRIGHTNESS = 0.6f;
+    private static final float FLASH_BRIGHTNESS = 0.2f;
+    private static final float HOVER_TINT_MAX = 0.5f;
 
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-    protected final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
-    protected final InputSnapshotComp input = comp().get(NativeComponents.INPUT_SNAPSHOT);
+    protected final GlowComp glow = comp().get(NativeComponents.GLOW);
 
     public float bgAlpha = 0.9f;
     public float bgDisabledAlpha = 0.8f;
-    public float highlightBrightness = 0.85f; // override for general brightness
     public Color bgSelectedColor = dark;
     public Color bgColor = dark;
     public Color bgDisabledColor = new Color(17, 52, 62);
@@ -62,9 +59,10 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
     protected LabelAPI mLabel = null;
     protected String mLabelText;
     protected String mLabelFont;
+    protected Color mLabelColor = btnTxtColor;
     protected Alignment mAlg = Alignment.MID;
-    protected FaderUtil mHighlightFader = new FaderUtil(0f, 0.05f, 0.25f);
     
+    private boolean mSyncHighlightToState = true;
     private boolean mAppendShortcutToText = false;
     private boolean mShowTooltipWhileInactive = false;
     
@@ -79,9 +77,10 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
         mLabelText = text == null ? "" : text;
         mLabelFont = font == null ? Fonts.ORBITRON_12 : font;
 
-        glow.fader = new FaderUtil(0f, 0.05f, 0.25f, false, true);
+        glow.glowFader.setDuration(0.05f, 0.25f);
         glow.color = base;
         glow.glowBrightness = GLOW_BRIGHTNESS;
+        glow.highlightBrightness = HIGHLIGHT_BRIGHTNESS;
         glow.flashBrightness = FLASH_BRIGHTNESS;
         glow.faderMaskVertices = getFaderMaskVertices();
 
@@ -98,8 +97,6 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
     }
     
     public void buildUI() {
-        final Color color = (mLabel != null) ? mLabel.getColor() : btnTxtColor;
-
         if (mLabel != null) remove(mLabel);
 
         final String shortcutTxt = (!mAppendShortcutToText || interaction.shortcut == 0) ? "" :
@@ -107,7 +104,7 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
 
         mLabel = settings.createLabel(mLabelText + shortcutTxt, mLabelFont);
         mLabel.getPosition().setSize(getWidth(), getHeight());
-        mLabel.setColor(color);
+        mLabel.setColor(mLabelColor);
         mLabel.setAlignment(mAlg);
         if (mAppendShortcutToText) {
             mLabel.setHighlightColor(highlight);
@@ -120,19 +117,19 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         tooltip.enabled = isTooltipEnabled();
-        glow.persistent = isPersistentGlow();
+        updateHighlight();
     }
 
     @Override
     public void setChecked(boolean bool) {
         super.setChecked(bool);
-        glow.persistent = isPersistentGlow();
+        updateHighlight();
     }
 
     @Override
     public void setQuickMode(boolean mode) {
         super.setQuickMode(mode);
-        glow.persistent = isPersistentGlow();
+        updateHighlight();
     }
 
     public void setShowTooltipWhileInactive(boolean bool) {
@@ -172,11 +169,12 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
     }
 
     public Color getLabelColor() {
-        return mLabel.getColor();
+        return mLabelColor;
     }
 
     public void setLabelColor(Color color) {
-        mLabel.setColor(color);
+        mLabelColor = color;
+        if (mLabel != null) mLabel.setColor(applyHoverTint(color));
     }
 
     public void setAlignment(Alignment alg) {
@@ -206,8 +204,21 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
         return (mShowTooltipWhileInactive || !mDisabled);
     }
 
-    protected boolean isPersistentGlow() {
+    protected boolean shouldBeHighlighted() {
         return mChecked && !mDisabled && !mQuickMode;
+    }
+
+    protected void updateHighlight() {
+        if (mSyncHighlightToState && shouldBeHighlighted()) {
+            glow.highlight();
+        } else {
+            glow.unhighlight();
+        }
+    }
+
+    public void setAutoHighlight(boolean auto) {
+        mSyncHighlightToState = auto;
+        updateHighlight();
     }
 
     protected Color getBgColor() {
@@ -218,6 +229,12 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
 
     protected float getBgAlpha() {
         return mDisabled ? bgDisabledAlpha : bgAlpha;
+    }
+
+    protected Color applyHoverTint(Color base) {
+        final float t = glow.glowFader.getBrightness();
+        if (t <= 0f) return base;
+        return NativeUiUtils.adjustBrightness(base, 1f + t * HOVER_TINT_MAX);
     }
 
     public InteractionComp<Button> getInteraction() {
@@ -284,40 +301,40 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
         return glow.glowBrightness;
     }
 
-    public float getFlashBrightness() {
-        return glow.flashBrightness;
+    public float getHighlightBrightness() {
+        return glow.highlightBrightness;
     }
 
-    public float getHighlightBrightness() {
-        return highlightBrightness;
+    public float getFlashBrightness() {
+        return glow.flashBrightness;
     }
 
     public void setGlowBrightness(float brightness) {
         glow.glowBrightness = brightness;
     }
 
+    public void setHighlightBrightness(float brightness) {
+        glow.highlightBrightness = brightness;
+    }
+
     public void setFlashBrightness(float brightness) {
         glow.flashBrightness = brightness;
     }
 
-    public void setHighlightBrightness(float brightness) {
-        highlightBrightness = brightness;
-    }
-
     public void highlight() {
-        this.mHighlightFader.fadeIn();
+        glow.highlight();
     }
 
     public boolean isHighlighted() {
-        return this.mHighlightFader.isFadedIn() || this.mHighlightFader.isFadingIn();
+        return glow.isHighlighted();
     }
 
     public void unhighlight() {
-        this.mHighlightFader.fadeOut();
+        glow.unhighlight();
     }
-    
+
     public void setHighlightBounceDown(boolean bool) {
-        mHighlightFader.setBounceDown(bool);
+        glow.highlightFader.setBounceDown(bool);
     }
 
     @Override
@@ -332,8 +349,8 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
 
     @Override
     public void flash(boolean withSound, float in, float out) {
-        glow.fader.fadeIn();
-
+        glow.flashFader.setDuration(in, out);
+        glow.flash();
         if (withSound) playPressSound();
     }
 
@@ -344,18 +361,14 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
 
     @Override
     public void renderBelowImpl(float alpha) {
-        final float highlight = mHighlightFader.getBrightness() * highlightBrightness;
-        glow.overrideBrightness = (highlight > 0f) ? highlight : -1f;
-
         RenderUtils.drawPolygon(glow.faderMaskVertices, getX(), getY(), getBgColor(), alpha * getBgAlpha());
     }
 
-    @Override public void advanceImpl(float delta) {
+    @Override
+    public void advanceImpl(float delta) {
         super.advanceImpl(delta);
 
-        final boolean glow = isPersistentGlow() || input.hoveredLastFrame;
-        mHighlightFader.setState(glow ? State.IN : State.OUT);
-        mHighlightFader.advance(delta);
+        if (mLabel != null) mLabel.setColor(applyHoverTint(mLabelColor));
     }
 
     protected float[] getFaderMaskVertices() {

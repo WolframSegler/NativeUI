@@ -4,7 +4,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 # Features
 - Global UI attachment points via [`Attachments`](src/wfg/native_ui/ui/Attachments.java).
 - Core UI classes [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java), [`UIEntity`](src/wfg/native_ui/internal/ui/core/UIEntity.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) for full control over the UI hierarchy. `UIContainer` auto-wraps vanilla children on `add()`.
-- [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) and [`Components`](src/wfg/native_ui/ui/component/BaseComponent.java) for tooltips, hoverGlow etc. to reduce boilerplate, with a more composition-oriented approach. Native systems can be attached by implementing [`UIElementFlags`](src/wfg/native_ui/ui/core/UIElementFlags.java).
+- [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) and [`Components`](src/wfg/native_ui/ui/component/BaseComponent.java) for tooltips, GlowSystem etc. to reduce boilerplate, with a more composition-oriented approach. Native systems can be attached by implementing [`UIElementFlags`](src/wfg/native_ui/ui/core/UIElementFlags.java).
 - [`UIEventBus`](src/wfg/native_ui/ui/event/UIEventBus.java) is used by [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) to let mods cross-communicate and handle attachment and detachment events.
 - Bidirectional interop: NativeUI containers wrap vanilla children, and NativeUI elements attach to vanilla parents via `UIElementAPI.attachTo()`.
 

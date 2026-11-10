@@ -11,7 +11,7 @@ import com.fs.starfarer.api.ui.ButtonAPI.UICheckboxSize;
 import com.fs.starfarer.api.ui.Alignment;
 
 import wfg.native_ui.example.widget.CheckboxButtonExample;
-import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
+import wfg.native_ui.ui.component.GlowComp.GlowType;
 import wfg.native_ui.ui.functional.CallbackRunnable;
 
 /**
@@ -54,6 +54,7 @@ public class CheckboxButton extends Button {
         super(btnSize, btnSize, text, font, onClick);
         bgAlpha = 0f;
         bgDisabledAlpha = 0f;
+        setAutoHighlight(false);
         glow.type = GlowType.ADDITIVE;
 
         switch (type) {
@@ -107,11 +108,6 @@ public class CheckboxButton extends Button {
         super.buildUI();
 
         customLblMods();
-    }
-
-    @Override
-    protected boolean isPersistentGlow() {
-        return false;
     }
 
     private final void customLblMods() {
