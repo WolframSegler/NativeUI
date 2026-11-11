@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
@@ -80,7 +79,7 @@ public class Toast extends UIElement {
     private float mToastProgressTime = 3f;
 
     public Toast(float width, float height, final Side dir) {
-        this(Attachments.getScreenPanel(), width, height, dir);
+        this(settings.getScreenPanel(), width, height, dir);
     }
 
     public Toast(final UIPanelAPI parent, float width, float height, final Side dir) {
@@ -152,11 +151,6 @@ public class Toast extends UIElement {
 
     public PositionAPI add(UIComponentAPI comp) {
         return mContentContainer.addComponent(comp);
-    }
-
-    /** TODO remove */
-    public PositionAPI add(LabelAPI comp) {
-        return mContentContainer.add(comp);
     }
 
     public void remove(UIComponentAPI comp) {

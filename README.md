@@ -40,6 +40,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 # Usage
 - All panels that wish to use Systems must implement [`UIEntityAPI`](src/wfg/native_ui/ui/core/UIEntityAPI.java).
 - Adding a NativeUI element to a vanilla panel requires `attachTo()`. Passing the element directly throws `ClassCastException`. See [`attachTo()`](src/wfg/native_ui/ui/core/UIElementAPI.java) for details.
+- Vanilla APIs that attach children internally (e.g., `TooltipMakerAPI.addCustom`) require `wrapDetached()`.
 
 <br><br><br>
 

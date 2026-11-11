@@ -146,6 +146,10 @@ public class Button extends UIClickable<Button> implements WidgetAPI<Button>, Bu
         buildUI();
     }
 
+    public final void setShortcutNoHighlight(int keyCode) {
+        setShortcut(keyCode);
+    }
+
     public void setShortcutAndAppendToText(int keyCode) {
         super.setShortcut(keyCode);
         mAppendShortcutToText = true;

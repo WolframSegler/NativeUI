@@ -1,5 +1,7 @@
 package wfg.native_ui.internal.ui.core;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -7,7 +9,6 @@ import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
-import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.component.TooltipComp;
 
@@ -18,7 +19,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
 
     private final TooltipComp mSpec;
     private final OutsideEventDetector mDetector = new OutsideEventDetector(this);
-    private final UIPanelAPI mParent = Attachments.getScreenPanel();
+    private final UIPanelAPI mParent = settings.getScreenPanel();
     private TooltipState mState = TooltipState.SHOWING;
 
     public static UITooltip create(TooltipComp spec) { return new UITooltip(spec); }

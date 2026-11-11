@@ -403,14 +403,14 @@ public final class NativeUiUtils {
         final float y = pos.getY();
         final float w = pos.getWidth();
         final float h = pos.getHeight();
-        final float mx = Mouse.getX() / uiScale;
-        final float my = Mouse.getY() / uiScale;
+        final float mx = settings.getMouseX();
+        final float my = settings.getMouseY();
 
         return mx >= x && mx <= x + w && my >= y && my <= y + h;
     }
 
     public static final boolean containsMouse(Rect rect) {
-        return containsPoint(rect, Mouse.getX() / uiScale, Mouse.getY() / uiScale);
+        return containsPoint(rect, settings.getMouseX(), settings.getMouseY());
     }
 
     public static final boolean containsPoint(Rect rect, float x, float y) {

@@ -2,7 +2,6 @@ package wfg.native_ui.ui.core;
 
 import java.util.List;
 
-import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
@@ -15,7 +14,6 @@ public interface UIContainerAPI extends UIEntityAPI, UIPanelAPI {
 
     List<UIComponentAPI> getChildren();
     List<UIComponentAPI> getChildrenCopy();
-    void clearChildren();
 
     void bringToTop(UIComponentAPI comp);
     void bringToTopWithinItself(UIComponentAPI comp);
@@ -27,9 +25,4 @@ public interface UIContainerAPI extends UIEntityAPI, UIPanelAPI {
 
     default void renderBelowImpl(float alpha) {};
     default void renderAboveImpl(float alpha) {};
-
-    @Deprecated
-    PositionAPI add(LabelAPI comp); // TODO remove after update as LabelAPI will extend UIComponentAPI
-    @Deprecated
-    void remove(LabelAPI comp); // TODO remove after update as LabelAPI will extend UIComponentAPI
 }

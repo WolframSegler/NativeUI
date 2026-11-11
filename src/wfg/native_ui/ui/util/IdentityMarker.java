@@ -31,7 +31,7 @@ public class IdentityMarker extends BaseCustomUIPanelPlugin {
     /** @return if the direct children of the {@code parent} contain an {@link IdentityMarker}. */
     public static final boolean isPresent(UIPanelAPI parent) {
         throwIfNotVanilla(parent);
-        for (UIComponentAPI child : MethodFields.getChildrenNonCopy(parent)) {
+        for (UIComponentAPI child : parent.getChildrenCopy2()) {
             if (isMarker(child)) return true;
         }
         return false;

@@ -1,13 +1,15 @@
 package wfg.native_ui.internal.ui.core;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
+import com.fs.starfarer.api.util.FaderUtil;
 
 import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.MethodFields;
@@ -40,12 +42,10 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         if (!mChildren.contains(comp)) {
             mChildren.add(comp);
             addPos(comp);
+            comp.setParent2(this);
 
             if (comp instanceof UIElementAPI element) {
-                element.setParent(this);
                 element.reportAttached();
-            } else {
-                MethodFields.setParentOnly(comp, this);
             }
         }
         return comp.getPosition();
@@ -63,12 +63,10 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
 
         if (mChildren.remove(comp)) {
             removePos(comp);
-            
+            comp.setParent2(null);
+
             if (comp instanceof UIElementAPI element) {
-                element.setParent(null);
                 element.reportDetached();
-            } else {
-                MethodFields.setParentOnly(comp, null);
             }
         }
 
@@ -83,6 +81,10 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
 
     public List<UIComponentAPI> getChildrenCopy() {
         return new ArrayList<>(mChildren);
+    }
+
+    public final List<UIComponentAPI> getChildrenCopy2() {
+        return getChildrenCopy();
     }
 
     public void clearChildren() {
@@ -186,17 +188,13 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         super.processInputImpl(events);
     }
 
-
-    // TODO remove after update
-    @Deprecated
-    public PositionAPI add(LabelAPI comp) {
-        return add((UIComponentAPI) comp);
+    public final PositionAPI createPosition() {
+        return settings.createPosition();
     }
 
-    // TODO remove after update
-    @Deprecated
-    public void remove(LabelAPI comp) {
-        remove((UIComponentAPI) comp);
+    public final UIComponentAPI wrapAndAdd(UIComponentAPI comp, FaderUtil fader) {
+        add(comp);
+        return comp;
     }
 
     /** Returns the wrapper if the component is a vanilla element. */

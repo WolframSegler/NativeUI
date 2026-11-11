@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.screenH;
 import static wfg.native_ui.util.UIConstants.screenW;
 
@@ -19,7 +20,6 @@ import com.fs.starfarer.codex2.CodexDialog;
 import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.internal.ui.interaction.EventInterceptor;
 import wfg.native_ui.internal.ui.interaction.EventInterceptor.EventInterceptorListener;
-import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.functional.RunnableWithCode;
 import wfg.native_ui.util.RenderUtils;
@@ -46,15 +46,15 @@ public class ModalDialog extends UIContainer implements EventInterceptorListener
     protected final UIPanelAPI mInterceptorParent;
 
     public ModalDialog() {
-        this(Attachments.getScreenPanel(), 500, 200, null);
+        this(settings.getScreenPanel(), 500, 200, null);
     }
 
     public ModalDialog(float width, float height) {
-        this(Attachments.getScreenPanel(), width, width, null);
+        this(settings.getScreenPanel(), width, width, null);
     }
 
     public ModalDialog(float width, float height, RunnableWithCode dialogDismissed) {
-        this(Attachments.getScreenPanel(), width, width, dialogDismissed);
+        this(settings.getScreenPanel(), width, width, dialogDismissed);
     }
 
     public ModalDialog(UIPanelAPI interceptorParent, float width, float height, RunnableWithCode dialogDismissed) {

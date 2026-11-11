@@ -1,5 +1,6 @@
 package wfg.native_ui.internal.ui.interaction;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.screenH;
 import static wfg.native_ui.util.UIConstants.screenW;
 
@@ -12,7 +13,6 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.internal.ui.core.UIElement;
-import wfg.native_ui.ui.Attachments;
 
 public class OutsideEventDetector extends UIElement {
     private final OutsideEventListener mListener;
@@ -25,7 +25,7 @@ public class OutsideEventDetector extends UIElement {
     public boolean triggerOnKeyUp = false;
     
     public OutsideEventDetector(OutsideEventListener owner) {
-        this(owner, Attachments.getScreenPanel());
+        this(owner, settings.getScreenPanel());
     }
 
     public OutsideEventDetector(OutsideEventListener owner, UIPanelAPI targetParent) {

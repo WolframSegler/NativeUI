@@ -15,10 +15,8 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
-import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.functional.CallbackRunnable;
-import wfg.native_ui.ui.system.TooltipSystem;
 import wfg.native_ui.ui.widget.Button;
 import wfg.native_ui.ui.widget.CheckboxButton;
 import wfg.native_ui.util.RenderUtils;
@@ -162,7 +160,7 @@ public final class ComponentFactory {
     }
 
     public static final PositionAPI addTooltip(TooltipMakerAPI tooltip, float h, boolean withScroller) {
-        return addTooltip(tooltip, h, withScroller, Attachments.getScreenPanel());
+        return addTooltip(tooltip, h, withScroller, settings.getScreenPanel());
     }
 
     public static final PositionAPI addTooltip(TooltipMakerAPI tooltip, float h, boolean withScroller,
@@ -181,23 +179,13 @@ public final class ComponentFactory {
         return parent.addComponent(comp);
     }
 
-    // TODO Replace reflection calls with API calls once new update drops
     public static final ScrollPanelAPI wrapWithScrollPanel(UIComponentAPI content, float viewWidth, float viewHeight) {
-        final var scrollPanel = (ScrollPanelAPI) RolfLectionUtil.instantiateClass(
-            TooltipSystem.scrollPanelConstr
-        );
-        RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setContentSizeMethod, scrollPanel,
-            content.getPosition().getWidth(), content.getPosition().getHeight()
-        );
-        RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setSizeMethod, scrollPanel,
-            viewWidth + SCROLL_PANEL_WIDTH_PAD, viewHeight
-        );
-        RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setMaxShadowHeightMethod, scrollPanel,
-            15f
-        );
-        RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setUseSimpleShadowsMethod, scrollPanel,
-            true
-        );
+        final ScrollPanelAPI scrollPanel = settings.createScroller();
+        scrollPanel.setContentSize(content.getPosition().getWidth(), content.getPosition().getHeight());
+        scrollPanel.getPosition().setSize(viewWidth + SCROLL_PANEL_WIDTH_PAD, viewHeight);
+        scrollPanel.setMaxShadowHeight(15f);
+        scrollPanel.setUseSimpleShadows(true);
+        
         if (content instanceof UIElementAPI element) {
             element.attachTo(scrollPanel).inTL(0f, 0f);
         } else {

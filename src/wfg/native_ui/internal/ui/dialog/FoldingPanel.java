@@ -58,7 +58,7 @@ public class FoldingPanel extends UIElement {
     }
 
     public FoldingPanel(float width, float height, String borderPrefix, float borderThickness) {
-        this(Attachments.getScreenPanel(), width, height, borderPrefix, borderThickness);
+        this(settings.getScreenPanel(), width, height, borderPrefix, borderThickness);
     }
 
     public FoldingPanel(float width, float height, String borderPrefix) {

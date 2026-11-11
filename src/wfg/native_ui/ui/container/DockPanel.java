@@ -1,11 +1,11 @@
 package wfg.native_ui.ui.container;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.*;
 
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
@@ -18,7 +18,6 @@ import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
 import wfg.native_ui.internal.util.BorderRenderer;
-import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.functional.CallbackRunnable;
@@ -78,11 +77,11 @@ public abstract class DockPanel extends UIElement implements
     private float mInnerPad;
 
     public DockPanel(float width, float height, final Side dir) {
-        this(Attachments.getScreenPanel(), width, height, dir, opad);
+        this(settings.getScreenPanel(), width, height, dir, opad);
     }
 
     public DockPanel(float width, float height, final Side dir, float padding) {
-        this(Attachments.getScreenPanel(), width, height, dir, padding);
+        this(settings.getScreenPanel(), width, height, dir, padding);
     }
 
     public DockPanel(final UIPanelAPI parent, float width, float height, final Side dir, float padding) {
@@ -212,11 +211,6 @@ public abstract class DockPanel extends UIElement implements
 
     public PositionAPI add(UIComponentAPI comp) {
         return mContentContainer.addComponent(comp);
-    }
-
-    /** TODO remove */
-    public PositionAPI add(LabelAPI comp) {
-        return mContentContainer.add(comp);
     }
 
     public void remove(UIComponentAPI comp) {

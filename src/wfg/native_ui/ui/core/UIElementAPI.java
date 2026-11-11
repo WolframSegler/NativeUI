@@ -13,12 +13,8 @@ public interface UIElementAPI extends UIComponentAPI {
 
     /** Short-hand alias for {@link #getPosition()} */
     PositionAPI pos();
-    float getX();
-    float getY();
     float getCenterX();
     float getCenterY();
-    float getWidth();
-    float getHeight();
 
     void setPos(PositionAPI pos);
     void setWidth(float w);
@@ -28,12 +24,12 @@ public interface UIElementAPI extends UIComponentAPI {
     void moveBy(float dx, float dy);
     void resizeBy(float dw, float dh);
 
-    UIPanelAPI getParent();
     /** Does not set {@link PositionAPI} parent. */
     PositionAPI setParent(final UIPanelAPI parent);
 
     default void reportAttached() {};
     default void reportDetached() {};
+    default void focusLost() {};
 
     default void advanceImpl(float delta) {};
     default void renderImpl(float alpha) {};

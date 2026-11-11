@@ -1,15 +1,11 @@
 package wfg.native_ui.ui.system;
 
 import static wfg.native_ui.util.Globals.settings;
-import static wfg.native_ui.util.UIConstants.pad;
 
 import org.lwjgl.input.Mouse;
 
-import com.fs.starfarer.api.ui.CustomPanelAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.FaderUtil.State;
 
-import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.internal.ui.core.UITooltip;
 import wfg.native_ui.ui.component.InputSnapshotComp;
 import wfg.native_ui.ui.component.NativeComponents;
@@ -28,35 +24,6 @@ public final class TooltipSystem extends BaseSystem {
         element.system().setIfNotPresent(NativeSystems.INPUT_SNAPSHOT, RawInputSystem.get(), element);
     }
 
-    // TODO clean up this workaround by directly getting the scroll panel class.
-    public static final Object scrollPanelConstr;
-    public static final Object setContentSizeMethod;
-    public static final Object setSizeMethod;
-    public static final Object setMaxShadowHeightMethod;
-    public static final Object setUseSimpleShadowsMethod;
-
-    static {
-        final CustomPanelAPI customPanel = settings.createCustom(pad, pad, null);
-        final TooltipMakerAPI tp = customPanel.createUIElement(1f, 1f, true);
-        customPanel.addUIElement(tp);
-        final Class<?> scrollClass = tp.getExternalScroller().getClass();
-
-        scrollPanelConstr = RolfLectionUtil.getConstructor(scrollClass,
-            RolfLectionUtil.getConstructorParamTypesSingleConstructor(scrollClass)
-        );
-        setContentSizeMethod = RolfLectionUtil.getMethodDeclared("setContentSize", 
-            scrollClass, 2
-        );
-        setSizeMethod = RolfLectionUtil.getMethodFromSuperClass("setSize", scrollClass);
-        setMaxShadowHeightMethod = RolfLectionUtil.getMethodDeclared("setMaxShadowHeight", 
-            scrollClass, 1
-        );
-        setUseSimpleShadowsMethod = RolfLectionUtil.getMethodDeclared("setUseSimpleShadows", 
-            scrollClass, 1
-        );
-    }
-
-    private static final float TOOLTIP_DELAY = 0.3f; // TODO replace with SettingsAPI.getTooltipDelay()
     private static final float SCROLL_COOLDOWN = 0.15f;
     private static final int VISIBILITY_GRACE_FRAMES = 3;
     private static final float VISIBILITY_OPACITY_REQUIRED = 0.7f;
@@ -97,7 +64,7 @@ public final class TooltipSystem extends BaseSystem {
 
         if (shouldShow) {
             spec.iHoverTime += delta;
-            if (spec.iHoverTime > TOOLTIP_DELAY && spec.iTooltip == null) {
+            if (spec.iHoverTime > settings.getTooltipDelay() && spec.iTooltip == null) {
                 spec.iTooltip = UITooltip.create(spec);
                 spec.iTooltip.attach();
             }

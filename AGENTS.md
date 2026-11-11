@@ -385,7 +385,7 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 
 ### Key accessors
 
-- **`getScreenPanel()`** – universal: returns the main screen panel depending on current state.
+- **`getScreenPanel()`** – removed, use `SettingsAPI.getScreenPanel` instead.
 
 - **`getCoreUI()`** – in campaign:  
   - If an interaction dialog is active, returns the interaction's core UI.  
@@ -394,15 +394,7 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 - **`getCurrentTab()`** – in campaign:  
   - Returns the panel of the currently selected tab (FLEET, CHARACTER, etc.), either from an interaction or the campaign core.
 
-- **`getCampaignScreenPanel()`** – campaign only: the outermost campaign screen panel (the one used as the dialog/tooltip parent).
-
-- **`getCombatScreenPanel()`** – combat only: the combat widget panel. The root panel for `CombatState`, which extends `AppState`.
-
-- **`getWarroomPanel()`** – combat only: the warroom overlay. The tactical map root panel.
-
 - **`getTutorialOverlay()`** – combat only: the tutorial overlay panel. Rarely used.
-
-- **`getTitleScreenPanel()`** – title screen only: the title screen panel. root panel.
 
 - **`getInteractionDialog()`** – returns the current `InteractionDialogAPI` if interacting with an entity; `null` otherwise.
 
@@ -416,7 +408,7 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 
 ### Usage
 
-To add a NativeUI element to a parent panel, call `attachTo(UIPanelAPI parent)`. If the parent is vanilla, the element is wrapped; if it is a `UIContainerAPI`, it is added directly.
+To add a NativeUI element to a parent panel, call `attachTo(UIPanelAPI parent)`. If the parent is vanilla, the element is wrapped (using `UIPanelAPI.wrapAndAdd(UIComponentAPI, FaderUtil)`); if it is a `UIContainerAPI`, it is added directly.
 
 ```java
 final UIPanelAPI parent = Attachments.getCurrentTab();
@@ -428,8 +420,6 @@ myPanel.attachTo(parent); // ✅ correct
 - **Never** call `parent.addComponent(myNativePanel)` with a raw custom panel. The vanilla `UIPanel` expects its internal `UIComponent` class and will throw `ClassCastException`.
 - If the parent is vanilla, the wrapper is attached to the parent by `attachTo`; do not attach it separately. If the parent is a `UIContainerAPI`, the element itself is added directly.
 - `attachTo` is not idempotent; Throws if the element is already wrapped or attached.
-
-> **Note on wrapAndAdd**. Alex has indicated a `wrapAndAdd(UIComponentAPI, FaderUtil)` method will be available with Starsector v0.98.5, combining the wrap and add steps. Do **not** use it. The framework's preferred approach is `attachTo(parent)`, which works today and will continue to work after the update. `wrapAndAdd` is mentioned only as a reference for future readers.
 
 ## UIEventBus
 `UIEventBus` is a **cross‑mod communication channel** that notifies listeners about panel lifecycle events.  

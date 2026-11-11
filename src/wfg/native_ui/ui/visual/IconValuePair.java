@@ -49,8 +49,8 @@ public class IconValuePair extends UIContainer {
         mValueLbl.getPosition().setSize(w - h - pad, h);
         mValueLbl.setAlignment(Alignment.LMID);
 
-        add(mIconBase).inBL(0f, 0f);
-        add(mValueLbl).inBR(0f, 0f);
+        add(mIconBase).inLMid(0f);
+        add(mValueLbl).inRMid(0f);
     }
 
     public final SpriteElement icon() {
