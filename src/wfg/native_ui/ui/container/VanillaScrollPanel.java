@@ -7,27 +7,26 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.fs.graphics.util.Fader;
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.util.FaderUtil;
-import com.fs.starfarer.ui.O0Oo;
 
 import rolflectionlib.util.RolfLectionUtil;
 import wfg.native_ui.example.container.VanillaScrollPanelExample;
 import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.internal.ui.core.UIElement;
-import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.visual.GridRenderer;
 import wfg.native_ui.util.Arithmetic;
 import wfg.native_ui.util.NativeUiUtils;
 import wfg.native_ui.util.RenderUtils;
 import wfg.native_ui.util.NativeUiUtils.Rect;
 
+// TODO not feeling it dawg, but might complete it someday.
 /**
  * Not complete yet!!!
  * 
@@ -108,7 +107,6 @@ public class VanillaScrollPanel extends UIContainer {
         contentContainer.setSize((int) w, (int) h);
     }
 
-    // TODO fix later
     public void processScrollInputOnly(List<InputEventAPI> events, boolean var2) {
         final float cw = contentContainer.pos().getWidth();
         final float ch = contentContainer.pos().getHeight();
@@ -143,15 +141,14 @@ public class VanillaScrollPanel extends UIContainer {
                 }
 
                 contentContainer.setOffset(offsetX, offsetY);
-                // TODO after update use public methods to set this
-                RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, false);
-                MethodFields.recomputePos(mPos);
-                RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, true);
+                mPos.setWithSortRecurvsive(false);
+                mPos.recompute();
+                mPos.setWithSortRecurvsive(true);
                 event.consume();
                 continue;
             
             }
-            if (var2 || O0Oo.\u00d300000() == null || O0Oo.\u00d300000() == this) continue;
+            if (var2 || Global.getFocusManager().getAllEventsFocusOwner() == null || Global.getFocusManager().getAllEventsFocusOwner() == this) continue;
             
             boolean mouseDown = someData1 == SomeEnum1.LEFT_MOUSE && event.isLMBDownEvent() || someData1 == SomeEnum1.RIGHT_MOUSE && event.isRMBDownEvent();
             boolean mouseUp = someData1 == SomeEnum1.LEFT_MOUSE && event.isLMBUpEvent() || someData1 == SomeEnum1.RIGHT_MOUSE && event.isRMBUpEvent();
@@ -179,7 +176,7 @@ public class VanillaScrollPanel extends UIContainer {
             boolean someLocalBool = false;
 
             if (var11 && !someBool1 && !someBool3 && !someBool2 && eff != null && eff.containsEvent(event) && (var15 == null || !var15.containsEvent(event))) {
-                final float ngp = (Mouse.getY()/uiScale - getY()) / ph;
+                final float ngp = (settings.getMouseY() - getY()) / ph;
                 offsetY = Math.max(0f, (1f - ((ngp * ph + var14 / 2f) / ph)) * ch);
 
                 if (ph > ch) {
@@ -189,10 +186,9 @@ public class VanillaScrollPanel extends UIContainer {
                 }
 
                 contentContainer.forceOffset(offsetX, offsetY);
-                // TODO after update use public methods to set this
-                RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, false);
-                MethodFields.recomputePos(mPos);
-                RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, true);
+                mPos.setWithSortRecurvsive(false);
+                mPos.recompute();
+                mPos.setWithSortRecurvsive(true);
                 someLocalBool = true;
             }
 
@@ -219,10 +215,9 @@ public class VanillaScrollPanel extends UIContainer {
                         }
 
                         contentContainer.forceOffset(offsetX, offsetY);
-                        // TODO after update use public methods to set this
-                        RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, false);
-                        MethodFields.recomputePos(mPos);
-                        RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, true);
+                        mPos.setWithSortRecurvsive(false);
+                        mPos.recompute();
+                        mPos.setWithSortRecurvsive(true);
                         event.consume();
                     }
                 } else {
@@ -253,7 +248,7 @@ public class VanillaScrollPanel extends UIContainer {
 
                     someLocalBool = false;
                     if (var11 && !someBool1 && !someBool3 && !someBool2 && uzn != null && uzn.containsEvent(event) && (hitRect == null || !hitRect.containsEvent(event))) {
-                        final float mfc = (Mouse.getX()/uiScale - getX()) / pw;
+                        final float mfc = (settings.getMouseX() - getX()) / pw;
                         offsetX = ((mfc * pw - var13 / 2f) / pw) * cw;
                         offsetX *= -1f;
                         if (offsetX > 0f) {
@@ -267,10 +262,9 @@ public class VanillaScrollPanel extends UIContainer {
                         }
 
                         contentContainer.forceOffset(offsetX, offsetY);
-                        // TODO after update use public methods to set this
-                        RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, false);
-                        MethodFields.recomputePos(mPos);
-                        RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, true);
+                        mPos.setWithSortRecurvsive(false);
+                        mPos.recompute();
+                        mPos.setWithSortRecurvsive(true);
                         someLocalBool = true;
                     }
 
@@ -297,10 +291,9 @@ public class VanillaScrollPanel extends UIContainer {
                             }
 
                             contentContainer.forceOffset(offsetX, offsetY);
-                            // TODO after update use public methods to set this
-                            RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, false);
-                            MethodFields.recomputePos(mPos);
-                            RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, true);
+                            mPos.setWithSortRecurvsive(false);
+                            mPos.recompute();
+                            mPos.setWithSortRecurvsive(true);
                             event.consume();
                         }
                         } else {
@@ -316,7 +309,7 @@ public class VanillaScrollPanel extends UIContainer {
                         mouseDown = false;
                         }
 
-                        if (mouseDown && mPos.containsEvent(event) && O0Oo.Ó00000() == null) {
+                        if (mouseDown && mPos.containsEvent(event) && Global.getFocusManager().getAllEventsFocusOwner() == null) {
                         // someEvent1 = event.clone();
                         event.consume();
                         someBool1 = true;
@@ -385,10 +378,9 @@ public class VanillaScrollPanel extends UIContainer {
                             }
 
                             contentContainer.forceOffset(offsetX, offsetY);
-                            // TODO after update use public methods to set this
-                            RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, false);
-                            MethodFields.recomputePos(mPos);
-                            RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, true);
+                            mPos.setWithSortRecurvsive(false);
+                            mPos.recompute();
+                            mPos.setWithSortRecurvsive(true);
                             event.consume();
                         }
                         }
@@ -621,7 +613,7 @@ public class VanillaScrollPanel extends UIContainer {
             // Hover preview thumb (vertical)
             final float hoverAlpha = someBool3 ? 1f : someFader3.getBrightness();
             if (hoverAlpha > 0f && !someBool2 && !someBool3 && !someBool1) {
-                float hoverThumbY = py + ((Mouse.getY()/uiScale - py) / ph) * ph - thumbH / 2f;
+                float hoverThumbY = py + ((settings.getMouseY() - py) / ph) * ph - thumbH / 2f;
                 if (hoverThumbY < py) {
                     hoverThumbY = py;
                 } else if (hoverThumbY + thumbH > py + ph) {
@@ -674,7 +666,7 @@ public class VanillaScrollPanel extends UIContainer {
             // Horizontal hover preview thumb
             final float hHoverAlpha = someBool2 ? 1f : someFader5.getBrightness();
             if (hHoverAlpha > 0f && !someBool2 && !someBool3 && !someBool1) {
-                final float hoverThumbX = px + ((Mouse.getX()/uiScale - px) / pw) * pw - hThumbWidth / 2f;
+                final float hoverThumbX = px + ((settings.getMouseX() - px) / pw) * pw - hThumbWidth / 2f;
                 RenderUtils.drawQuad(hoverThumbX, py, hThumbWidth, pad, barColor, alpha * hHoverAlpha * 0.75f, false);
             }
         }
@@ -741,14 +733,14 @@ public class VanillaScrollPanel extends UIContainer {
         offsetY = 0f;
         offsetX = 0f;
         contentContainer.forceOffset(offsetX, offsetY);
-        MethodFields.recomputePos(mPos);
+        mPos.recompute();
     }
 
     public void setOffset(float f2, float f3) {
         offsetX = f2;
         offsetY = f3;
         contentContainer.forceOffset(offsetX, offsetY);
-        MethodFields.recomputePos(mPos);
+        mPos.recompute();
     }
 
     public void clampOffset() {
@@ -933,17 +925,14 @@ public class VanillaScrollPanel extends UIContainer {
         }
 
         public void updateOffset(float x, float y) {
-            // TODO replace with public method after update
-            RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, false);
+            mPos.setWithSortRecurvsive(false);
 
-            // TODO replace with public method after update
-            RolfLectionUtil.invokeMethodDirectly(posSetOffset, mPos,
+            mPos.setOffset(
                 (roundOffset ? (int) x : x),
                 (roundOffset ? (int) y : y)
             );
 
-            // TODO replace with public method after update
-            RolfLectionUtil.invokeMethodDirectly(posSetWithSortRecursiveMethod, mPos, true);
+            mPos.setWithSortRecurvsive(true);
         }
 
         public void forceOffset(float x, float y) {
@@ -952,12 +941,10 @@ public class VanillaScrollPanel extends UIContainer {
         }
 
         public float getXOffset() {
-            // TODO replace with public method after update
             return (float) RolfLectionUtil.invokeMethodDirectly(posGetOffsetX, mPos);
         }
 
         public float getYOffset() {
-            // TODO replace with public method after update
             return (float) RolfLectionUtil.invokeMethodDirectly(posGetOffsetY, mPos);
         }
     }
@@ -999,12 +986,6 @@ public class VanillaScrollPanel extends UIContainer {
 
     private static Object eventSetXMethod;
     private static Object eventSetYMethod;
-    private static final Object posSetWithSortRecursiveMethod = RolfLectionUtil.getMethod(
-        "setWithSortRecurvsive", settings.createCustom(0f, 0f, null).getPosition().getClass(), 1
-    );
-    private static final Object posSetOffset = RolfLectionUtil.getMethod(
-        "setOffset", settings.createCustom(0f, 0f, null).getPosition().getClass(), 2
-    );
     private static final Object posGetOffsetX = RolfLectionUtil.getMethod(
         "getXOffset", settings.createCustom(0f, 0f, null).getPosition().getClass()
     );

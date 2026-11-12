@@ -10,7 +10,7 @@ public enum NativeComponents {
     AUDIO_FEEDBACK,
     BACKGROUND,
     OUTLINE,
-    HOVER_GLOW,
+    GLOW,
     INTERACTION,
     TOOLTIP
 }

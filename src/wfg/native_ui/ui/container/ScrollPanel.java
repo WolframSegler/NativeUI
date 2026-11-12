@@ -31,10 +31,10 @@ public class ScrollPanel extends UIContainer implements HasBackground, HasInputS
     public ScrollType scrollType = ScrollType.VERTICAL;
     public float scrollSpeed = 0.5f;
 
-    protected final UIContainer contentPanel;
+    protected final UIContainer mContentContainer;
 
-    protected float contentWidth, contentHeight;
-    protected float scrollOffsetX, scrollOffsetY;
+    protected float mContentWidth, mContentHeight;
+    protected float mScrollOffsetX, mScrollOffsetY;
 
     public ScrollPanel(float viewportWidth, float viewportHeight) {
         super(viewportWidth, viewportHeight);
@@ -42,26 +42,26 @@ public class ScrollPanel extends UIContainer implements HasBackground, HasInputS
         bg.color = new Color(100, 100, 100);
         bg.enabled = false;
 
-        contentWidth = viewportWidth;
-        contentHeight = viewportHeight;
+        mContentWidth = viewportWidth;
+        mContentHeight = viewportHeight;
 
-        contentPanel = new UIContainer(viewportWidth, viewportHeight);
-        add(contentPanel).inBL(0f, 0f);
+        mContentContainer = new UIContainer(viewportWidth, viewportHeight);
+        add(mContentContainer).inBL(0f, 0f);
     }
 
-    public UIContainer getContentPanel() { return contentPanel; }
+    public UIContainer getContentContainer() { return mContentContainer; }
     public void addToContent(UIComponentAPI comp) {
-        contentPanel.add(comp);
+        mContentContainer.add(comp);
     }
 
     public void setContentWidth(int width) {
-        contentWidth = width;
-        contentPanel.setWidth(width);
+        mContentWidth = width;
+        mContentContainer.setWidth(width);
     }
 
     public void setContentHeight(int height) {
-        contentHeight = height;
-        contentPanel.setHeight(height);
+        mContentHeight = height;
+        mContentContainer.setHeight(height);
     }
 
     @Override
@@ -103,27 +103,27 @@ public class ScrollPanel extends UIContainer implements HasBackground, HasInputS
 
         switch (scrollType) {
         case VERTICAL:
-            scrollOffsetY = clampScrollY(scrollOffsetY + delta);
+            mScrollOffsetY = clampScrollY(mScrollOffsetY + delta);
             break;
         case HORIZONTAL:
-            scrollOffsetX = clampScrollX(scrollOffsetX + delta);
+            mScrollOffsetX = clampScrollX(mScrollOffsetX + delta);
             break;
         case BOTH:
             if (shiftDown) {
-                scrollOffsetX = clampScrollX(scrollOffsetX + delta);
+                mScrollOffsetX = clampScrollX(mScrollOffsetX + delta);
             } else {
-                scrollOffsetY = clampScrollY(scrollOffsetY + delta);
+                mScrollOffsetY = clampScrollY(mScrollOffsetY + delta);
             }
             break;
         }
-        contentPanel.pos().inTL(-scrollOffsetX, scrollOffsetY);
+        mContentContainer.pos().inTL(-mScrollOffsetX, mScrollOffsetY);
     }
 
     private final float clampScrollX(float x) {
-        return Arithmetic.clamp(x, 0f, Math.max(0f, contentWidth - pos().getWidth()));
+        return Arithmetic.clamp(x, 0f, Math.max(0f, mContentWidth - pos().getWidth()));
     }
 
     private final float clampScrollY(float y) {
-        return Arithmetic.clamp(y, 0f, Math.max(0f, contentHeight - pos().getHeight()));
+        return Arithmetic.clamp(y, 0f, Math.max(0f, mContentHeight - pos().getHeight()));
     }
 }

@@ -12,6 +12,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import wfg.native_ui.util.NativeUiUtils;
 import wfg.native_ui.util.RenderUtils;
 
+// Used only by the not finished de-obfuscated VanillaScrollPanel class.
 public class GridRenderer {
     private Color gridColor = settings.getColor("standardGridColor");
     private float columnCount;

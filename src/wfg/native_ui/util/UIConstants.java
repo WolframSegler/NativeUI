@@ -8,7 +8,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
 
 public final class UIConstants {
-    private UIConstants() {}
+    private UIConstants() {};
 
     public static final int pad = 3;
     public static final int hpad = 5;

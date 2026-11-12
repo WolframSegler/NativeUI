@@ -213,11 +213,13 @@ Then call the methods directly on the class:
 - Use `PositionAPI pos()` instead of `getPosition()`.
 - Use the convenience methods instead of first querying the position: `getX()`, `getY()`, `getCenterX()`, `getCenterY()`, `getWidth()`, `getHeight()`,
 - `UIElementAPI` implements `UIComponentAPI`.
+- `attachTo(UIPanelAPI parent)` either adds to parent directly, or if the parent is vanilla, wraps this using a vanilla `CustomPanelAPI` that delegates to this element, then attaches the wrapper to the parent. Use it to add the element to a vanilla parent: `element.attachTo(vanillaParent)`. Throws if the element is already wrapped or attached.
 - Direct control over the parent: `UIPanelAPI getParent()`, `PositionAPI setParent(UIPanelAPI)`. `setParent` returns this element's PositionAPI for chaining.
 - `advance`, `render` and `processInput` are final and call `advanceImpl`, `renderImpl` and `processInputImpl` instead. So override the `Impl` methods.
 - `UIElement` has four members: `mFader`, `mPos`, `mParent` and `mOpacity`. All protected.
 - Convenience methods for parent interaction (null safe) `bringToFront()`, `sendToBack()` and `detach()`.
 - Three constructors for `UIElement`: empty, `(float width, float height)` and `(PositionAPI pos)`.
+- The universal traversal order for UI elements in Starsector is `render -> processInput -> advance`. This information should not be needed, as the logic contained within the three methods should be order agnostic.
 
 ### `UIEntityAPI` and `UIEntity`
 - Extends `UIElementAPI` and adds 3 new methods: `getUIComponentContainer()`, `getUISystemContainer()` and `initSystems()`.
@@ -231,6 +233,9 @@ Then call the methods directly on the class:
 - `UIContainerAPI` extends `UIPanelAPI`, but use `add()` and `remove()` instead of `addComponent()` and `removeComponent()`.
 - New methods `getChildren()`, `getChildrenCopy()` and `clearChildren()`.
 - Methods `addPos(UIComponentAPI)` and `removePos(UIComponentAPI)` adds/removes the component to/from PositionAPI hierarchy only.
+- `add(UIComponentAPI)` auto-detects vanilla implementations and wraps them in an internal `UIVanillaWrapper` before adding. You pass the vanilla component, the container handles the wrap. The returned `PositionAPI` is always the wrapper's position, not the wrapped component's.
+- `add(TooltipMakerAPI)` is a separate overload for tooltips. Routes through `ComponentFactory.addTooltip`, which calls `addComponent` on the container and therefore hits `add(UIComponentAPI)`. Use this overload for tooltips, not the raw `add(UIComponentAPI)`, the factory does tooltip-specific setup (`setForceProcessInput`, `updateSizeAsUIElement`) that the raw path skips.
+- You never need to wrap vanilla children yourself.
 - Overrides `advanceImpl`, `renderImpl` and `processInputImpl` to call `System` methods and children methods.
 - `renderImpl` calls two default methods `renderBelowImpl()` and `renderAboveImpl()` relative to the children's render calls. Override these when extending `UIContainer` unless render order needs to be modified.
 - `UIContainer` adds one new private field `ArrayList<UIComponentAPI> children`.
@@ -243,7 +248,7 @@ Then call the methods directly on the class:
 - When a position method is called `inTL`, `inBR`, `inBMid` etc., they all call the internal `relativeTo` method.
 
 ### The recompute formula
-For each element, posX and posY (the bottom‑left corner) are calculated as:
+For each element, posX and posY (the bottom-left corner) are calculated as:
 ```java
 posX = base.posX + (baseAnchorX * base.width) + (selfAlignX * width) + marginX + offsetX
 posY = base.posY + (baseAnchorY * base.height) + (selfAlignY * width) + marginY + offsetY
@@ -252,9 +257,9 @@ posY = base.posY + (baseAnchorY * base.height) + (selfAlignY * width) + marginY 
 - **`baseAnchorX`, `baseAnchorY`**: Fractions (0 to 1) that define an anchor point on the base's bounding box. Multiplying by the base's width/height converts these fractions into pixel coordinates relative to the base's origin.
     - **`baseAnchorX`**: `0` = left edge, `0.5` = horizontal centre, `1` = right edge.
     - **`baseAnchorY`**: `0` = bottom edge, `0.5` = vertical centre, `1` = top edge.
-- **`selfAlignX`, `selfAlignY`**: Fractions that specify how the element’s own bounding box is aligned relative to the anchor point. Multiplying by the element’s own width/height gives the necessary shift.
+- **`selfAlignX`, `selfAlignY`**: Fractions that specify how the element’s own bounding box is aligned relative to the anchor point. Multiplying by the element's own width/height gives the necessary shift.
     - **`selfAlignX`**: `0` = element's left edge at the anchor, `-0.5` = element's horizontal centre at the anchor, `-1` = element's right edge at the anchor.
-    - **`selfAlignY`**: `0` = element’s bottom edge at the anchor, `-0.5` = element’s vertical centre at the anchor, `-1` = element’s top edge at the anchor.
+    - **`selfAlignY`**: `0` = element's bottom edge at the anchor, `-0.5` = element's vertical centre at the anchor, `-1` = element's top edge at the anchor.
 - **`marginX`, `marginY`**: Pixel offsets added after the alignment calculation. These are the gap/spacing values passes to methods like `inTL(gapX, gapY)`.
 - **`offsetX`, `offsetY`**: Additional manual offsets, separate from alignment margins. They default to 0 and can be adjusted via a dedicated offset setter.
 
@@ -270,7 +275,7 @@ relativeTo(target, baseAnchorX, baseAnchorY, selfAlignX, selfAlignY, marginX, ma
 
 ## Components
 NativeUI uses a composition‑oriented, ECS‑inspired model. Every `UIEntity` holds a `UIComponentContainer`, which stores components; systems provide behaviour.
-If a feature is reused by many different elements, it should be a **component + system** pair (e.g., tooltips, hover glow). UIElement-specific logic stays as local code.
+If a feature is reused by many different elements, it should be a **component + system** pair (e.g., tooltips, glow). UIElement-specific logic stays as local code.
 
 ### UIComponentContainer
 - **Native components**: fixed set defined by the `NativeComponents` enum (e.g., `BACKGROUND`, `TOOLTIP`, `INTERACTION`). Accessed via `get(NativeComponents.TYPE)` and `set(NativeComponents.TYPE, comp)`.
@@ -346,6 +351,29 @@ public final class MyPanel extends UIEntity
 ```
 Custom systems must still be registered manually (see `init()` example above). The flags only cover the built‑in native systems.
 
+## Custom <-> Vanilla Interop
+
+Two wrappers bridge NativeUI and vanilla UI. The direction determines which type wraps which.
+
+### Custom inside Vanilla - `attachTo()`
+
+A vanilla `UIPanel` cannot host a custom `UIComponentAPI` implementation directly; it requires its internal `UIComponent` class. `UIElementAPI.attachTo(UIPanelAPI parent)` solves this by wrapping this with a vanilla `CustomPanelAPI` when needed that delegates to the wrapped element.
+
+```java
+final MyNativePanel panel = new MyNativePanel();
+panel.attachTo(vanillaParent); // ✅ safe, wrapper is vanilla
+```
+
+The wrapper uses the `PositionAPI` of the wrapped element. `attachTo` is not idempotent; Throws if the element is already wrapped or attached.
+
+### Vanilla inside Custom - automatic
+
+`UIContainer.add(UIComponentAPI)` auto-detects vanilla implementations and wraps them in an internal `UIVanillaWrapper`, which uses the `PositionAPI` of the wrapped element. No manual wrap needed:
+
+```java
+container.add(vanillaPanel); // internally wrapped
+```
+
 ## Attachments
 
 `Attachments` provides **static access points** to vanilla UI panels across all game states (campaign, combat, title). Use these methods to obtain a parent `UIPanelAPI` where you can insert NativeUI elements.
@@ -357,7 +385,7 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 
 ### Key accessors
 
-- **`getScreenPanel()`** – universal: returns the main screen panel depending on current state.
+- **`getScreenPanel()`** – removed, use `SettingsAPI.getScreenPanel` instead.
 
 - **`getCoreUI()`** – in campaign:  
   - If an interaction dialog is active, returns the interaction's core UI.  
@@ -366,15 +394,7 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 - **`getCurrentTab()`** – in campaign:  
   - Returns the panel of the currently selected tab (FLEET, CHARACTER, etc.), either from an interaction or the campaign core.
 
-- **`getCampaignScreenPanel()`** – campaign only: the outermost campaign screen panel (the one used as the dialog/tooltip parent).
-
-- **`getCombatScreenPanel()`** – combat only: the combat widget panel. The root panel for `CombatState`, which extends `AppState`.
-
-- **`getWarroomPanel()`** – combat only: the warroom overlay. The tactical map root panel.
-
 - **`getTutorialOverlay()`** – combat only: the tutorial overlay panel. Rarely used.
-
-- **`getTitleScreenPanel()`** – title screen only: the title screen panel. root panel.
 
 - **`getInteractionDialog()`** – returns the current `InteractionDialogAPI` if interacting with an entity; `null` otherwise.
 
@@ -388,26 +408,18 @@ All methods return `UIPanelAPI` (may be `null` if the required state is not acti
 
 ### Usage
 
-Use the returned panel as a parent to attach NativeUI containers.
-Critical – Always use `wrapAndAdd()`, never `addComponent()`. Starting with Starsector v0.9.85, vanilla UIPanelAPI provides:
-```java
-UIComponentAPI wrapAndAdd(UIComponentAPI component, FaderUtil fader); // FaderUtil is required, since each UIComponentAPI must have their own FaderUtil.
-```
-This wraps the NativeUI component so vanilla treats it as an opaque child, not as a core implementation class.
-- **Never** call `parent.addComponent(myNativePanel)` on a vanilla panel. That will cause a `ClassCastException` because the game expects its own internal UI classes.
-- Always use `wrapAndAdd()` (pass `UIElement` fader) to safely attach NativeUI container.
+To add a NativeUI element to a parent panel, call `attachTo(UIPanelAPI parent)`. If the parent is vanilla, the element is wrapped (using `UIPanelAPI.wrapAndAdd(UIComponentAPI, FaderUtil)`); if it is a `UIContainerAPI`, it is added directly.
 
-**Example:**
 ```java
 final UIPanelAPI parent = Attachments.getCurrentTab();
-if (parent == null) return;
-
 final MyNativePanel myPanel = new MyNativePanel();
-parent.wrapAndAdd(myPanel, myPanel.getFader()); // ✅ correct
-// parent.addComponent(myPanel); // ❌ will throw ClassCastException
-```
 
-Important: The returned panels are vanilla UIPanelAPI objects. You can add your NativeUI components as children, but follow the usual NativeUI rules inside your own container.
+myPanel.attachTo(parent); // ✅ correct
+// parent.addComponent(myPanel); // ❌ may throw ClassCastException if parent is vanilla.
+```
+- **Never** call `parent.addComponent(myNativePanel)` with a raw custom panel. The vanilla `UIPanel` expects its internal `UIComponent` class and will throw `ClassCastException`.
+- If the parent is vanilla, the wrapper is attached to the parent by `attachTo`; do not attach it separately. If the parent is a `UIContainerAPI`, the element itself is added directly.
+- `attachTo` is not idempotent; Throws if the element is already wrapped or attached.
 
 ## UIEventBus
 `UIEventBus` is a **cross‑mod communication channel** that notifies listeners about panel lifecycle events.  
@@ -488,6 +500,7 @@ All methods are `static`. Import via `import wfg.native_ui.util.NativeUiUtils;`.
 - **DialogPanel** -> `wfg.native_ui.example.dialog.DialogPanelExample`
 - **UIClickable** -> `wfg.native_ui.example.interaction.UIClickableExample`
 - **GridTable** -> `wfg.native_ui.example.table.GridTableExample`
+- **ListTable** -> `wfg.native_ui.example.table.ListTableExample`
 - **SortableTable** -> `wfg.native_ui.example.table.SortableTableExample`
 - **IdentityMarker** -> no example (trivial identifier wrapper)
 - **AbstractSpriteElement** -> no example (abstract base class; use `SpriteElement`)
@@ -503,4 +516,4 @@ All methods are `static`. Import via `import wfg.native_ui.util.NativeUiUtils;`.
 - **MultiSelect** -> `wfg.native_ui.example.widget.MultiSelectExample`
 - **RadioPanel** -> `wfg.native_ui.example.widget.RadioPanelExample`
 - **Slider** -> `wfg.native_ui.example.widget.SliderExample`
-- **TextField** -> `wfg.native_ui.example.widget.TextFieldExample`
+- **ToastExample** -> `wfg.native_ui.example.widget.ToastExample`

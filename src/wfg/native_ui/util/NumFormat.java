@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import com.fs.starfarer.api.impl.campaign.ids.Strings;
 
 public final class NumFormat {
-    private NumFormat() {}
+    private NumFormat() {};
     private static final String[] LARGE_SUFFIXES = {"", "K", "M", "B", "T", "Q", "Qu"};
     private static final String[] SMALL_SUFFIXES = {"", "m", "μ", "n", "p", "f", "a"};
 

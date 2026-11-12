@@ -67,29 +67,29 @@ public class Slider extends UIContainer implements HasInputSnapshot {
     private final int windowWidth = Display.getWidth();
     private final int windowHeight = Display.getWidth();
 
-    private float cachedMaxValue = 1f;
-    private float progressValue = 0f;
-    private float cachedProgressValue = 0f;
-    private float cachedMax = Float.MAX_VALUE;
-    private float cachedMin = 0f;
-    private float potentialDecreaseAmount = 0f;
-    private float cachedPotentialDecreaseAmount = 0f;
-    private float CachedShowNotchOnIfBelowProgress = -3.4028235E38f;
-    private float showNotchOnIfBelowProgress = -3.4028235E38f;
-    private SpriteAPI lineTexture = settings.getSprite("graphics/hud/line4x4.png");
-    private FaderUtil barHighlightFader = null;
-    private boolean userAdjustable = true;
-    private Color barColor = settings.getColor("progressBarStandardColor");
-    private Color barColorOverflow = settings.getColor("progressBarOverflowColor");
-    private boolean shouldInterpolateCachedValues = false;
-    private FaderUtil flashOnOverflowFader = null;
-    private GLListToken GLListToken;
-    private boolean lineUpTextOnCenter = false;
-    private float lineUpTextOnCenterWidth = 0f;
-    private boolean highlightBrightnessOverride = false;
-    private float highlightBrightnessOverrideValue = -1f;
-    private float cachedAlphaMult = -1f;
-    private float cachedHighlightBrightness = -1f;
+    private float mCachedMaxValue = 1f;
+    private float mProgressValue = 0f;
+    private float mCachedProgressValue = 0f;
+    private float mCachedMax = Float.MAX_VALUE;
+    private float mCachedMin = 0f;
+    private float mPotentialDecreaseAmount = 0f;
+    private float mCachedPotentialDecreaseAmount = 0f;
+    private float mCachedShowNotchOnIfBelowProgress = -3.4028235E38f;
+    private float mShowNotchOnIfBelowProgress = -3.4028235E38f;
+    private SpriteAPI mLineTexture = settings.getSprite("graphics/hud/line4x4.png");
+    private FaderUtil mBarHighlightFader = null;
+    private boolean mUserAdjustable = true;
+    private Color mBarColor = settings.getColor("progressBarStandardColor");
+    private Color mBarColorOverflow = settings.getColor("progressBarOverflowColor");
+    private boolean mShouldInterpolateCachedValues = false;
+    private FaderUtil mFlashOnOverflowFader = null;
+    private GLListToken mGLListToken;
+    private boolean mLineUpTextOnCenter = false;
+    private float mLineUpTextOnCenterWidth = 0f;
+    private boolean mHighlightBrightnessOverride = false;
+    private float mHighlightBrightnessOverrideValue = -1f;
+    private float mCachedAlphaMult = -1f;
+    private float mCachedHighlightBrightness = -1f;
 
     public Slider(String initialText, float minRange, float maxRange, float width, float height) {
         super(width, height);
@@ -97,7 +97,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
         this.labelText = initialText;
         this.minRange = minRange;
         this.maxRange = maxRange;
-        cachedMaxValue = maxRange;
+        mCachedMaxValue = maxRange;
 
         createLabel(null);
     }
@@ -113,76 +113,76 @@ public class Slider extends UIContainer implements HasInputSnapshot {
     }
 
     public void setPotentialDecreaseAmount(float amount) {
-        if (potentialDecreaseAmount != amount) {
-            GLListManager.invalidateList(GLListToken);
+        if (mPotentialDecreaseAmount != amount) {
+            GLListManager.invalidateList(mGLListToken);
         }
 
-        potentialDecreaseAmount = amount;
+        mPotentialDecreaseAmount = amount;
     }
 
     public float getShowNotchOnIfBelowProgress() {
-        return showNotchOnIfBelowProgress;
+        return mShowNotchOnIfBelowProgress;
     }
 
     public void setShowNotchOnIfBelowProgress(float progress) {
-        if (showNotchOnIfBelowProgress != progress) {
-            GLListManager.invalidateList(GLListToken);
+        if (mShowNotchOnIfBelowProgress != progress) {
+            GLListManager.invalidateList(mGLListToken);
         }
 
-        showNotchOnIfBelowProgress = progress;
+        mShowNotchOnIfBelowProgress = progress;
     }
 
     public void setHighlightOnMouseover(boolean bool) {
         if (bool) {
-            barHighlightFader = new FaderUtil(0.05f, 0.25f);
+            mBarHighlightFader = new FaderUtil(0.05f, 0.25f);
         } else {
-            barHighlightFader = null;
+            mBarHighlightFader = null;
         }
 
     }
 
     public void setUserAdjustable(boolean bool) {
-        userAdjustable = bool;
+        mUserAdjustable = bool;
         setHighlightOnMouseover(bool);
     }
 
     public float getProgress() {
-        return progressValue;
+        return mProgressValue;
     }
 
     public float getProgressInterpolated() {
-        return cachedProgressValue;
+        return mCachedProgressValue;
     }
 
     public void setLineUpTextOnCenter(boolean bool, float width) {
-        lineUpTextOnCenter = bool;
-        lineUpTextOnCenterWidth = width;
+        mLineUpTextOnCenter = bool;
+        mLineUpTextOnCenterWidth = width;
     }
 
     public FaderUtil getBarHighlightFader() {
-        return barHighlightFader;
+        return mBarHighlightFader;
     }
 
     public void setProgress(float progress) {
         progress = Math.max(minRange, progress);
 
-        if (progressValue != progress) {
-            GLListManager.invalidateList(GLListToken);
+        if (mProgressValue != progress) {
+            GLListManager.invalidateList(mGLListToken);
         }
 
-        progressValue = progress;
+        mProgressValue = progress;
     }
 
     public void setBarColor(Color color) {
-        if (!barColor.equals(color)) {
-            GLListManager.invalidateList(GLListToken);
+        if (!mBarColor.equals(color)) {
+            GLListManager.invalidateList(mGLListToken);
         }
 
-        barColor = color;
+        mBarColor = color;
     }
 
     public Color getBarColor() {
-        return barColor;
+        return mBarColor;
     }
 
     public void setLabelFont(String font) {
@@ -192,72 +192,72 @@ public class Slider extends UIContainer implements HasInputSnapshot {
     }
 
     public void setBarColorOverflow(Color color) {
-        if (!barColorOverflow.equals(color)) {
-            GLListManager.invalidateList(GLListToken);
+        if (!mBarColorOverflow.equals(color)) {
+            GLListManager.invalidateList(mGLListToken);
         }
 
-        barColorOverflow = color;
+        mBarColorOverflow = color;
     }
 
     public FaderUtil getHighlight() {
-        return barHighlightFader;
+        return mBarHighlightFader;
     }
 
     public float getXCoordinateForProgressValue(float progress) {
         final float w = getWidth() - 8f;
-        return w * (cachedProgressValue - minRange) / (maxRange - minRange) +
+        return w * (mCachedProgressValue - minRange) / (maxRange - minRange) +
                 w * (progress - minRange) / (maxRange - minRange) + 4.5f;
     }
 
     public void setHighlightBrightnessOverride(float brightness) {
-        highlightBrightnessOverrideValue = brightness;
-        highlightBrightnessOverride = true;
+        mHighlightBrightnessOverrideValue = brightness;
+        mHighlightBrightnessOverride = true;
     }
 
     public void forceSync() {
         boolean needsRefresh = false;
-        if (cachedProgressValue != progressValue || cachedMin != minValue ||
-                cachedMaxValue != maxRange || cachedMax != maxValue
-                || cachedPotentialDecreaseAmount != potentialDecreaseAmount
-                || CachedShowNotchOnIfBelowProgress != showNotchOnIfBelowProgress)
+        if (mCachedProgressValue != mProgressValue || mCachedMin != minValue ||
+                mCachedMaxValue != maxRange || mCachedMax != maxValue
+                || mCachedPotentialDecreaseAmount != mPotentialDecreaseAmount
+                || mCachedShowNotchOnIfBelowProgress != mShowNotchOnIfBelowProgress)
             needsRefresh = true;
 
-        cachedProgressValue = progressValue;
-        cachedMin = minValue;
-        cachedMaxValue = maxRange;
-        cachedMax = maxValue;
-        cachedPotentialDecreaseAmount = potentialDecreaseAmount;
-        CachedShowNotchOnIfBelowProgress = showNotchOnIfBelowProgress;
+        mCachedProgressValue = mProgressValue;
+        mCachedMin = minValue;
+        mCachedMaxValue = maxRange;
+        mCachedMax = maxValue;
+        mCachedPotentialDecreaseAmount = mPotentialDecreaseAmount;
+        mCachedShowNotchOnIfBelowProgress = mShowNotchOnIfBelowProgress;
         if (needsRefresh) {
-            GLListManager.invalidateList(GLListToken);
+            GLListManager.invalidateList(mGLListToken);
         }
     }
 
     @Override
     public void renderBelowImpl(float alpha) {
         super.renderBelowImpl(alpha);
-        float roundedProgress = cachedProgressValue;
+        float roundedProgress = mCachedProgressValue;
         if (roundBarValue) {
             roundedProgress = Math.round(roundedProgress / roundingIncrement) * roundingIncrement;
             if (roundingIncrement != 1) {
-                cachedProgressValue = Math.round(roundedProgress / roundingIncrement) * roundingIncrement;
+                mCachedProgressValue = Math.round(roundedProgress / roundingIncrement) * roundingIncrement;
             }
         }
 
-        float highlightBrightness = (barHighlightFader != null)
-            ? barHighlightFader.getBrightness() : -1f;
+        float highlightBrightness = (mBarHighlightFader != null)
+            ? mBarHighlightFader.getBrightness() : -1f;
 
-        if (highlightBrightnessOverride) {
-            highlightBrightness = highlightBrightnessOverrideValue;
+        if (mHighlightBrightnessOverride) {
+            highlightBrightness = mHighlightBrightnessOverrideValue;
         }
 
-        if (alpha != cachedAlphaMult || highlightBrightness != cachedHighlightBrightness) {
-            GLListManager.invalidateList(GLListToken);
+        if (alpha != mCachedAlphaMult || highlightBrightness != mCachedHighlightBrightness) {
+            GLListManager.invalidateList(mGLListToken);
         }
 
-        cachedAlphaMult = alpha;
-        cachedHighlightBrightness = highlightBrightness;
-        shouldInterpolateCachedValues = true;
+        mCachedAlphaMult = alpha;
+        mCachedHighlightBrightness = highlightBrightness;
+        mShouldInterpolateCachedValues = true;
         final float x = 0;
         final float y = 0;
         final float w = getWidth();
@@ -265,8 +265,8 @@ public class Slider extends UIContainer implements HasInputSnapshot {
         GL11.glPushMatrix();
         GL11.glTranslatef(getX(), getY(), 0f);
 
-        if (!GLListManager.callList(GLListToken)) {
-            GLListToken = GLListManager.beginList();
+        if (!GLListManager.callList(mGLListToken)) {
+            mGLListToken = GLListManager.beginList();
 
             // Background
             RenderUtils.drawQuad(x, y, w, h, Color.BLACK, alpha, false);
@@ -282,18 +282,18 @@ public class Slider extends UIContainer implements HasInputSnapshot {
             }
 
             // Precompute ratios
-            float minBarWidth = usableWidth * cachedMin / (cachedMaxValue - minRange);
-            float progressBarWidth = usableWidth * (roundedProgress - minRange) / (cachedMaxValue - minRange);
-            float underfillWidth = usableWidth * (cachedMaxValue - roundedProgress) / (cachedMaxValue - minRange);
+            float minBarWidth = usableWidth * mCachedMin / (mCachedMaxValue - minRange);
+            float progressBarWidth = usableWidth * (roundedProgress - minRange) / (mCachedMaxValue - minRange);
+            float underfillWidth = usableWidth * (mCachedMaxValue - roundedProgress) / (mCachedMaxValue - minRange);
             float overflowWidth = 0f;
             float overAmount;
 
-            if (roundedProgress > cachedMaxValue) {
-                minBarWidth = usableWidth * cachedMin / (roundedProgress - minRange);
-                progressBarWidth = usableWidth * cachedMaxValue / (roundedProgress - minRange);
-                overflowWidth = usableWidth * (roundedProgress - cachedMaxValue) / (roundedProgress - minRange);
+            if (roundedProgress > mCachedMaxValue) {
+                minBarWidth = usableWidth * mCachedMin / (roundedProgress - minRange);
+                progressBarWidth = usableWidth * mCachedMaxValue / (roundedProgress - minRange);
+                overflowWidth = usableWidth * (roundedProgress - mCachedMaxValue) / (roundedProgress - minRange);
                 underfillWidth = 0f;
-                overAmount = roundedProgress - cachedMaxValue;
+                overAmount = roundedProgress - mCachedMaxValue;
             }
 
             final boolean thin = h <= 5f;
@@ -324,7 +324,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Top underfill segment
                 RenderUtils.drawGradientSprite(
-                    lineTexture, leftMargin - 2f, y + 1f,
+                    mLineTexture, leftMargin - 2f, y + 1f,
                     leftMargin - 2f + overAmount, y + 1f,
                     1f,
                     widgetColor, false,
@@ -333,7 +333,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Top main bar segment
                 RenderUtils.drawGradientSprite(
-                    lineTexture, leftMargin - 2f + overAmount, y + 1f,
+                    mLineTexture, leftMargin - 2f + overAmount, y + 1f,
                     leftMargin + minBarWidth - 1.5f, y + 1f,
                     1f,
                     widgetColor, false,
@@ -342,7 +342,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Bottom underfill segment
                 RenderUtils.drawGradientSprite(
-                    lineTexture, leftMargin - 2f, y + h - 2f,
+                    mLineTexture, leftMargin - 2f, y + h - 2f,
                     leftMargin - 2f + overAmount, y + h - 2f,
                     1f,
                     widgetColor, false,
@@ -351,7 +351,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Bottom main bar segment
                 RenderUtils.drawGradientSprite(
-                    lineTexture, leftMargin - 2f + overAmount, y + h - 2f,
+                    mLineTexture, leftMargin - 2f + overAmount, y + h - 2f,
                     leftMargin + minBarWidth - 1.5f, y + h - 2f,
                     1f,
                     widgetColor, false,
@@ -360,7 +360,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Right vertical bar
                 RenderUtils.drawGradientSprite(
-                    lineTexture, leftMargin + minBarWidth - 1.5f, y + 1f,
+                    mLineTexture, leftMargin + minBarWidth - 1.5f, y + 1f,
                     leftMargin + minBarWidth - 1.5f, y + h - 1f,
                     1f,
                     widgetColor, false,
@@ -369,7 +369,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Right white edge
                 RenderUtils.drawGradientSprite(
-                    lineTexture, leftMargin + minBarWidth - 1.5f, y + 1f,
+                    mLineTexture, leftMargin + minBarWidth - 1.5f, y + 1f,
                     leftMargin + minBarWidth - 1.5f, y + h - 1f,
                     1f,
                     Color.WHITE, true,
@@ -410,51 +410,51 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
             overAmount = progressBarWidth - 2f - (leftMargin - x - 6f);
             float highlightIntensity = 0f;
-            if (barHighlightFader != null || highlightBrightnessOverride) {
+            if (mBarHighlightFader != null || mHighlightBrightnessOverride) {
                 highlightIntensity += highlightBrightness;
-                highlightBrightnessOverride = false;
+                mHighlightBrightnessOverride = false;
             }
 
             float maxNotchPos;
             float maxNotchOffset;
-            if (cachedMax < cachedMaxValue && cachedMax > roundedProgress) { // Highlight Notch Rendering
+            if (mCachedMax < mCachedMaxValue && mCachedMax > roundedProgress) { // Highlight Notch Rendering
                 if (overAmount > 0f) {
-                    if (CachedShowNotchOnIfBelowProgress < roundedProgress
-                            && CachedShowNotchOnIfBelowProgress >= minRange) {
+                    if (mCachedShowNotchOnIfBelowProgress < roundedProgress
+                            && mCachedShowNotchOnIfBelowProgress >= minRange) {
 
                         // Compute notch position
-                        maxNotchPos = usableWidth * (CachedShowNotchOnIfBelowProgress - minRange) / (cachedMaxValue - minRange);
-                        maxNotchOffset = getXCoordinateForProgressValue(CachedShowNotchOnIfBelowProgress) - leftMargin - overAmount;
+                        maxNotchPos = usableWidth * (mCachedShowNotchOnIfBelowProgress - minRange) / (mCachedMaxValue - minRange);
+                        maxNotchOffset = getXCoordinateForProgressValue(mCachedShowNotchOnIfBelowProgress) - leftMargin - overAmount;
 
                         if (-maxNotchOffset <= 2f) {
                             // Simple notch rectangle
-                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor,
+                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, mBarColor,
                                 alpha, highlightIntensity, false
                             );
                         } else {
                             // Split the highlight bar for the notch
                             RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + maxNotchOffset,
-                                h - 2f, barColor, alpha, highlightIntensity, false
+                                h - 2f, mBarColor, alpha, highlightIntensity, false
                             );
 
                             if (-maxNotchOffset > 0f) {
                                 RenderUtils.drawHighlightBar(
                                     leftMargin + overAmount + maxNotchOffset, y + 1f, -maxNotchOffset, h - 2f,
-                                    barColor, alpha * 0.7f, highlightIntensity, false
+                                    mBarColor, alpha * 0.7f, highlightIntensity, false
                                 );
                             }
                         }
                     } else {
-                        // CachedShowNotchOnIfBelowProgress is outside range
+                        // mCachedShowNotchOnIfBelowProgress is outside range
                         RenderUtils.drawHighlightBar(
                             leftMargin, y + 1f, overAmount, h - 2f,
-                            barColor, alpha, highlightIntensity, false
+                            mBarColor, alpha, highlightIntensity, false
                         );
                     }
                 }
 
                 // Highlight remaining section of the bar
-                maxNotchPos = usableWidth * (cachedMax - minRange) / (cachedMaxValue - minRange);
+                maxNotchPos = usableWidth * (mCachedMax - minRange) / (mCachedMaxValue - minRange);
                 maxNotchOffset = maxNotchPos - overAmount;
                 if (maxNotchOffset > 0f) {
                     RenderUtils.drawHighlightBar(
@@ -462,7 +462,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
                         y + 3f,
                         maxNotchOffset,
                         h - 6f,
-                        barColor,
+                        mBarColor,
                         alpha * 0.65f,
                         highlightIntensity,
                         true
@@ -471,7 +471,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Draw the vertical end line
                 RenderUtils.drawGradientSprite(
-                    lineTexture,
+                    mLineTexture,
                     leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + 2f,
                     leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + h - 2f,
                     1f, widgetColor, false,
@@ -482,11 +482,11 @@ public class Slider extends UIContainer implements HasInputSnapshot {
                 if (overAmount > 0f) {
 
                     // Draw max progress notch if current progress is near the cached max
-                    if (cachedMax <= roundedProgress && roundedProgress < maxRange - 1f
-                            && cachedMax >= roundedProgress - 1f) {
-                        maxNotchPos = usableWidth * (cachedMax - minRange) / (cachedMaxValue - minRange);
+                    if (mCachedMax <= roundedProgress && roundedProgress < maxRange - 1f
+                            && mCachedMax >= roundedProgress - 1f) {
+                        maxNotchPos = usableWidth * (mCachedMax - minRange) / (mCachedMaxValue - minRange);
                         maxNotchOffset = maxNotchPos - overAmount;
-                        RenderUtils.drawGradientSprite(lineTexture, 
+                        RenderUtils.drawGradientSprite(mLineTexture, 
                             leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + 2f, 
                             leftMargin + overAmount + 4f + maxNotchOffset + 1.5f, y + h - 2f, 
                             1f, widgetColor, false, alpha, alpha, alpha
@@ -494,72 +494,72 @@ public class Slider extends UIContainer implements HasInputSnapshot {
                     }
 
                     // Draw CachedShowNotch highlight
-                    if (CachedShowNotchOnIfBelowProgress < roundedProgress &&
-                        CachedShowNotchOnIfBelowProgress >= minRange
+                    if (mCachedShowNotchOnIfBelowProgress < roundedProgress &&
+                        mCachedShowNotchOnIfBelowProgress >= minRange
                     ) {
-                        float notchRelativeOffset = getXCoordinateForProgressValue(CachedShowNotchOnIfBelowProgress) - leftMargin - overAmount;
+                        float notchRelativeOffset = getXCoordinateForProgressValue(mCachedShowNotchOnIfBelowProgress) - leftMargin - overAmount;
 
                         if (-notchRelativeOffset <= 2f) {
-                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alpha, highlightIntensity, false);
+                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, mBarColor, alpha, highlightIntensity, false);
                         } else {
                             RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + notchRelativeOffset,
-                                h - 2f, barColor, alpha, highlightIntensity, false
+                                h - 2f, mBarColor, alpha, highlightIntensity, false
                             );
 
                             if (-notchRelativeOffset > 0f) {
                                 RenderUtils.drawHighlightBar(leftMargin + overAmount + notchRelativeOffset,
-                                    y + 1f, -notchRelativeOffset, h - 2f, barColor, alpha * 0.7f, 
+                                    y + 1f, -notchRelativeOffset, h - 2f, mBarColor, alpha * 0.7f, 
                                     highlightIntensity, false
                                 );
                             }
                         }
                     } 
-                    // Draw cachedMax notch if CachedShowNotch is not in range
-                    else if (cachedMax < cachedMaxValue) {
-                        maxNotchPos = usableWidth * (cachedMax - minRange) / (cachedMaxValue - minRange);
-                        maxNotchOffset = getXCoordinateForProgressValue(cachedMax) - leftMargin - overAmount;
+                    // Draw mCachedMax notch if CachedShowNotch is not in range
+                    else if (mCachedMax < mCachedMaxValue) {
+                        maxNotchPos = usableWidth * (mCachedMax - minRange) / (mCachedMaxValue - minRange);
+                        maxNotchOffset = getXCoordinateForProgressValue(mCachedMax) - leftMargin - overAmount;
 
                         if (-maxNotchOffset <= 2f) {
-                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alpha, highlightIntensity, false);
+                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, mBarColor, alpha, highlightIntensity, false);
                         } else {
-                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + maxNotchOffset + 2f, h - 2f, barColor, alpha, highlightIntensity, false);
+                            RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount + maxNotchOffset + 2f, h - 2f, mBarColor, alpha, highlightIntensity, false);
 
                             if (-maxNotchOffset > 0f) {
                                 RenderUtils.drawHighlightBar(leftMargin + overAmount + maxNotchOffset + 2f, y + 1f,
-                                    -maxNotchOffset - 2f, h - 2f, barColor, alpha * 0.7f, highlightIntensity, false
+                                    -maxNotchOffset - 2f, h - 2f, mBarColor, alpha * 0.7f, highlightIntensity, false
                                 );
                             }
                         }
                     } 
                     // Default highlight
                     else {
-                        RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, barColor, alpha, highlightIntensity, false);
+                        RenderUtils.drawHighlightBar(leftMargin, y + 1f, overAmount, h - 2f, mBarColor, alpha, highlightIntensity, false);
                     }
                 }
 
                 // Draw overflow highlight if progress exceeds cached max
-                if (!(cachedMax < cachedMaxValue)) {
-                    float overflowNotchPos = usableWidth * (cachedMaxValue - minRange) / (cachedMaxValue - minRange);
+                if (!(mCachedMax < mCachedMaxValue)) {
+                    float overflowNotchPos = usableWidth * (mCachedMaxValue - minRange) / (mCachedMaxValue - minRange);
                     float overflowNotchOffset = overflowNotchPos - overAmount - 4f - overflowWidth;
 
                     if (overflowNotchOffset > 0f) {
                         RenderUtils.drawHighlightBar(
                             leftMargin + overAmount + 5f, y + 3f, overflowNotchOffset, h - 6f,
-                            barColor, alpha * 0.65f, highlightIntensity * 1f, true
+                            mBarColor, alpha * 0.65f, highlightIntensity * 1f, true
                         );
                     }
                 }
             }
             
-            if (cachedPotentialDecreaseAmount > 0f) { // Decrease Notch Indicator
-                maxNotchPos = Math.max(0f, roundedProgress - cachedPotentialDecreaseAmount);
-                maxNotchOffset = usableWidth * (roundedProgress - cachedPotentialDecreaseAmount - minRange)
-                    / (cachedMaxValue - minRange);
-                final float notchX = usableWidth * (maxNotchPos - minRange) / (cachedMaxValue - minRange);
+            if (mCachedPotentialDecreaseAmount > 0f) { // Decrease Notch Indicator
+                maxNotchPos = Math.max(0f, roundedProgress - mCachedPotentialDecreaseAmount);
+                maxNotchOffset = usableWidth * (roundedProgress - mCachedPotentialDecreaseAmount - minRange)
+                    / (mCachedMaxValue - minRange);
+                final float notchX = usableWidth * (maxNotchPos - minRange) / (mCachedMaxValue - minRange);
 
                 // Draw the gradient bar for the notch
                 RenderUtils.drawGradientSprite(
-                    lineTexture,
+                    mLineTexture,
                     x + notchX + 5.5f, y,
                     x + notchX + 5.5f, y + h,
                     1f, widgetColor, false,
@@ -568,7 +568,7 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
                 // Draw the additive white highlight on top
                 RenderUtils.drawGradientSprite(
-                    lineTexture,
+                    mLineTexture,
                     x + notchX + 5.5f, y,
                     x + notchX + 5.5f, y + h,
                     1f, Color.white, true,
@@ -579,8 +579,8 @@ public class Slider extends UIContainer implements HasInputSnapshot {
             if (overflowWidth > 2f) { // Overflow Highlight Bar
                 overAmount = overflowWidth - 1f;
                 highlightIntensity = 0f;
-                if (flashOnOverflowFader != null) {
-                    highlightIntensity += flashOnOverflowFader.getBrightness();
+                if (mFlashOnOverflowFader != null) {
+                    highlightIntensity += mFlashOnOverflowFader.getBrightness();
                 }
 
                 RenderUtils.drawHighlightBar(
@@ -588,20 +588,20 @@ public class Slider extends UIContainer implements HasInputSnapshot {
                     y + 1f,
                     overAmount,
                     h - 2f,
-                    barColorOverflow,
+                    mBarColorOverflow,
                     alpha,
                     highlightIntensity,
                     false
                 );
             }
 
-            RenderUtils.drawGradientSprite(lineTexture, x + progressBarWidth + 5.5f, y,
+            RenderUtils.drawGradientSprite(mLineTexture, x + progressBarWidth + 5.5f, y,
                 x + progressBarWidth + 5.5f, y + h, 1f, widgetColor, false,
                 0.5f * alpha, alpha, 0.5f * alpha
             );
 
-            if (userAdjustable && showAdjustableIndicator) { // User Adjustable Indicator
-                RenderUtils.drawGradientSprite(lineTexture, x + progressBarWidth + 5.5f, y,
+            if (mUserAdjustable && showAdjustableIndicator) { // User Adjustable Indicator
+                RenderUtils.drawGradientSprite(mLineTexture, x + progressBarWidth + 5.5f, y,
                     x + progressBarWidth + 5.5f, y + h, 2f, Color.white, false, 
                     0f, alpha, 0f
                 );
@@ -636,40 +636,40 @@ public class Slider extends UIContainer implements HasInputSnapshot {
                 for (int i = 0; i < numSubdivisions - 1; ++i) {
                     final float subdivisionX = (int)(usableWidth / (float) numSubdivisions) * (i + 1) + 2;
                     final float notchPadding = 3f;
-                    final float topOffset = getXCoordinateForProgressValue(progressValue) >
+                    final float topOffset = getXCoordinateForProgressValue(mProgressValue) >
                         leftMargin + subdivisionX ? 1f : 3f;
 
-                    RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - 1f, y + topOffset,
+                    RenderUtils.drawGradientSprite(mLineTexture, leftMargin + subdivisionX - 1f, y + topOffset,
                         leftMargin + subdivisionX - 1f, y + h - topOffset,
                         1f, Color.black, false, alpha, alpha, alpha
                     );
 
-                    RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX, y + topOffset,
+                    RenderUtils.drawGradientSprite(mLineTexture, leftMargin + subdivisionX, y + topOffset,
                         leftMargin + subdivisionX, y + h - topOffset,
                         1f, widgetColor, false, alpha * 0.5f, alpha, alpha * 0.5f
                     );
 
-                    RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX + 1f, y + topOffset,
+                    RenderUtils.drawGradientSprite(mLineTexture, leftMargin + subdivisionX + 1f, y + topOffset,
                         leftMargin + subdivisionX + 1f, y + h - topOffset,
                         1f, Color.black, false, alpha, alpha, alpha
                     );
 
-                    RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding,
+                    RenderUtils.drawGradientSprite(mLineTexture, leftMargin + subdivisionX - notchPadding,
                         y - 1f, leftMargin + subdivisionX + notchPadding + 1f, y - 1f,
                         1f, widgetColor, false, alpha, alpha, alpha
                     );
 
-                    RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding, y,
+                    RenderUtils.drawGradientSprite(mLineTexture, leftMargin + subdivisionX - notchPadding, y,
                         leftMargin + subdivisionX + notchPadding + 1f, y,
                         1f, Color.black, false, alpha, alpha, alpha
                     );
 
-                    RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding, y + h,
+                    RenderUtils.drawGradientSprite(mLineTexture, leftMargin + subdivisionX - notchPadding, y + h,
                         leftMargin + subdivisionX + notchPadding + 1f, y + h,
                         1f, widgetColor, false, alpha, alpha, alpha
                     );
 
-                    RenderUtils.drawGradientSprite(lineTexture, leftMargin + subdivisionX - notchPadding,
+                    RenderUtils.drawGradientSprite(mLineTexture, leftMargin + subdivisionX - notchPadding,
                         y + h - 1f, leftMargin + subdivisionX + notchPadding + 1f, y + h - 1f,
                         1f, Color.black, false, alpha, alpha, alpha
                     );
@@ -678,32 +678,32 @@ public class Slider extends UIContainer implements HasInputSnapshot {
                 overAmount = Math.min(10f, underfillWidth);
                 final float baseX = x + 6f + usableWidth;
 
-                RenderUtils.drawGradientSprite(lineTexture, baseX + 2f, y + 1f, baseX + 2f - overAmount,
+                RenderUtils.drawGradientSprite(mLineTexture, baseX + 2f, y + 1f, baseX + 2f - overAmount,
                     y + 1f, 1f, widgetColor, false, 0f,
                     0.5f * alpha, alpha
                 );
 
-                RenderUtils.drawGradientSprite(lineTexture, baseX + 2f - overAmount, y + 1f,
+                RenderUtils.drawGradientSprite(mLineTexture, baseX + 2f - overAmount, y + 1f,
                     baseX - underfillWidth + 1.5f, y + 1f, 1f, widgetColor, false,
                     alpha, alpha, alpha
                 );
 
-                RenderUtils.drawGradientSprite(lineTexture, baseX + 2f, y + h - 2f,
+                RenderUtils.drawGradientSprite(mLineTexture, baseX + 2f, y + h - 2f,
                     baseX + 2f - overAmount, y + h - 2f, 1f, widgetColor,
                     false, 0f, 0.5f * alpha, alpha
                 );
 
-                RenderUtils.drawGradientSprite(lineTexture, baseX + 2f - overAmount, y + h - 2f,
+                RenderUtils.drawGradientSprite(mLineTexture, baseX + 2f - overAmount, y + h - 2f,
                     baseX - underfillWidth + 1.5f, y + h - 2f, 1f,
                     widgetColor, false, alpha, alpha, alpha
                 );
 
-                RenderUtils.drawGradientSprite(lineTexture, baseX - underfillWidth + 1.5f, y + 1f,
+                RenderUtils.drawGradientSprite(mLineTexture, baseX - underfillWidth + 1.5f, y + 1f,
                     baseX - underfillWidth + 1.5f, y + h - 1f, 1f, widgetColor, 
                     false, alpha, alpha, alpha
                 );
 
-                RenderUtils.drawGradientSprite(lineTexture, baseX - underfillWidth + 1.5f, y + 1f,
+                RenderUtils.drawGradientSprite(mLineTexture, baseX - underfillWidth + 1.5f, y + 1f,
                     baseX - underfillWidth + 1.5f, y + h - 1f, 1f, Color.white, 
                     false, 0f, alpha, 0f
                 );
@@ -718,20 +718,20 @@ public class Slider extends UIContainer implements HasInputSnapshot {
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
         super.processInputImpl(events);
-        if (!userAdjustable && barHighlightFader == null) return;
+        if (!mUserAdjustable && mBarHighlightFader == null) return;
 
-        if (barHighlightFader != null) {
+        if (mBarHighlightFader != null) {
             if (input.isActive || input.hoveredLastFrame) {
-                barHighlightFader.fadeIn();
+                mBarHighlightFader.fadeIn();
             } else {
-                barHighlightFader.fadeOut();
+                mBarHighlightFader.fadeOut();
             }
         }
 
         final InputEventAPI event = input.mouseMoveEvent;
         if (event == null || event.isConsumed()) return;
 
-        if (input.isActive && userAdjustable) {
+        if (input.isActive && mUserAdjustable) {
             mapInputToProgress(event);
             event.consume();
         }
@@ -741,56 +741,56 @@ public class Slider extends UIContainer implements HasInputSnapshot {
     public void advanceImpl(float delta) {
         super.advanceImpl(delta);
         if (roundBarValue && roundingIncrement > 0) {
-            cachedProgressValue = Math.round(cachedProgressValue / roundingIncrement) * roundingIncrement;
-            progressValue = Math.round(progressValue / roundingIncrement) * roundingIncrement;
+            mCachedProgressValue = Math.round(mCachedProgressValue / roundingIncrement) * roundingIncrement;
+            mProgressValue = Math.round(mProgressValue / roundingIncrement) * roundingIncrement;
         }
 
-        if (cachedProgressValue != progressValue || cachedMin != minValue || cachedMax != maxValue || 
-            cachedMaxValue != maxRange || showNotchOnIfBelowProgress != CachedShowNotchOnIfBelowProgress
+        if (mCachedProgressValue != mProgressValue || mCachedMin != minValue || mCachedMax != maxValue || 
+            mCachedMaxValue != maxRange || mShowNotchOnIfBelowProgress != mCachedShowNotchOnIfBelowProgress
         ) {
-            GLListManager.invalidateList(GLListToken);
+            GLListManager.invalidateList(mGLListToken);
         }
 
-        if (barHighlightFader != null) barHighlightFader.advance(delta);
-        if (flashOnOverflowFader != null) flashOnOverflowFader.advance(delta);
+        if (mBarHighlightFader != null) mBarHighlightFader.advance(delta);
+        if (mFlashOnOverflowFader != null) mFlashOnOverflowFader.advance(delta);
 
-        if (clampCurrToMax && progressValue > maxValue) progressValue = maxValue;
+        if (clampCurrToMax && mProgressValue > maxValue) mProgressValue = maxValue;
 
         // Overflow flash: detect when progress exceeds the configured range and toggle the flash fader
         float overflowRatio;
         if (maxRange <= 0f) {
             overflowRatio = 10f;
         } else {
-            overflowRatio = (progressValue - minRange) / maxRange - 1f;
+            overflowRatio = (mProgressValue - minRange) / maxRange - 1f;
             if (overflowRatio < 0f) {
                 overflowRatio = 0f;
             }
         }
 
         if (overflowRatio > flashOnOverflowFraction) {
-            if (flashOnOverflowFader == null) {
-                flashOnOverflowFader = new FaderUtil(0.25f, 0.25f);
-                flashOnOverflowFader.setBounce(true, true);
-                flashOnOverflowFader.fadeIn();
+            if (mFlashOnOverflowFader == null) {
+                mFlashOnOverflowFader = new FaderUtil(0.25f, 0.25f);
+                mFlashOnOverflowFader.setBounce(true, true);
+                mFlashOnOverflowFader.fadeIn();
             }
-        } else if (flashOnOverflowFader != null) {
-            flashOnOverflowFader.setBounceUp(false);
-            flashOnOverflowFader.fadeOut();
-            if (flashOnOverflowFader.isFadedOut()) {
-                flashOnOverflowFader = null;
+        } else if (mFlashOnOverflowFader != null) {
+            mFlashOnOverflowFader.setBounceUp(false);
+            mFlashOnOverflowFader.fadeOut();
+            if (mFlashOnOverflowFader.isFadedOut()) {
+                mFlashOnOverflowFader = null;
             }
         }
 
         float interpolationScale;
-        if (shouldInterpolateCachedValues) {
+        if (mShouldInterpolateCachedValues) {
             scrollSpeed = 100f;
 
             // Compute interpolation scale based on the visible width vs the effective progress range
-            interpolationScale = getWidth() / Math.max(progressValue - minRange, maxRange - minRange);
+            interpolationScale = getWidth() / Math.max(mProgressValue - minRange, maxRange - minRange);
 
-            float effectiveRange = cachedMaxValue - minRange;
-            if (cachedProgressValue - minRange > effectiveRange) {
-                effectiveRange = cachedProgressValue - minRange;
+            float effectiveRange = mCachedMaxValue - minRange;
+            if (mCachedProgressValue - minRange > effectiveRange) {
+                effectiveRange = mCachedProgressValue - minRange;
             }
             if (effectiveRange < 1f) {
                 effectiveRange = 1f;
@@ -798,57 +798,57 @@ public class Slider extends UIContainer implements HasInputSnapshot {
 
             interpolationScale = getWidth() / effectiveRange;
 
-            cachedProgressValue = Arithmetic.smoothApproach(
-                cachedProgressValue, progressValue,
+            mCachedProgressValue = Arithmetic.smoothApproach(
+                mCachedProgressValue, mProgressValue,
                 scrollSpeed / interpolationScale,
-                0.02f * Math.abs(cachedProgressValue - progressValue) * interpolationScale,
+                0.02f * Math.abs(mCachedProgressValue - mProgressValue) * interpolationScale,
                 delta
             );
 
-            cachedMin = Arithmetic.smoothApproach(
-                cachedMin, minValue,
+            mCachedMin = Arithmetic.smoothApproach(
+                mCachedMin, minValue,
                 scrollSpeed / interpolationScale,
-                0.02f * Math.abs(cachedMin - minValue) * interpolationScale,
+                0.02f * Math.abs(mCachedMin - minValue) * interpolationScale,
                 delta
             );
 
-            cachedMax = Arithmetic.smoothApproach(
-                cachedMax, maxValue,
+            mCachedMax = Arithmetic.smoothApproach(
+                mCachedMax, maxValue,
                 scrollSpeed / interpolationScale,
-                0.05f * Math.abs(cachedMax - maxValue) * interpolationScale,
+                0.05f * Math.abs(mCachedMax - maxValue) * interpolationScale,
                 delta
             );
 
-            cachedPotentialDecreaseAmount = Arithmetic.smoothApproach(
-                cachedPotentialDecreaseAmount, potentialDecreaseAmount,
+            mCachedPotentialDecreaseAmount = Arithmetic.smoothApproach(
+                mCachedPotentialDecreaseAmount, mPotentialDecreaseAmount,
                 scrollSpeed / interpolationScale,
-                0.05f * Math.abs(cachedPotentialDecreaseAmount - potentialDecreaseAmount) * interpolationScale,
+                0.05f * Math.abs(mCachedPotentialDecreaseAmount - mPotentialDecreaseAmount) * interpolationScale,
                 delta
             );
 
-            cachedMaxValue = Arithmetic.smoothApproach(
-                cachedMaxValue, maxRange,
+            mCachedMaxValue = Arithmetic.smoothApproach(
+                mCachedMaxValue, maxRange,
                 scrollSpeed / interpolationScale,
-                0.02f * Math.abs(cachedMaxValue - maxRange) * interpolationScale,
+                0.02f * Math.abs(mCachedMaxValue - maxRange) * interpolationScale,
                 delta
             );
 
-            CachedShowNotchOnIfBelowProgress = Arithmetic.smoothApproach(
-                CachedShowNotchOnIfBelowProgress, showNotchOnIfBelowProgress,
+            mCachedShowNotchOnIfBelowProgress = Arithmetic.smoothApproach(
+                mCachedShowNotchOnIfBelowProgress, mShowNotchOnIfBelowProgress,
                 scrollSpeed / interpolationScale,
-                0.05f * Math.abs(CachedShowNotchOnIfBelowProgress - showNotchOnIfBelowProgress) * interpolationScale,
+                0.05f * Math.abs(mCachedShowNotchOnIfBelowProgress - mShowNotchOnIfBelowProgress) * interpolationScale,
                 delta
             );
         } else {
-            cachedProgressValue = progressValue;
-            cachedMin = minValue;
-            cachedMax = maxValue;
-            cachedMaxValue = maxRange;
-            cachedPotentialDecreaseAmount = potentialDecreaseAmount;
-            CachedShowNotchOnIfBelowProgress = showNotchOnIfBelowProgress;
+            mCachedProgressValue = mProgressValue;
+            mCachedMin = minValue;
+            mCachedMax = maxValue;
+            mCachedMaxValue = maxRange;
+            mCachedPotentialDecreaseAmount = mPotentialDecreaseAmount;
+            mCachedShowNotchOnIfBelowProgress = mShowNotchOnIfBelowProgress;
         }
 
-        shouldInterpolateCachedValues = false;
+        mShouldInterpolateCachedValues = false;
         if (customText != null) {
             label.setText(customText.get());
 
@@ -856,28 +856,28 @@ public class Slider extends UIContainer implements HasInputSnapshot {
             label.setText(labelText);
 
         } else if (showPercent) {
-            final String displayText = String.format("%d%%", Math.round(cachedProgressValue));
+            final String displayText = String.format("%d%%", Math.round(mCachedProgressValue));
             label.setText(displayText);
 
         } else if (showPercentAndTitle) {
-            final String displayText = String.format("%d%%", Math.round(cachedProgressValue));
+            final String displayText = String.format("%d%%", Math.round(mCachedProgressValue));
             label.setText(String.format("%s: %s", labelText, displayText));
         } else if (showValueOnly) {
             final String displayText = showDecimalForValueOnlyMode ? 
-                String.format("%.2f", cachedProgressValue) :
-                String.format("%d", Math.round(cachedProgressValue));
+                String.format("%.2f", mCachedProgressValue) :
+                String.format("%d", Math.round(mCachedProgressValue));
 
             label.setText(displayText);
 
         } else if (labelText != null) {
             final String displayText = String.format(
-                "%d / %d", Math.round(cachedProgressValue), Math.round(cachedMaxValue)
+                "%d / %d", Math.round(mCachedProgressValue), Math.round(mCachedMaxValue)
             );
             label.setText(String.format("%s: %s", labelText, displayText));
 
         } else {
             final String displayText = String.format(
-                "%d / %d", Math.round(cachedProgressValue), Math.round(cachedMaxValue)
+                "%d / %d", Math.round(mCachedProgressValue), Math.round(mCachedMaxValue)
             );
             label.setText(displayText);
         }
@@ -888,13 +888,13 @@ public class Slider extends UIContainer implements HasInputSnapshot {
         label.autoSizeToWidth(labelWidth);
         label.setColor(labelColor);
         label.setHighlightColor(labelValueColor);
-        if (labelWidth != 0f && lineUpTextOnCenter) {
-            final float offset = (label.getPosition().getWidth() / 2f) - labelWidth + lineUpTextOnCenterWidth;
+        if (labelWidth != 0f && mLineUpTextOnCenter) {
+            final float offset = (label.getPosition().getWidth() / 2f) - labelWidth + mLineUpTextOnCenterWidth;
             label.getPosition().setXAlignOffset(offset);
         }
 
-        if (cachedProgressValue < cachedMin) {
-            cachedProgressValue = cachedMin;
+        if (mCachedProgressValue < mCachedMin) {
+            mCachedProgressValue = mCachedMin;
         }
     }
 
@@ -902,20 +902,20 @@ public class Slider extends UIContainer implements HasInputSnapshot {
         final float mouseX = mouseEvent.getX();
         final float mouseY = mouseEvent.getY();
         if (mouseX < 0 || mouseX > windowWidth || mouseY < 0 || mouseY > windowHeight) {
-            return progressValue;
+            return mProgressValue;
         }
 
         final float offset = 6f;
         final float maxBarWidth = getWidth() - offset;
-        final float minBarWidth = maxBarWidth * cachedMin / (cachedMaxValue - minRange);
+        final float minBarWidth = maxBarWidth * mCachedMin / (mCachedMaxValue - minRange);
         final float relativeX = Arithmetic.clamp(mouseX - getX() - offset, minBarWidth, maxBarWidth);
 
-        float progressValue = relativeX / maxBarWidth * (maxRange - minRange) + minRange;
-        if (clampCurrToMax && progressValue > maxValue) progressValue = maxValue;
+        float mProgressValue = relativeX / maxBarWidth * (maxRange - minRange) + minRange;
+        if (clampCurrToMax && mProgressValue > maxValue) mProgressValue = maxValue;
 
-        setProgress(progressValue);
+        setProgress(mProgressValue);
         forceSync();
 
-        return progressValue;
+        return mProgressValue;
     }
 }

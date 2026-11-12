@@ -8,7 +8,7 @@ import org.lwjgl.input.Keyboard;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import wfg.native_ui.example.container.DockPanelExample;
-import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
+import wfg.native_ui.ui.component.GlowComp.GlowType;
 import wfg.native_ui.ui.core.UIBuildableAPI;
 import wfg.native_ui.ui.visual.AbstractSpriteElement.SpriteElement;
 import wfg.native_ui.ui.widget.DockButton;

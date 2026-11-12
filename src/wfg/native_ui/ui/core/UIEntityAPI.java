@@ -1,6 +1,7 @@
 package wfg.native_ui.ui.core;
 
 import wfg.native_ui.ui.component.UIComponentContainer;
+import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
 import wfg.native_ui.ui.system.UISystemContainer;
 
 /**
@@ -25,8 +26,6 @@ public interface UIEntityAPI extends UIElementAPI {
 
     /**
      * Returns the container holding components attached to this element.
-     * Components may include background renderers, hover glows, audio hooks, or
-     * other behavior/decorator objects.
      */
     UIComponentContainer getUIComponentContainer();
 
@@ -41,4 +40,7 @@ public interface UIEntityAPI extends UIElementAPI {
 
     /** Uses {@link UIElementFlags} to attach native systems by doing instanceof checks. */
     void initSystems();
+
+    /** Notifies this entity that it has been removed from the UI tree. Not reliable. */
+    void notifyRemoved();
 }

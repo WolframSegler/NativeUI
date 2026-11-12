@@ -1,40 +1,39 @@
 package wfg.native_ui.ui.event;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.fs.starfarer.api.ui.UIComponentAPI;
 
 public final class UIEventBus {
     private UIEventBus() {}
 
-    private static final List<UILifecycleListener> listeners = new ArrayList<>();
+    private static final ArrayList<UILifecycleListener> sListeners = new ArrayList<>();
 
     public static final void addListener(UILifecycleListener l) {
-        if (!listeners.contains(l)) listeners.add(l);
+        if (!sListeners.contains(l)) sListeners.add(l);
     }
 
     public static final void removeListener(UILifecycleListener l) {
-        listeners.remove(l);
+        sListeners.remove(l);
     }
 
     public static final void fireAttached(UIComponentAPI panel) {
         final String id = extractId(panel);
-        for (UILifecycleListener l : listeners) {
+        for (UILifecycleListener l : sListeners) {
             l.panelAttached(panel, id);
         }
     }
 
     public static final void fireDetached(UIComponentAPI panel) {
         final String id = extractId(panel);
-        for (UILifecycleListener l : listeners) {
+        for (UILifecycleListener l : sListeners) {
             l.panelDetached(panel, id);
         }
     }
 
     public static final void fireRefreshed(UIComponentAPI panel) {
         final String id = extractId(panel);
-        for (UILifecycleListener l : listeners) {
+        for (UILifecycleListener l : sListeners) {
             l.panelRefreshed(panel, id);
         }
     }

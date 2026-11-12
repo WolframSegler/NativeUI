@@ -17,18 +17,18 @@ public final class GridTableExample extends GridTable<PlannedOrder, UIClickableE
 
     public GridTableExample(int width, int height) {
         super(width, height, UIClickableExample.WIDTH, UIClickableExample.HEIGHT, opad*2);
-        uniformOuterGap = true;
-        justifyGrid = true;
-        isSelectionEnabled = true;
+        mUniformOuterGap = true;
+        mJustifyGrid = true;
+        mIsSelectionEnabled = true;
         buildUI();
     }
 
     public final void clearSelection() {
-        for (UIClickableExample w : widgets) {
+        for (UIClickableExample w : mWidgets) {
             w.selectionState = WidgetSelectionState.NONE;
             w.buildUI();
         }
-        selectedWidget = null;
+        mSelectedWidget = null;
     }
 
     protected List<PlannedOrder> getDataList() {
@@ -53,8 +53,8 @@ public final class GridTableExample extends GridTable<PlannedOrder, UIClickableE
             }
             source.selectionState = WidgetSelectionState.REMOVE;
             source.buildUI();
-            selectedWidget = source;
-            for (UIClickableExample widget : widgets) {
+            mSelectedWidget = source;
+            for (UIClickableExample widget : mWidgets) {
                 if (widget == source) continue;
 
                 widget.selectionState = WidgetSelectionState.SWAP;
@@ -68,8 +68,8 @@ public final class GridTableExample extends GridTable<PlannedOrder, UIClickableE
             break;
 
         case SWAP:
-            swapOrders(source.index, selectedWidget.index);
-            NativeUiUtils.swapPositions(source, selectedWidget);
+            swapOrders(source.index, mSelectedWidget.index);
+            NativeUiUtils.swapPositions(source, mSelectedWidget);
 
             clearSelection();
             break;

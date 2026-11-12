@@ -10,7 +10,7 @@ public enum NativeSystems {
     BACKGROUND,
     DEBUG_BG,
     AUDIO_FEEDBACK,
-    HOVER_GLOW,
+    GLOW,
     OUTLINE,
     INTERACTION,
     TOOLTIP,

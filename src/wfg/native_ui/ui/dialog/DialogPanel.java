@@ -29,9 +29,9 @@ A modal, fold-animated dialog panel with a built-in <em>holo</em> ({@link Foldin
 
 <p><strong>Important implementation notes</strong></p>
 <ul>
-<li><strong>Ownership:</strong> {@link DialogPanel} is owned and positioned by {@link DialogPanel#holo}.
-Do <em>not</em> assign {@link DialogPanel} to any other parent. Use {@link FoldingPanel#setNext()} instead.</li>
-<li><strong>Buttons:</strong> Buttons map to integer options stored in {@link DialogPanel#buttons}.</li>
+<li><strong>Ownership:</strong> {@link DialogPanel} is owned and positioned by {@link DialogPanel#mHolo}.
+Do <em>not</em> assign {@link DialogPanel} to any other parent. Use {@link FoldingPanel#setNext} instead.</li>
+<li><strong>Buttons:</strong> Buttons map to integer options stored in {@link DialogPanel#mButtons}.</li>
 <li>Dismissing the dialog with confirmation keys exit with code <code>0</code>, while dismissing with cancel keys exit with code <code>1</code>.
 See {@link ModalDialog#optionOnKeyboardConfirm} and {@link ModalDialog#optionOnKeyboardCancel} for changing the defaults.</li>
 </ul>
@@ -39,22 +39,22 @@ See {@link ModalDialog#optionOnKeyboardConfirm} and {@link ModalDialog#optionOnK
 <p><strong>Example: </strong> {@link DialogPanelExample}</p>
 */
 public class DialogPanel extends ModalDialog implements UIBuildableAPI, CallbackRunnable<Button> {
-    public boolean noiseOnConfirmDismiss = true;
-    public final FoldingPanel holo;
-    protected final ArrayList<Button> buttons = new ArrayList<>(4);
+    public boolean mNoiseOnConfirmDismiss = true;
+    public final FoldingPanel mHolo;
+    protected final ArrayList<Button> mButtons = new ArrayList<>(4);
 
     public DialogPanel(float w, float h, RunnableWithCode onDismissed) {
         super(w, h + BUTTON_H + pad + opad, onDismissed);
 
-        holo = new FoldingPanel(w, h + BUTTON_H + pad + opad,
+        mHolo = new FoldingPanel(w, h + BUTTON_H + pad + opad,
             UI_BORDER_1, 7f
         );
 
-        holo.pos().inMid();
-        holo.forceFoldIn();
+        mHolo.pos().inMid();
+        mHolo.forceFoldIn();
 
-        holo.transitionEnabled = false;
-        holo.setNext(this);
+        mHolo.transitionEnabled = false;
+        mHolo.setNext(this);
     }
 
     public DialogPanel(RunnableWithCode onDismissed, String txt, String... btnText) {
@@ -92,15 +92,15 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
                 btn.setCutStyle(CutStyle.TL_BR);
                 btn.setQuickMode(true);
                 btn.customData = Integer.valueOf(i);
-                buttons.add(btn);
+                mButtons.add(btn);
                 add(btn);
             }
 
-            for (int i = buttons.size() - 1; i >= 0; i--) {
-                final Button btn = buttons.get(i);
+            for (int i = mButtons.size() - 1; i >= 0; i--) {
+                final Button btn = mButtons.get(i);
 
-                if (i == buttons.size() - 1) btn.pos().inBR(pad, pad);
-                else btn.pos().leftOfMid(buttons.get(i + 1), pad*2);
+                if (i == mButtons.size() - 1) btn.pos().inBR(pad, pad);
+                else btn.pos().leftOfMid(mButtons.get(i + 1), pad*2);
             }
         }
     }
@@ -109,16 +109,16 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
     public void buildUI() {}
 
     public PositionAPI setSize(float w, float h) {
-        holo.setSize(w, h);
+        mHolo.setSize(w, h);
         return mPos.setSize(w, h);
     }
 
     public PositionAPI sizeToInner(float w, float h) {
-        return setSize(w + holo.borderThickness * 3f, h + holo.borderThickness * 3f);
+        return setSize(w + mHolo.borderThickness * 3f, h + mHolo.borderThickness * 3f);
     }
 
     public void setConfirmShortcut() {
-        buttons.get(0).setShortcutAndAppendToText(Keyboard.KEY_G);
+        mButtons.get(0).setShortcutAndAppendToText(Keyboard.KEY_G);
     }
 
     public void run(Button btn) {
@@ -127,9 +127,9 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
 
     @Override
     public void dismiss(int option) {
-        holo.foldIn(fader.getDurationOut() * 0.5f);
-        if (noiseOnConfirmDismiss || option != 0) {
-            holo.flickerNoise(0f, 1f);
+        mHolo.foldIn(mFader.getDurationOut() * 0.5f);
+        if (mNoiseOnConfirmDismiss || option != 0) {
+            mHolo.flickerNoise(0f, 1f);
         }
 
         super.dismiss(option);
@@ -137,17 +137,18 @@ public class DialogPanel extends ModalDialog implements UIBuildableAPI, Callback
 
     public void show(float durIn, float durOut) {
         super.show(durIn, durOut);
+        mHolo.bringToFront();
 
-        holo.foldOut(fader.getDurationIn() * 0.5f);
-        holo.flickerNoise(0f, 1f);
+        mHolo.foldOut(mFader.getDurationIn() * 0.5f);
+        mHolo.flickerNoise(0f, 1f);
     }
 
     @Override
-    public void outsideClickAbsorbed(InputEventAPI event) {
-        holo.flickerNoise(0f, 0.5f);
+    public void absorbed(InputEventAPI event) {
+        mHolo.flickerNoise(0f, 0.5f);
     }
 
     public final Button getButton(int id) {
-        return buttons.get(id);
+        return mButtons.get(id);
     }
 }

@@ -43,10 +43,10 @@ import wfg.native_ui.ui.widget.RadioPanel.LayoutMode;
  * <p><strong>Example: </strong> {@link MultiSelectExample}</p>
  */
 public class MultiSelect extends UIContainer implements UIBuildableAPI {
-    private final List<String> options = new ArrayList<>();
-    private final List<Button> buttons = new ArrayList<>();
-    private final Set<Integer> selectedIndexes = new HashSet<>();
-    private final LayoutMode mode;
+    private final List<String> mOptions = new ArrayList<>();
+    private final List<Button> mButtons = new ArrayList<>();
+    private final Set<Integer> mSelectedIndexes = new HashSet<>();
+    private final LayoutMode mMode;
 
     public CallbackRunnable<Button> onSelected;
 
@@ -57,58 +57,58 @@ public class MultiSelect extends UIContainer implements UIBuildableAPI {
     public MultiSelect(float width, float height, Iterable<String> options, LayoutMode mode) {
         super(width, height);
 
-        for (String opt : options) this.options.add(opt);
-        this.mode = mode;
+        for (String opt : options) this.mOptions.add(opt);
+        this.mMode = mode;
     }
 
     public final void selectFirst(String option) {
-        select(options.indexOf(option));
+        select(mOptions.indexOf(option));
     }
 
     public final void deselectFirst(String option) {
-        deselect(options.indexOf(option));
+        deselect(mOptions.indexOf(option));
     }
 
     public final void toggleFirst(String option) {
-        toggle(options.indexOf(option));
+        toggle(mOptions.indexOf(option));
     }
 
     public final void select(int index) {
-        if (index < 0 || buttons.isEmpty()) return;
-        selectedIndexes.add(index);
-        final Button btn = buttons.get(index);
+        if (index < 0 || mButtons.isEmpty()) return;
+        mSelectedIndexes.add(index);
+        final Button btn = mButtons.get(index);
         if (btn != null) btn.setChecked(true);
     }
 
     public final void deselect(int index) {
-        if (index < 0 || buttons.isEmpty()) return;
-        selectedIndexes.remove(index);
-        final Button btn = buttons.get(index);
+        if (index < 0 || mButtons.isEmpty()) return;
+        mSelectedIndexes.remove(index);
+        final Button btn = mButtons.get(index);
         if (btn != null) btn.setChecked(false);
     }
 
     public final void toggle(int index) {
-        if (selectedIndexes.contains(index)) deselect(index); 
+        if (mSelectedIndexes.contains(index)) deselect(index); 
         else select(index);
     }
 
     public final List<Button> getButtons() {
-        return buttons;
+        return mButtons;
     }
 
     public final Set<Integer> getSelectedIndexes() {
-        return Collections.unmodifiableSet(selectedIndexes);
+        return Collections.unmodifiableSet(mSelectedIndexes);
     }
 
     public final List<String> getSelectedStrings() {
-        final List<String> selected = new ArrayList<>(selectedIndexes.size());
-        for (Integer index : selectedIndexes) selected.add(options.get(index));
+        final List<String> selected = new ArrayList<>(mSelectedIndexes.size());
+        for (Integer index : mSelectedIndexes) selected.add(mOptions.get(index));
         return selected;
     }
 
     @Override
     public void buildUI() {
-        buttons.clear();
+        mButtons.clear();
         clearChildren();
 
         final CallbackRunnable<Button> run = (btn) -> {
@@ -116,32 +116,32 @@ public class MultiSelect extends UIContainer implements UIBuildableAPI {
             if (onSelected != null) onSelected.run(btn);
         };
 
-        switch (mode) {
+        switch (mMode) {
         default: case VERTICAL:
-            for (int i = 0; i < options.size(); i++) {
+            for (int i = 0; i < mOptions.size(); i++) {
                 final CheckboxButton checkbox = new CheckboxButton(
-                    checkboxSize, options.get(i), font,
+                    checkboxSize, mOptions.get(i), font,
                     run, checkboxType, false
                 );
                 checkbox.customData = i;
-                buttons.add(checkbox);
+                mButtons.add(checkbox);
                 add(checkbox).inTL(pad, pad + (pad + checkboxSize) * i);
             }
             break;
     
         case HORIZONTAL:
-            final int count = options.size();
+            final int count = mOptions.size();
             final float totalGap = pad * (count - 1);
             final float available = getWidth() - pad * 2 - totalGap;
             final int buttonWidth = (int) (available / count);
 
             for (int i = 0; i < count; i++) {
                 final Button button = new Button(buttonWidth, (int) getHeight(),
-                    options.get(i), font, run
+                    mOptions.get(i), font, run
                 );
 
                 button.customData = i;
-                buttons.add(button);
+                mButtons.add(button);
 
                 final float x = pad + i * (buttonWidth + pad);
                 add(button).inTL(x, 0f);
@@ -152,8 +152,8 @@ public class MultiSelect extends UIContainer implements UIBuildableAPI {
             break;
         }
 
-        for (int i = 0; i < buttons.size(); i++) {
-            buttons.get(i).setChecked(selectedIndexes.contains(i));
+        for (int i = 0; i < mButtons.size(); i++) {
+            mButtons.get(i).setChecked(mSelectedIndexes.contains(i));
         }
     }
 }

@@ -2,14 +2,13 @@ package wfg.native_ui.ui;
 
 import static wfg.native_ui.util.Globals.settings;
 
-import java.util.List;
-
 import com.fs.graphics.util.Fader;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.api.util.FaderUtil;
+import com.fs.starfarer.ui.UIComponentAPIWrapper;
 
+import rolflectionlib.ui.UiUtil;
 import rolflectionlib.util.RolfLectionUtil;
 
 /**
@@ -17,75 +16,55 @@ import rolflectionlib.util.RolfLectionUtil;
  */
 public final class MethodFields {
     private MethodFields() {};
-    private static final Object clearChildrenMethod;
-    private static final Object getChildrenCopyMethod;
-    private static final Object getChildrenNonCopyMethod;
     private static final Object getFaderMethod;
-    private static final Object addToPositionMethod;
-    private static final Object removeFromPositionMethod;
-    private static final Object positionSetParentMethod;
-    private static final Object isSlidOutMethod;
+    public static final Class<?> uiInternalCompClass = findInternalComponentInterface(UiUtil.uiComponentClass);
+    private static final Object uiCompPosField;
+    private static final Object wrapperWrappedField = RolfLectionUtil.getFieldByName("wrapped", UIComponentAPIWrapper.class);
 
     static {
         final UIPanelAPI panelIns = settings.createCustom(0f, 0f, null);
         final Class<?> panelClazz = panelIns.getClass();
-        final Class<?> posClazz = panelIns.getPosition().getClass();
 
-        clearChildrenMethod = RolfLectionUtil.getMethod(
-            "clearChildren", panelClazz);
-        getChildrenCopyMethod = RolfLectionUtil.getMethod(
-            "getChildrenCopy", panelClazz);
-        getChildrenNonCopyMethod = RolfLectionUtil.getMethod(
-            "getChildrenNonCopy", panelClazz);
-        getFaderMethod = RolfLectionUtil.getMethod("getFader", panelClazz);
-        isSlidOutMethod = RolfLectionUtil.getMethod("isSlidOut", panelClazz);
-        addToPositionMethod = RolfLectionUtil.getMethod("add", posClazz, 1);
-        removeFromPositionMethod = RolfLectionUtil.getMethod("remove", posClazz, 1);
-        positionSetParentMethod = RolfLectionUtil.getMethod("setParent", posClazz, 1);
-    }
+        uiCompPosField = findPosField(panelClazz);
 
-    @SuppressWarnings("unchecked")
-    public static final List<UIComponentAPI> clearChildren(UIPanelAPI panel) {
-        return (List<UIComponentAPI>) RolfLectionUtil.invokeMethodDirectly(clearChildrenMethod, panel);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static final List<UIComponentAPI> getChildrenNonCopy(UIPanelAPI panel) {
-        return (List<UIComponentAPI>) RolfLectionUtil.invokeMethodDirectly(getChildrenNonCopyMethod, panel);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static final List<UIComponentAPI> getChildrenCopy(UIPanelAPI panel) {
-        return (List<UIComponentAPI>) RolfLectionUtil.invokeMethodDirectly(getChildrenCopyMethod, panel);
-    }
-
-    public static final void recomputePos(final PositionAPI position) {
-        position.setSize(position.getWidth(), position.getHeight());
+        getFaderMethod = RolfLectionUtil.getMethod("getFader", uiInternalCompClass);
     }
 
     public static final Fader getPanelFader(UIComponentAPI panel) {
         return (Fader) RolfLectionUtil.invokeMethodDirectly(getFaderMethod, panel);
     }
 
-    public static final FaderUtil getPanelFaderUtil(UIComponentAPI panel) {
-        return (FaderUtil) RolfLectionUtil.invokeMethodDirectly(getFaderMethod, panel);
+    public static final void setPos(UIPanelAPI panel, PositionAPI pos) {
+        RolfLectionUtil.setPrivateVariable(uiCompPosField, panel, pos);
     }
 
-    public static final boolean isSlidOut(UIComponentAPI panel) {
-        return (boolean) RolfLectionUtil.invokeMethodDirectly(isSlidOutMethod, panel);
+    public static final UIComponentAPI unwrapOrSelf(UIComponentAPI comp) {
+        if (comp == null) return null;
+        if (!(comp instanceof UIComponentAPIWrapper)) return comp;
+        return (UIComponentAPI) RolfLectionUtil.getPrivateVariable(wrapperWrappedField, comp);
     }
 
-    public static final PositionAPI addPositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
-        final PositionAPI position = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, parentPos);
-        RolfLectionUtil.invokeMethodDirectly(addToPositionMethod, parentPos, position);
-        return position;
+    private static final Class<?> findInternalComponentInterface(Class<?> baseClass) {
+        for (Class<?> iface : baseClass.getInterfaces()) {
+            final Object setParentMethod = RolfLectionUtil.getMethodDeclared("setParent", iface, 1);
+            if (setParentMethod == null) continue;
+            if (RolfLectionUtil.getReturnType(setParentMethod) == void.class) return iface;
+        }
+        throw new IllegalStateException("InternalUIComponentInterface not found on " + baseClass.getName());
     }
 
-    public static final PositionAPI removePositionOnly(UIComponentAPI comp, PositionAPI parentPos) {
-        final PositionAPI position = comp.getPosition();
-        RolfLectionUtil.invokeMethodDirectly(positionSetParentMethod, position, (Object) null);
-        RolfLectionUtil.invokeMethodDirectly(removeFromPositionMethod, parentPos, position);
-        return position;
+    private static final Object findPosField(Class<?> cls) {
+        final UIPanelAPI probe = settings.createCustom(0f, 0f, null);
+        final PositionAPI target = probe.getPosition();
+        for (Object field : RolfLectionUtil.getAllFields(cls)) {
+            try {
+                final int mods = RolfLectionUtil.getFieldModifiers(field);
+                if (RolfLectionUtil.isStatic(mods)) continue;
+                if (RolfLectionUtil.getPrivateVariable(field, probe) == target) {
+                    return field;
+                }
+            } catch (Throwable ignored) {}
+        }
+        throw new IllegalStateException("Position field not found on " + cls.getName());
     }
 }

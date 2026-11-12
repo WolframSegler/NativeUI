@@ -1,3 +1,33 @@
+Version 0.5.0-beta
+- Removed delay field from TooltipComp.
+- Cleaned up DialogPanel content.
+- Fixed MultiSelect onSelected listener to pass the Button as a parameter.
+- Removed HeaderPanelWithTooltip as the tooltip is simply a Component.
+- SortableTable has a new field tooltipWidth.
+- Removed BasePanel and CustomPanel.
+- Replaced all internals to use the new core elements.
+- Renamed framework to NativeUI, as it no longer wraps vanilla UI elements.
+- Renamed SpritePanel to AbstractSpriteElement, renamed Base to SpriteElement and renamed SpritePanelTp to InteractiveSprite.
+- Made many classes not meant for subclassing final.
+- Added flashBrightness to HoverGlowComp and refactored it to use the same brightness fields despite different glow types.
+- Moved elements out of ui/functional/ for better convention.
+- Removed ListenerProviderPanel as it became redundant thanks to the composition oriented design.
+- Moved IdentityMarker to NativeUI.
+- PieChart can now take in screen coordinates for its render call.
+- Mimicked vanilla tooltip lifecycle for more consistent behavior.
+- Added to ComponentFactory a method to use the scroll panel directly without having to use a tooltip.
+- Removed useScroller from TooltipComponent.
+- Added EMPTY_MAP to ArrayMap.
+- Added NineSliceUtils for more optimized direct draw calls.
+- Performance optimizations for BorderRenderer.
+- Fixed drawFramedBorder in RenderUtils.
+- Fixed override bugs in DockPanel.
+- Added a notification toast.
+- Added two thin wrappers to go from vanilla to custom and from custom to vanilla.
+- Updated UIElementAPI to handle vanilla -> custom panel wrapping easier. The wrapIfNeeded method handles it seamlessly.
+- Added ListTable as an alternative to SortableTable. Simple in nature, it is intended to replace ComponentFactory.wrapWithScrollPanel.
+- Refactored HoverGlow Component and System to also handle flash and highlights. Fixed glow of Button.
+
 Version 0.4.4-beta
 - Not compatible with v0.4.3-beta
 - BorderRenderer performance improvements and API changes.

@@ -3,9 +3,10 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 
 # Features
 - Global UI attachment points via [`Attachments`](src/wfg/native_ui/ui/Attachments.java).
-- Core UI classes [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java), [`UIEntity`](src/wfg/native_ui/internal/ui/core/UIEntity.java)  and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) for full control over the UI hierarchy.
-- [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) and [`Components`](src/wfg/native_ui/ui/component/BaseComponent.java) for tooltips, hoverGlow etc. to reduce boilerplate, with a more composition-oriented approach. Native systems can be attached by implementing [`UIElementFlags`](src/wfg/native_ui/ui/core/UIElementFlags.java).
+- Core UI classes [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java), [`UIEntity`](src/wfg/native_ui/internal/ui/core/UIEntity.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) for full control over the UI hierarchy. `UIContainer` auto-wraps vanilla children on `add()`.
+- [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) and [`Components`](src/wfg/native_ui/ui/component/BaseComponent.java) for tooltips, GlowSystem etc. to reduce boilerplate, with a more composition-oriented approach. Native systems can be attached by implementing [`UIElementFlags`](src/wfg/native_ui/ui/core/UIElementFlags.java).
 - [`UIEventBus`](src/wfg/native_ui/ui/event/UIEventBus.java) is used by [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) to let mods cross-communicate and handle attachment and detachment events.
+- Bidirectional interop: NativeUI containers wrap vanilla children, and NativeUI elements attach to vanilla parents via `UIElementAPI.attachTo()`.
 
 # UI Elements
 - [`UIClickable`](src/wfg/native_ui/ui/functional/UIClickable.java) has click handling and click sounds. Can take in a callback.
@@ -17,6 +18,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 - Carbon copy of the vanilla [`Slider`](src/wfg/native_ui/ui/widget/Slider.java) used in settings (the blue one).
 - [`SortableTable`](src/wfg/native_ui/ui/table/SortableTable.java) similar to `UITable` in functionality, avoiding the obfuscated vanilla table.
 - [`GridTable`](src/wfg/native_ui/ui/table/GridTable.java) stacks widgets in a grid with uniform gaps in-between.
+- [`ListTable`](src/wfg/native_ui/ui/table/ListTable.java) stacks uniform-height widgets vertically in a single scrolling column. Prefer this over a `ScrollPanelAPI` or `TooltipMakerAPI`.
 - [`SpriteElement`](src/wfg/native_ui/ui/visual/AbstractSpriteElement.java) with optional tooltip; essentially a `SpriteAPI` wrapper.
 - [`ScrollPanel`](src/wfg/native_ui/ui/container/ScrollPanel.java) for vertical and horizontal scroll.
 - [`DialogPanel`](src/wfg/native_ui/ui/dialog/DialogPanel.java) is the vanilla Folding Dialog Panel but without the annoying vanilla API.
@@ -24,6 +26,7 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 - [`DockClickable`](src/wfg/native_ui/ui/functional/DockClickable.java) and [`DockButton`](src/wfg/native_ui/ui/functional/DockButton.java) manage the lifecycle of a [`DockPanel`](src/wfg/native_ui/ui/container/DockPanel.java).
 - [`IconValuePair`](src/wfg/native_ui/ui/visual/IconValuePair.java) standardizes the formatting of icon-value pairs. Also includes a variant with tooltip support.
 - [`TextWrapper`](src/wfg/native_ui/ui/visual/TextWrapper.java) wraps an [`AudioSystem`](src/wfg/native_ui/ui/system/AudioFeedbackSystem.java) and a [`TooltipSystem`](src/wfg/native_ui/ui/system/TooltipSystem.java) around a `LabelAPI` in a slim package.
+- [`Toast`](src/wfg/native_ui/ui/widget/Toast.java) holographic notification docked to the left or right edge with an optional countdown bar.
 
 # Utils
 - [`UIConstants`](src/wfg/native_ui/util/UIConstants.java) houses commonly used values and colors to improve readability. Intended for static import.
@@ -36,6 +39,8 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 
 # Usage
 - All panels that wish to use Systems must implement [`UIEntityAPI`](src/wfg/native_ui/ui/core/UIEntityAPI.java).
+- Adding a NativeUI element to a vanilla panel requires `attachTo()`. Passing the element directly throws `ClassCastException`. See [`attachTo()`](src/wfg/native_ui/ui/core/UIElementAPI.java) for details.
+- Vanilla APIs that attach children internally (e.g., `TooltipMakerAPI.addCustom`) require `wrapDetached()`.
 
 <br><br><br>
 

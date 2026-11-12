@@ -63,11 +63,10 @@ public final class Arithmetic {
      * @return the updated, smoothed value
      */
     public static final float smoothApproach(float current, float target, float baseSpeed, float accel, float deltaTime) {
-        float delta = target - current;
+        final float delta = target - current;
         float change = (Math.signum(delta) * baseSpeed + delta * accel) * deltaTime;
-        if (Math.abs(change) > Math.abs(delta)) {
-            change = delta;
-        }
+        if (Math.abs(change) > Math.abs(delta)) change = delta;
+        
         return current + change;
     }
 }

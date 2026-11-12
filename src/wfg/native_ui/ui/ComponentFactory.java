@@ -15,23 +15,33 @@ import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
-import rolflectionlib.util.RolfLectionUtil;
+import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.functional.CallbackRunnable;
-import wfg.native_ui.ui.system.TooltipSystem;
 import wfg.native_ui.ui.widget.Button;
 import wfg.native_ui.ui.widget.CheckboxButton;
+import wfg.native_ui.util.RenderUtils;
 
 public final class ComponentFactory {
-    private ComponentFactory() {}
+    private ComponentFactory() {};
+
+    public static final int SCROLL_PANEL_WIDTH_PAD = 5;
 
     /**
      * Use {@link CheckboxButton} if you want the checkbox sprite.
      */
     public static final Button createCheckboxWithText(
-        int btnSize, String text, String font, CallbackRunnable<Button> onClick, 
+        int btnSize, String text, String font, CallbackRunnable<Button> onClick,
         Color txtColor, int textAndBtnGap
     ) {
-        final Button checkbox = new Button(btnSize, btnSize, null, null, onClick);
+        final Button checkbox = new Button(btnSize, btnSize, null, null, onClick) {
+            @Override
+            protected float[] getFaderMaskVertices() {
+                final float cutSize = computeCut(btnSize, btnSize);
+                final float[] cuts = mCutStyle.toVector4();
+                for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
+                return RenderUtils.buildCornersVertices(0f, 0f, btnSize, btnSize, cuts);
+            }
+        };
         checkbox.bgAlpha = 1f;
         checkbox.bgDisabledAlpha = 1f;
         checkbox.bgSelectedColor = new Color(60, 230, 250);
@@ -40,25 +50,24 @@ public final class ComponentFactory {
         final LabelAPI label = settings.createLabel(
             text, font == null ? Fonts.DEFAULT_SMALL : font
         );
-        final int lblH = (int) label.computeTextHeight(text);
         label.setColor(txtColor == null ? base : txtColor);
 
-        final int maxH = Math.max(lblH, btnSize);
-
-        checkbox.add(label).inBL(btnSize + textAndBtnGap, (maxH - lblH) / 2f);
+        final float labelW = label.getPosition().getWidth();
+        checkbox.setSize(btnSize + textAndBtnGap + labelW, btnSize);
+        checkbox.add(label).inLMid(btnSize + textAndBtnGap);
 
         return checkbox;
     }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor
     ) { addCaptionValueBlock(panel, captionTxt, valueTxt, captionColor, highlight); }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor, Color valueColor
@@ -69,14 +78,14 @@ public final class ComponentFactory {
     }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor, float maxW
     ) { addCaptionValueBlock(panel, captionTxt, valueTxt, captionColor, highlight, maxW); }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt,
         String valueTxt, Color captionColor, Color valueColor, float maxW
@@ -87,7 +96,7 @@ public final class ComponentFactory {
     }
 
     /**
-     * @param panel will exclusively be used by the caption&value pair
+     * @param panel will exclusively be used by the caption and value pair
      */
     public static final void addCaptionValueBlock(UIPanelAPI panel, String captionTxt, String valueTxt,
         String captionFont, String valueFont, Color captionColor, Color valueColor,
@@ -151,43 +160,37 @@ public final class ComponentFactory {
     }
 
     public static final PositionAPI addTooltip(TooltipMakerAPI tooltip, float h, boolean withScroller) {
-        return addTooltip(tooltip, h, withScroller, Attachments.getScreenPanel());
+        return addTooltip(tooltip, h, withScroller, settings.getScreenPanel());
     }
 
     public static final PositionAPI addTooltip(TooltipMakerAPI tooltip, float h, boolean withScroller,
         UIPanelAPI parent
     ) {
         tooltip.setForceProcessInput(true);
-        if (tooltip instanceof StandardTooltipV2Expandable tp) {
-            StandardTooltipV2Expandable.updateSizeAsUIElement(tp);
-            if (withScroller) {
-                final var scrollPanel = (ScrollPanelAPI) RolfLectionUtil.instantiateClass(
-                    TooltipSystem.scrollPanelConstr
-                );
-                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setContentSizeMethod, scrollPanel,
-                    tp.getWidth(), tp.getHeight()
-                );
-                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setSizeMethod, scrollPanel,
-                    tp.getWidth() + 5f, h
-                );
-                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setMaxShadowHeightMethod, scrollPanel,
-                    15f
-                );
-                RolfLectionUtil.invokeMethodDirectly(TooltipSystem.setUseSimpleShadowsMethod, scrollPanel,
-                    true
-                );
-                scrollPanel.addComponent(tooltip).inTL(0f, 0f);
-                tooltip.setExternalScroller(scrollPanel);
-                return parent.addComponent(scrollPanel);
-            } else {
-                tooltip.getPosition().setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
-                return parent.addComponent(tooltip);
-            }
+        final StandardTooltipV2Expandable tp = (StandardTooltipV2Expandable) tooltip;
+        StandardTooltipV2Expandable.updateSizeAsUIElement(tp);
+
+        final ScrollPanelAPI scrollPanel = withScroller ? wrapWithScrollPanel(tp, tp.getWidth(), h) : null;
+        final UIComponentAPI comp = withScroller ? scrollPanel : tp;
+
+        tp.setExternalScroller(scrollPanel);
+        if (!withScroller) comp.getPosition().setSize(tp.getWidth(), Math.max(tp.getHeight(), h));
+
+        return parent.addComponent(comp);
+    }
+
+    public static final ScrollPanelAPI wrapWithScrollPanel(UIComponentAPI content, float viewWidth, float viewHeight) {
+        final ScrollPanelAPI scrollPanel = settings.createScroller();
+        scrollPanel.setContentSize(content.getPosition().getWidth(), content.getPosition().getHeight());
+        scrollPanel.getPosition().setSize(viewWidth + SCROLL_PANEL_WIDTH_PAD, viewHeight);
+        scrollPanel.setMaxShadowHeight(15f);
+        scrollPanel.setUseSimpleShadows(true);
+        
+        if (content instanceof UIElementAPI element) {
+            element.attachTo(scrollPanel).inTL(0f, 0f);
         } else {
-            throw new IllegalArgumentException(
-                "addTooltip only supports StandardTooltipV2Expandable instances. " +
-                "Provided tooltip of type " + tooltip.getClass().getName() + " is invalid."
-            );
+            scrollPanel.addComponent(content).inTL(0f, 0f);
         }
+        return scrollPanel;
     }
 }

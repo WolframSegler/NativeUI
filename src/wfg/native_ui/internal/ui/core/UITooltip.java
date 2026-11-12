@@ -1,47 +1,104 @@
 package wfg.native_ui.internal.ui.core;
 
+import static wfg.native_ui.util.Globals.settings;
+
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.ui.impl.StandardTooltipV2Expandable;
 
 import wfg.native_ui.internal.ui.interaction.OutsideEventDetector;
-import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutisdeEventListener;
-import wfg.native_ui.ui.Attachments;
+import wfg.native_ui.internal.ui.interaction.OutsideEventDetector.OutsideEventListener;
 import wfg.native_ui.ui.ComponentFactory;
+import wfg.native_ui.ui.component.TooltipComp;
 
-public class UITooltip extends StandardTooltipV2Expandable implements OutisdeEventListener {
-    private final OutsideEventDetector detector;
-    private final UIPanelAPI parent = Attachments.getScreenPanel();
-    private final boolean useScroller;
+public class UITooltip extends StandardTooltipV2Expandable implements OutsideEventListener {
+    private enum TooltipState { SHOWING, DISMISSING, FINISHED }
 
-    public UITooltip(float width, boolean expandable, boolean useScroller) {
-        super(width - (useScroller ? 5f : 0f), expandable);
-        this.useScroller = useScroller;
+    private static final int OWNER_ORPHAN_THRESHOLD = 2;
 
-        detector = new OutsideEventDetector(this);
-        detector.consumeMouseMove = false;
-        detector.consumeMouseScroll = false;
-        detector.triggerByModKey = true;
+    private final TooltipComp mSpec;
+    private final OutsideEventDetector mDetector = new OutsideEventDetector(this);
+    private final UIPanelAPI mParent = settings.getScreenPanel();
+    private TooltipState mState = TooltipState.SHOWING;
+
+    public static UITooltip create(TooltipComp spec) { return new UITooltip(spec); }
+
+    private UITooltip(TooltipComp spec) {
+        super(spec.width - 10f, spec.expandable);
+        mSpec = spec;
+
+        setShowBorder(true);
+        setShowBackground(true);
+        setSelfRemove(false);
+        setBgAlpha(spec.bgAlpha);
+        setCodexEntryId(spec.codexID);
+
+        mDetector.consumeMouseMove = false;
+        mDetector.consumeMouseScroll = false;
+        mDetector.triggerByModKey = true;
+        mDetector.triggerOnKeyUp = true;
+        mDetector.isRemoveOnAction = false;
+
+        createImpl(false);
+    }
+
+    @Override
+    public void createImpl(boolean expanded) {
+        if (expanded) {
+            expandString = mSpec.expandTxt == null ? "%s more info" : mSpec.expandTxt;
+        } else {
+            unexpandString = mSpec.unexpandTxt == null ? "%s hide" : mSpec.unexpandTxt;
+        }
+        mSpec.builder.buildTp(this, expanded);
+    }
+    
+    public final void attach() {
+        beforeShown();
+
+        mDetector.attach();
+        ComponentFactory.addTooltip(this, 0f, false, mParent);
+        mParent.bringComponentToTop(this);
+        getFader().fadeIn();
+        mSpec.positioner.position(this, false);
+
+        notifyShown();
     }
 
     public final void detach() {
-        detector.detach();
-        parent.removeComponent(this);
+        if (mState == TooltipState.FINISHED) return;
+        mState = TooltipState.FINISHED;
+        mDetector.detach();
+        mParent.removeComponent(this);
+
+        notiftyHidden();
     }
 
-    public final void attach() {
-        detector.attach();
-        ComponentFactory.addTooltip(this, 0f, useScroller, parent);
-        parent.bringComponentToTop(this);
+    public void dismiss() {
+        if (mState != TooltipState.SHOWING) return;
+        mState = TooltipState.DISMISSING;
+        getFader().fadeOut();
     }
 
+    @Override
+    public void advanceImpl(float delta) {
+        super.advanceImpl(delta);
+        mSpec.iOrphanFrames++;
+
+        if (mSpec.iOrphanFrames > OWNER_ORPHAN_THRESHOLD ||
+            mState == TooltipState.DISMISSING && getFader().isFadedOut()
+        ) {
+            detach();
+        }
+    }
+
+    public boolean isExpanded() { return expanded; }
+    public boolean isFinished() { return mState == TooltipState.FINISHED; }
     public PositionAPI pos() { return ((UIComponentAPI)this).getPosition(); }
-    public void buttonPressed(int lwjgl_key) {
-        detach();
-    }
     public void outsideClicked(boolean isLeft) {
-        detach();
+        mSpec.iDismissedThisHover = true; dismiss();
     }
-    public void createImpl(boolean expanded) {}
+    public void buttonPressed(int lwjgl_key) {
+        mSpec.iDismissedThisHover = true; dismiss();
+    }
 }

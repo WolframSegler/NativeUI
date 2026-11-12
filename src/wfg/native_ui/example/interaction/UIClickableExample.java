@@ -16,13 +16,13 @@ import com.fs.starfarer.api.ui.LabelAPI;
 
 import wfg.native_ui.example.table.GridTableExample.WidgetSelectionState;
 import wfg.native_ui.internal.util.BorderRenderer;
-import wfg.native_ui.ui.component.HoverGlowComp;
-import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
+import wfg.native_ui.ui.component.GlowComp;
+import wfg.native_ui.ui.component.GlowComp.GlowType;
 import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
 import wfg.native_ui.ui.container.BaseContainer;
-import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.ui.interaction.UIClickable;
 import wfg.native_ui.ui.table.WidgetAPI;
@@ -36,7 +36,7 @@ import wfg.native_ui.util.NumFormat;
  * This example creates a clickable widget with a glow and a tooltip. The widget uses the style colors of the provided faction.
  */
 public final class UIClickableExample extends UIClickable<UIClickableExample> implements
-    WidgetAPI<UIClickableExample>, HasTooltip, HasHoverGlow
+    WidgetAPI<UIClickableExample>, HasTooltip, HasGlow
 {
     public static final int WIDTH = 320;
     public static final int HEIGHT = 60;
@@ -44,7 +44,7 @@ public final class UIClickableExample extends UIClickable<UIClickableExample> im
     public static final Color WIDGET_BG = new Color(28, 35, 48, 240);
 
     private final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-    private final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+    private final GlowComp glow = comp().get(NativeComponents.GLOW);
     private final BorderRenderer border = new BorderRenderer(UI_BORDER_4, true, WIDTH, HEIGHT);
 
     private final PlannedOrder order;
@@ -117,8 +117,7 @@ public final class UIClickableExample extends UIClickable<UIClickableExample> im
         final InteractiveSprite shipSprite = new InteractiveSprite(scaledW, scaledH, sprite, null, null);
         shipSprite.tooltip.enabled = false;
         shipSprite.audio.enabled = false;
-        shipSprite.glow.isFaderOwner = false;
-        shipSprite.glow.fader = glow.fader;
+        shipSprite.glow.setOwner(glow);
         shipSprite.glow.type = GlowType.ADDITIVE;
         shipSprite.glow.glowBrightness = 0.8f;
         shipSprite.glow.flashBrightness = 1.2f;

@@ -13,7 +13,6 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 
 import wfg.native_ui.example.table.SortableTableExample;
@@ -21,17 +20,18 @@ import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.ui.ComponentFactory;
 import wfg.native_ui.ui.component.AudioFeedbackComp;
 import wfg.native_ui.ui.component.BackgroundComp;
-import wfg.native_ui.ui.component.HoverGlowComp;
+import wfg.native_ui.ui.component.GlowComp;
 import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.OutlineComp;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
+import wfg.native_ui.ui.component.GlowComp.GlowType;
 import wfg.native_ui.ui.component.TooltipComp.TooltipBuilder;
 import wfg.native_ui.ui.core.UIBuildableAPI;
+import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
 import wfg.native_ui.ui.core.UIElementFlags.HasBackground;
-import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
 import wfg.native_ui.ui.core.UIElementFlags.HasOutline;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
@@ -83,15 +83,15 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     public int columnGap = 5;
     public int tooltipWidth = 400;
 
-    private int selectedSortColumnIndex = -1;
-    private boolean ascending = true;
-    private TableRow pendingRow = null;
+    private int mSelectedSortColumnIndex = -1;
+    private boolean mAscending = true;
+    private TableRow mPendingRow = null;
     private TableRow mSelectedRow;
 
-    public TableRow getPendingRow() { return pendingRow;}
-    public TableRow getSelectedRow() { return mSelectedRow;}
-    public List<ColumnManager> getColumns() { return mColumns;}
-    public List<TableRow> getRows() { return mRows;}
+    public TableRow getPendingRow() { return mPendingRow; }
+    public TableRow getSelectedRow() { return mSelectedRow; }
+    public List<ColumnManager> getColumns() { return mColumns; }
+    public List<TableRow> getRows() { return mRows; }
 
     public SortableTable(float width, float height) {
         this(width, height, 20, 28);
@@ -146,30 +146,29 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
         }
 
 
-        // create rows
-        final TooltipMakerAPI tp = ComponentFactory.createTooltip(
-            getWidth(), true
-        );
-
-        int cumulativeYOffset = 0;
-        for (TableRow row : mRows) {
-            tp.addComponent(row).inTL(pad, cumulativeYOffset);
-
-            cumulativeYOffset += ROW_HEIGHT;
+        if (!mRows.isEmpty()) {
+            final float contentW = getWidth() - ComponentFactory.SCROLL_PANEL_WIDTH_PAD;
+            final UIContainerAPI content = new UIContainer(contentW, 0f);
+    
+            int cumulativeYOffset = 0;
+            for (TableRow row : mRows) {
+                content.add(row).inTL(pad, cumulativeYOffset);
+    
+                cumulativeYOffset += ROW_HEIGHT;
+            }
+    
+            content.setHeight(cumulativeYOffset);
+            add(ComponentFactory.wrapWithScrollPanel(content, contentW, getHeight() - (HEADER_HEIGHT + pad)))
+                .inTL(0f, HEADER_HEIGHT + pad);
         }
-
-        tp.setHeightSoFar(cumulativeYOffset);
-        ComponentFactory.addTooltip(tp, getHeight() - (HEADER_HEIGHT + pad),
-            true, this
-        ).inTL(0f, HEADER_HEIGHT + pad);
     }
 
     public class HeaderPanel extends UIContainer implements UIBuildableAPI, HasTooltip,
-        HasOutline, HasBackground, HasHoverGlow, HasAudioFeedback, HasInteraction
+        HasOutline, HasBackground, HasGlow, HasAudioFeedback, HasInteraction
     {
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
         public final BackgroundComp bg = comp().get(NativeComponents.BACKGROUND);
-        public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+        public final GlowComp glow = comp().get(NativeComponents.GLOW);
         public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
         public final InteractionComp<HeaderPanel> interaction = comp().get(NativeComponents.INTERACTION);
         public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
@@ -222,9 +221,8 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             lbl.autoSizeToWidth(getWidth());
             lbl.setColor(base);
             lbl.setAlignment(Alignment.MID);
-            final float lblHeight = lbl.computeTextHeight(lbl.getText());
 
-            add(lbl).inBL(0f, (getHeight() - lblHeight) / 2f );
+            add(lbl).inLMid(0f);
 
             if (showSortIcon) {
                 final SpriteElement sortIcon = new SpriteElement(
@@ -260,10 +258,10 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     }
 
     public class TableRow extends UIContainer implements UIBuildableAPI,
-        HasTooltip, HasHoverGlow, HasOutline, HasAudioFeedback, HasInteraction
+        HasTooltip, HasGlow, HasOutline, HasAudioFeedback, HasInteraction
     {
         public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-        public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+        public final GlowComp glow = comp().get(NativeComponents.GLOW);
         public final OutlineComp outline = comp().get(NativeComponents.OUTLINE);
         public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
         public final InteractionComp<TableRow> interaction = comp().get(NativeComponents.INTERACTION);
@@ -272,7 +270,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
         public Object customData = null;
         
         protected final List<Object> mCellData = new ArrayList<>();
-        protected final List<cellAlg> mCellAlignment = new ArrayList<>();
+        protected final List<CellAlg> mCellAlignment = new ArrayList<>();
         protected final List<Object> mSortValues = new ArrayList<>();
         protected final List<Color> mUseColor = new ArrayList<>();
 
@@ -294,20 +292,18 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             int cumulativeXOffset = 0;
             for (int i = 0; i < mCellData.size(); i++) {
                 final Object cell = mCellData.get(i);
-                final cellAlg alignment = mCellAlignment.get(i);
+                final CellAlg alignment = mCellAlignment.get(i);
                 final Color useColor = mUseColor.get(i);
                 final float logicalW = getColumns().get(i).width;
                 final float visualW = logicalW - (i == mCellData.size() - 1 ? 0 : columnGap);
 
                 final UIComponentAPI comp;
                 final float compWidth;
-                final float compHeight;
 
                 if (cell instanceof Number) {
                     final LabelAPI label = settings.createLabel(String.valueOf(cell), Fonts.DEFAULT_SMALL);
                     comp = (UIComponentAPI) label;
                     compWidth = label.getPosition().getWidth();
-                    compHeight = label.getPosition().getHeight();
 
                     label.setColor(useColor != null ? useColor : textColor);
 
@@ -315,40 +311,35 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
                     final LabelAPI label = settings.createLabel(txt, Fonts.DEFAULT_SMALL);
                     comp = (UIComponentAPI) label;
                     compWidth = label.getPosition().getWidth();
-                    compHeight = label.getPosition().getHeight();
 
                     label.setColor(useColor != null ? useColor : textColor);
 
-                } else if (cell instanceof AbstractSpriteElement sprite) {
-                    comp = sprite;
-                    compWidth = sprite.pos().getWidth();
-                    compHeight = sprite.pos().getHeight();
+                } else if (cell instanceof SpriteAPI sprite) {
+                    comp = new SpriteElement(sprite.getWidth(), sprite.getHeight(), sprite, null, null);
+                    compWidth = comp.getPosition().getWidth();
 
                 } else if (cell instanceof LabelAPI label) {
                     comp = (UIComponentAPI) label;
                     compWidth = label.getPosition().getWidth();
-                    compHeight = label.getPosition().getHeight();
 
                     label.setColor(useColor != null ? useColor : textColor);
 
                 } else if (cell instanceof UIComponentAPI panel) {
                     comp = panel;
                     compWidth = panel.getPosition().getWidth();
-                    compHeight = panel.getPosition().getHeight();
 
                 } else {
                     throw new IllegalArgumentException("Unsupported cell type: " + cell.getClass());
                 }
 
                 final float xOffset = calcXOffset(cumulativeXOffset, visualW, compWidth, alignment);
-                final float yOffset = (ROW_HEIGHT - compHeight) / 2f;
-                add(comp).inBL(xOffset, yOffset);
+                add(comp).inLMid(xOffset);
 
                 cumulativeXOffset += logicalW;
             }
         }
 
-        private float calcXOffset(float baseX, float colWidth, float compWidth, cellAlg alignment) {
+        private float calcXOffset(float baseX, float colWidth, float compWidth, CellAlg alignment) {
             switch (alignment) {
                 case LEFT:
                     return baseX;
@@ -380,7 +371,7 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
             if (color != null) textColor = color;
         }
         
-        public void addCell(Object cell, cellAlg alg, Object sort, Color textColor) {
+        public void addCell(Object cell, CellAlg alg, Object sort, Color textColor) {
             mCellData.add(cell);
             mCellAlignment.add(alg);
             mSortValues.add(sort);
@@ -449,16 +440,16 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
      * Supports the following types:
      * String, LabelAPI, {@link AbstractSpriteElement}, {@link UIComponentAPI}
      */
-    public void addCell(Object cell, cellAlg alg, Object sortValue, Color textColor) {
-        if (pendingRow == null) {
-            pendingRow = new TableRow(getWidth() - pad*2, ROW_HEIGHT);
+    public void addCell(Object cell, CellAlg alg, Object sortValue, Color textColor) {
+        if (mPendingRow == null) {
+            mPendingRow = new TableRow(getWidth() - pad*2, ROW_HEIGHT);
         }
 
-        pendingRow.addCell(cell, alg, sortValue, textColor);
+        mPendingRow.addCell(cell, alg, sortValue, textColor);
     }
 
     /**
-     * Uses the added cells to create a row and clears the {@link SortableTable#pendingRow}.
+     * Uses the added cells to create a row and clears the {@link SortableTable#mPendingRow}.
      * The amount of cells must match the column amount.
      * @param customData stored by RowManager instance.
      * @param tp optional TooltipBuilder.
@@ -470,41 +461,41 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     public void pushRow(Object customData, TooltipBuilder tp, ClickHandler<TableRow> onRowClicked,
         String codexID, Color textColor, Color highlight
     ) {
-        if (pendingRow == null || pendingRow.mCellData.isEmpty()) {
+        if (mPendingRow == null || mPendingRow.mCellData.isEmpty()) {
             throw new IllegalStateException("Cannot push row: no cells have been added yet. "
                 + "Call addCell() before pushRow().");
 
-        } else if (pendingRow.mCellData.size() != mColumns.size()) {
+        } else if (mPendingRow.mCellData.size() != mColumns.size()) {
             throw new IllegalStateException("Cannot push row: cell count mismatch. "
                 + "The number of cells must match the number of columns.");
 
         }
-        pendingRow.setTextColor(textColor);
-        pendingRow.customData = customData;
-        if (codexID != null) pendingRow.tooltip.codexID = codexID;
-        if (highlight != null) pendingRow.glow.color = highlight;
-        if (onRowClicked != null) pendingRow.interaction.onClicked = onRowClicked;
-        if (tp != null) pendingRow.tooltip.builder = tp;
+        mPendingRow.setTextColor(textColor);
+        mPendingRow.customData = customData;
+        if (codexID != null) mPendingRow.tooltip.codexID = codexID;
+        if (highlight != null) mPendingRow.glow.color = highlight;
+        if (onRowClicked != null) mPendingRow.interaction.onClicked = onRowClicked;
+        if (tp != null) mPendingRow.tooltip.builder = tp;
         
-        pendingRow.buildUI();
-        mRows.add(pendingRow);
+        mPendingRow.buildUI();
+        mRows.add(mPendingRow);
 
-        pendingRow = null;
+        mPendingRow = null;
     }
 
     public void sortRows(int index) {
-        if (index == selectedSortColumnIndex) {
-            ascending = !ascending;
+        if (index == mSelectedSortColumnIndex) {
+            mAscending = !mAscending;
         }
 
-        sortRows(index, ascending);
+        sortRows(index, mAscending);
     }
 
     public void sortRows(int index, boolean ascending) {
         if (mRows.isEmpty()) return;
 
-        this.ascending = ascending;
-        selectedSortColumnIndex = index;
+        this.mAscending = ascending;
+        mSelectedSortColumnIndex = index;
 
         final Object value = mRows.get(0).getSortValue(index);
 
@@ -529,26 +520,27 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     }
 
     private final Comparator<TableRow> stringComparator = (a, b) -> {
-        String valA = (String) a.getSortValue(selectedSortColumnIndex);
-        String valB = (String) b.getSortValue(selectedSortColumnIndex);
+        String valA = (String) a.getSortValue(mSelectedSortColumnIndex);
+        String valB = (String) b.getSortValue(mSelectedSortColumnIndex);
 
         int cmp = valA.compareTo(valB);
-        return ascending ? cmp : -cmp;
+        return mAscending ? cmp : -cmp;
     };
 
     private final Comparator<TableRow> numberComparator = (a, b) -> {
-        Number valA = (Number) a.getSortValue(selectedSortColumnIndex);
-        Number valB = (Number) b.getSortValue(selectedSortColumnIndex);
+        Number valA = (Number) a.getSortValue(mSelectedSortColumnIndex);
+        Number valB = (Number) b.getSortValue(mSelectedSortColumnIndex);
 
         int cmp = Double.compare(valA.doubleValue(), valB.doubleValue());
-        return ascending ? cmp : -cmp;
+        return mAscending ? cmp : -cmp;
     };
 
     public TableRow selectLastRow() {
         TableRow target = null;
         for (TableRow row : mRows) {
             boolean result = row == mRows.get(mRows.size() - 1);
-            row.glow.persistent = result;
+            if (result) row.glow.flash();
+            row.glow.setHighlighted(result);
 
             if (result) {
                 target = row;
@@ -560,14 +552,14 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
 
     public void selectRow(TableRow selectedRow) {
         for (TableRow row : mRows) {
-            row.glow.persistent = row == selectedRow;
+            row.glow.setHighlighted(row == selectedRow);
         }
     }
 
     /**
      * Determines how the panels inside a cell are positioned
      */
-    public enum cellAlg {
+    public enum CellAlg {
         LEFT,
         MID,
         RIGHT,

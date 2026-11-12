@@ -1,18 +1,22 @@
 package wfg.native_ui.internal.ui.interaction;
 
+import static wfg.native_ui.util.Globals.settings;
 import static wfg.native_ui.util.UIConstants.screenH;
 import static wfg.native_ui.util.UIConstants.screenW;
 
 import java.util.List;
 
+import org.lwjgl.input.Keyboard;
+
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.UIPanelAPI;
 
 import wfg.native_ui.internal.ui.core.UIElement;
-import wfg.native_ui.ui.Attachments;
 
 public class OutsideEventDetector extends UIElement {
-    private final OutisdeEventListener listener;
+    private final OutsideEventListener mListener;
+    private final UIPanelAPI mTargetParent;
 
     public boolean consumeMouseMove = true;
     public boolean consumeMouseScroll = true;
@@ -20,52 +24,64 @@ public class OutsideEventDetector extends UIElement {
     public boolean triggerByModKey = false;
     public boolean triggerOnKeyUp = false;
     
-    public OutsideEventDetector(OutisdeEventListener owner) {
+    public OutsideEventDetector(OutsideEventListener owner) {
+        this(owner, settings.getScreenPanel());
+    }
+
+    public OutsideEventDetector(OutsideEventListener owner, UIPanelAPI targetParent) {
         super(screenW, screenH);
-        setParent(Attachments.getScreenPanel());
-        listener = owner;
+        mListener = owner;
+        mTargetParent = targetParent;
     }
 
     public final void attach() {
-        mParent.addComponent(this);
-        mParent.bringComponentToTop(this);
+        attachTo(mTargetParent);
+        bringToFront();
     }
 
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
         for (InputEventAPI event : events) {
-            if (event.isConsumed()) continue;
-
             if (event.isMouseEvent()) {
                 if ((event.isMouseMoveEvent() && consumeMouseMove) ||
                     (event.isMouseScrollEvent() && consumeMouseScroll)
                 ) { event.consume(); continue; }
+
                 if ((event.isMouseDownEvent() || event.isMouseUpEvent()) &&
-                    !listener.pos().containsEvent(event)
+                    !event.isConsumed() && !mListener.pos().containsEvent(event)
                 ) {
-                    listener.outsideClicked(event.isLMBEvent());
+                    mListener.outsideClicked(event.isLMBEvent());
                     if (isRemoveOnAction) {
-                        detach(); continue;
+                        detach(); return;
                     }
                 }
 
             } else if (event.isKeyboardEvent()) {
                 if (event.isModifierKey()) {
-                    if (triggerByModKey) listener.buttonPressed(event.getEventValue());
+                    if (triggerByModKey) {
+                        mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
+                        if (isRemoveOnAction) {
+                            detach(); return;
+                        }
+                    }
+
                     event.consume();
                     continue;
                 }
-                if (event.isKeyUpEvent() && !triggerOnKeyUp) { event.consume(); continue; }
 
-                listener.buttonPressed(event.getEventValue());
+                if (event.isKeyUpEvent() && !triggerOnKeyUp) {
+                    event.consume(); continue;
+                }
+
+                mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
                 if (isRemoveOnAction) {
-                    detach(); continue;
+                    detach(); return;
                 }
             }
         }
     }
 
-    public static interface OutisdeEventListener {
+    public static interface OutsideEventListener {
         void outsideClicked(boolean isLeft);
         void buttonPressed(int lwjgl_key);
         PositionAPI pos();

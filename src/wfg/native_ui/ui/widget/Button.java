@@ -11,58 +11,60 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.util.FaderUtil;
 
 import wfg.native_ui.example.widget.ButtonExample;
-import wfg.native_ui.ui.component.HoverGlowComp;
+import wfg.native_ui.ui.component.GlowComp;
+import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
-import wfg.native_ui.ui.core.UIBuildableAPI;
-import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 import wfg.native_ui.ui.functional.CallbackRunnable;
 import wfg.native_ui.ui.functional.ShortcutHandler;
 import wfg.native_ui.ui.interaction.UIClickable;
+import wfg.native_ui.ui.table.WidgetAPI;
+import wfg.native_ui.util.NativeUiUtils;
 import wfg.native_ui.util.RenderUtils;
 
 /**
- * UI button component with visual enhancements: label, tooltip, hover glow, and custom background.
+ * UI button component with visual enhancements: mLabel, tooltip, glow, and custom background.
  *
  * <ul>
- *   <li>Displays an optional text label; the label is rebuilt when text/font/shortcut changes (see {@link #recreateLabel()}).</li>
- *   <li>Supports a persistent hover/glow state (driven by {@link #checked}, {@link #quickMode} and {@link #disabled}).</li>
- *   <li>Use {@link #setEnabled()} to enable/disable the button. Disabled buttons use {@link #bgDisabledColor}/{@link #bgDisabledAlpha}.</li>
- *   <li>{@link #setShowTooltipWhileInactive()} controls whether the tooltip is shown when the button is disabled.</li>
+ *   <li>Displays an optional text mLabel; the mLabel is rebuilt when text/font/shortcut changes (see {@link #buildUI}).</li>
+ *   <li>Use {@link #setEnabled} to enable/disable the button. Disabled buttons use {@link #bgDisabledColor}/{@link #bgDisabledAlpha}.</li>
+ *   <li>{@link #setShowTooltipWhileInactive} controls whether the tooltip is shown when the button is disabled.</li>
  * </ul>
  * 
  * <p><strong>Example: </strong> {@link ButtonExample}</p>
  */
-public class Button extends UIClickable<Button> implements UIBuildableAPI, ButtonAPI,
-    HasHoverGlow, HasTooltip
+public class Button extends UIClickable<Button> implements WidgetAPI<Button>, ButtonAPI,
+    HasGlow, HasTooltip
 {
-    private static final float GLOW_BRIGHTNESS = 0.2f;
-    private static final float FLASH_BRIGHTNESS = 0.3f;
+    private static final float GLOW_BRIGHTNESS = 0.65f;
+    private static final float HIGHLIGHT_BRIGHTNESS = 0.6f;
+    private static final float FLASH_BRIGHTNESS = 0.2f;
+    private static final float HOVER_TINT_MAX = 0.5f;
 
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-    protected final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+    protected final GlowComp glow = comp().get(NativeComponents.GLOW);
 
     public float bgAlpha = 0.9f;
     public float bgDisabledAlpha = 0.8f;
-    public float highlightBrightness = 0.85f; // override for general brightness
     public Color bgSelectedColor = dark;
     public Color bgColor = dark;
     public Color bgDisabledColor = new Color(17, 52, 62);
     public int overrideCutSize = 0;
     
-    protected CutStyle cutStyle = CutStyle.NONE;
-    protected LabelAPI label = null;
-    protected String labelText;
-    protected String labelFont;
-    protected Alignment alg = Alignment.MID;
-    protected FaderUtil highlightFader = new FaderUtil(0f, 0.05f, 0.25f);
+    protected CutStyle mCutStyle = CutStyle.NONE;
+    protected LabelAPI mLabel = null;
+    protected String mLabelText;
+    protected String mLabelFont;
+    protected Color mLabelColor = btnTxtColor;
+    protected Alignment mAlg = Alignment.MID;
     
-    private boolean appendShortcutToText = false;
-    private boolean showTooltipWhileInactive = false;
+    private boolean mSyncHighlightToState = true;
+    private boolean mAppendShortcutToText = false;
+    private boolean mShowTooltipWhileInactive = false;
     
     /**
      * @param onClick if null, clicking toggles the checked state; otherwise, the Runnable handles it.
@@ -72,12 +74,13 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
     ) {
         super(width, height, onClick);
 
-        labelText = text == null ? "" : text;
-        labelFont = font == null ? Fonts.ORBITRON_12 : font;
+        mLabelText = text == null ? "" : text;
+        mLabelFont = font == null ? Fonts.ORBITRON_12 : font;
 
-        glow.fader = new FaderUtil(0f, 0.05f, 0.25f, false, true);
+        glow.glowFader.setDuration(0.05f, 0.25f);
         glow.color = base;
         glow.glowBrightness = GLOW_BRIGHTNESS;
+        glow.highlightBrightness = HIGHLIGHT_BRIGHTNESS;
         glow.flashBrightness = FLASH_BRIGHTNESS;
         glow.faderMaskVertices = getFaderMaskVertices();
 
@@ -85,73 +88,52 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
         interaction.onShortcutPressed = (source, event) -> {
             if (getOpacity() > 0f) {
                 flash(false);
-                label.flash(0.2f, 0.2f);
+                mLabel.flash(0.2f, 0.2f);
             }
             uiClickableCallback.run(source, event);
         };
 
         buildUI();
     }
-
-    public void recreateLabel() {
-        final LabelAPI newlbl = settings.createLabel(labelText, labelFont);
-
-        final String shortcutTxt = (!appendShortcutToText || interaction.shortcut == 0) ? "" :
-            " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
-
-        newlbl.setText(labelText + shortcutTxt);
-        newlbl.getPosition().setSize(getWidth(), getHeight());
-        newlbl.setColor(label.getColor());
-        newlbl.setAlignment(alg);
-        if (appendShortcutToText) {
-            newlbl.setHighlightColor(highlight);
-            newlbl.setHighlight(Keyboard.getKeyName(interaction.shortcut));
-        }
-
-        remove(label);
-        label = newlbl;
-        add(label).inBL(0f, 0f);
-    }
-
+    
     public void buildUI() {
-        if (label != null) remove(label);
+        if (mLabel != null) remove(mLabel);
 
-        final String shortcutTxt = (!appendShortcutToText || interaction.shortcut == 0) ? "" :
+        final String shortcutTxt = (!mAppendShortcutToText || interaction.shortcut == 0) ? "" :
             " [" + Keyboard.getKeyName(interaction.shortcut) + "]";
 
-        label = settings.createLabel(labelText + shortcutTxt, labelFont);
-        label.getPosition().setSize(getWidth(), getHeight());
-        label.setColor(btnTxtColor);
-        label.setAlignment(alg);
-        if (appendShortcutToText) {
-            label.setHighlightColor(highlight);
-            label.setHighlight(Keyboard.getKeyName(interaction.shortcut));
+        mLabel = settings.createLabel(mLabelText + shortcutTxt, mLabelFont);
+        mLabel.getPosition().setSize(getWidth(), getHeight());
+        mLabel.setColor(mLabelColor);
+        mLabel.setAlignment(mAlg);
+        if (mAppendShortcutToText) {
+            mLabel.setHighlightColor(highlight);
+            mLabel.setHighlight(Keyboard.getKeyName(interaction.shortcut));
         }
-
-        add(label).inBL(0f, 0f);
+        add(mLabel).inBL(0f, 0f);
     }
 
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         tooltip.enabled = isTooltipEnabled();
-        glow.persistent = isPersistentGlow();
+        updateHighlight();
     }
 
     @Override
     public void setChecked(boolean bool) {
         super.setChecked(bool);
-        glow.persistent = isPersistentGlow();
+        updateHighlight();
     }
 
     @Override
     public void setQuickMode(boolean mode) {
         super.setQuickMode(mode);
-        glow.persistent = isPersistentGlow();
+        updateHighlight();
     }
 
     public void setShowTooltipWhileInactive(boolean bool) {
-        showTooltipWhileInactive = bool;
+        mShowTooltipWhileInactive = bool;
         tooltip.enabled = isTooltipEnabled();
     }
 
@@ -161,65 +143,60 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
     @Override
     public void setShortcut(int keyCode) {
         super.setShortcut(keyCode);
-        recreateLabel();
+        buildUI();
+    }
+
+    public final void setShortcutNoHighlight(int keyCode) {
+        setShortcut(keyCode);
     }
 
     public void setShortcutAndAppendToText(int keyCode) {
         super.setShortcut(keyCode);
-        appendShortcutToText = true;
-        recreateLabel();
+        mAppendShortcutToText = true;
+        buildUI();
     }
 
-    public String getText() { return labelText; }
+    public String getText() { return mLabelText; }
     public void setText(String text) {
-        labelText = text;
-        recreateLabel();
+        mLabelText = text;
+        buildUI();
     }
 
     public void setFont(String font) {
-        labelFont = font;
-        recreateLabel();
+        mLabelFont = font;
+        buildUI();
     }
 
     public void setAppendShortcutToText(boolean a) {
-        appendShortcutToText = a;
-        recreateLabel();
+        mAppendShortcutToText = a;
+        buildUI();
     }
 
     public Color getLabelColor() {
-        return label.getColor();
+        return mLabelColor;
     }
 
     public void setLabelColor(Color color) {
-        label.setColor(color);
+        mLabelColor = color;
+        if (mLabel != null) mLabel.setColor(applyHoverTint(color));
     }
 
     public void setAlignment(Alignment alg) {
-        this.alg = alg;
-        label.setAlignment(alg);
+        mAlg = alg;
+        mLabel.setAlignment(alg);
     }
 
     @Override
     public PositionAPI setSize(float w, float h) {
-        super.setSize(w, h);
-
-        glow.faderMaskVertices = getFaderMaskVertices();
-        recreateLabel();
+        setSizeWithoutRecreate(w, h);
+        buildUI();
 
         return mPos;
     }
 
-    @Override
-    public void renderBelowImpl(float alpha) {
-        final float w = getWidth();
-        final float h = getHeight();
-        final float cutSize = computeCut((int) w, (int) h);
-
-        final float[] cuts = cutStyle.toVector4();
-        for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
-        final float[] verts = RenderUtils.buildCornersVertices(getX(), getY(), w, h, cuts);
-
-        RenderUtils.drawPolygon(verts, getBgColor(), alpha * getBgAlpha());
+    protected final void setSizeWithoutRecreate(float w, float h) {
+        super.setSize(w, h);
+        glow.faderMaskVertices = getFaderMaskVertices();
     }
 
     protected float computeCut(int w, int h) {
@@ -228,31 +205,54 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
     }
 
     protected boolean isTooltipEnabled() {
-        return (showTooltipWhileInactive || !disabled);
+        return (mShowTooltipWhileInactive || !mDisabled);
     }
 
-    protected boolean isPersistentGlow() {
-        return checked && !disabled && !quickMode;
+    protected boolean shouldBeHighlighted() {
+        return mChecked && !mDisabled && !mQuickMode;
+    }
+
+    protected void updateHighlight() {
+        if (mSyncHighlightToState && shouldBeHighlighted()) {
+            glow.highlight();
+        } else {
+            glow.unhighlight();
+        }
+    }
+
+    public void setAutoHighlight(boolean auto) {
+        mSyncHighlightToState = auto;
+        updateHighlight();
     }
 
     protected Color getBgColor() {
-        if (disabled) return bgDisabledColor;
-        if (!quickMode && checked) return bgSelectedColor;
+        if (mDisabled) return bgDisabledColor;
+        if (!mQuickMode && mChecked) return bgSelectedColor;
         return bgColor;
     }
 
     protected float getBgAlpha() {
-        return disabled ? bgDisabledAlpha : bgAlpha;
+        return mDisabled ? bgDisabledAlpha : bgAlpha;
+    }
+
+    protected Color applyHoverTint(Color base) {
+        final float t = glow.glowFader.getBrightness();
+        if (t <= 0f) return base;
+        return NativeUiUtils.adjustBrightness(base, 1f + t * HOVER_TINT_MAX);
+    }
+
+    public InteractionComp<Button> getInteraction() {
+        return interaction;
     }
 
     public void setCutStyle(CutStyle style) {
-        cutStyle = style;
+        mCutStyle = style;
         glow.faderMaskVertices = getFaderMaskVertices();
     }
 
     public void setCutStyle(com.fs.starfarer.api.ui.CutStyle vanillaStyle) {
-        cutStyle = CutStyle.fromVanilla(vanillaStyle);
-        if (cutStyle == null) cutStyle = CutStyle.NONE;
+        mCutStyle = CutStyle.fromVanilla(vanillaStyle);
+        if (mCutStyle == null) mCutStyle = CutStyle.NONE;
         glow.faderMaskVertices = getFaderMaskVertices();
     }
 
@@ -305,40 +305,40 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
         return glow.glowBrightness;
     }
 
-    public float getFlashBrightness() {
-        return glow.flashBrightness;
+    public float getHighlightBrightness() {
+        return glow.highlightBrightness;
     }
 
-    public float getHighlightBrightness() {
-        return highlightBrightness;
+    public float getFlashBrightness() {
+        return glow.flashBrightness;
     }
 
     public void setGlowBrightness(float brightness) {
         glow.glowBrightness = brightness;
     }
 
+    public void setHighlightBrightness(float brightness) {
+        glow.highlightBrightness = brightness;
+    }
+
     public void setFlashBrightness(float brightness) {
         glow.flashBrightness = brightness;
     }
 
-    public void setHighlightBrightness(float brightness) {
-        highlightBrightness = brightness;
-    }
-
     public void highlight() {
-        this.highlightFader.fadeIn();
+        glow.highlight();
     }
 
     public boolean isHighlighted() {
-        return this.highlightFader.isFadedIn() || this.highlightFader.isFadingIn();
+        return glow.isHighlighted();
     }
 
     public void unhighlight() {
-        this.highlightFader.fadeOut();
+        glow.unhighlight();
     }
-    
+
     public void setHighlightBounceDown(boolean bool) {
-        highlightFader.setBounceDown(bool);
+        glow.highlightFader.setBounceDown(bool);
     }
 
     @Override
@@ -353,8 +353,8 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
 
     @Override
     public void flash(boolean withSound, float in, float out) {
-        glow.fader.fadeIn();
-
+        glow.flashFader.setDuration(in, out);
+        glow.flash();
         if (withSound) playPressSound();
     }
 
@@ -364,25 +364,29 @@ public class Button extends UIClickable<Button> implements UIBuildableAPI, Butto
     public boolean isSkipPlayingPressedSoundOnce() { return false; }
 
     @Override
-    public void renderImpl(float alpha) {
-        final float highlight = highlightFader.getBrightness() * highlightBrightness;
-        glow.overrideBrightness = (highlight > 0f) ? highlight : -1f;
+    public void renderBelowImpl(float alpha) {
+        RenderUtils.drawPolygon(glow.faderMaskVertices, getX(), getY(), getBgColor(), alpha * getBgAlpha());
+    }
 
-        super.renderImpl(alpha);
+    @Override
+    public void advanceImpl(float delta) {
+        super.advanceImpl(delta);
+
+        if (mLabel != null) mLabel.setColor(applyHoverTint(mLabelColor));
     }
 
     protected float[] getFaderMaskVertices() {
         final float cutSize = computeCut((int) getWidth(), (int) getHeight());
 
-        final float[] cuts = cutStyle.toVector4();
+        final float[] cuts = mCutStyle.toVector4();
         for (int i = 0; i < 4; i++) cuts[i] *= cutSize;
 
         return RenderUtils.buildCornersVertices(
-            getX(), getY(), getWidth(), getHeight(), cuts
+            0f, 0f, getWidth(), getHeight(), cuts
         );
     }
 
-    public enum CutStyle {
+    public static enum CutStyle {
         NONE, TL, TR, BL, BR,
         TL_TR, TL_BL, TL_BR,
         TR_BL, TR_BR, BL_BR,

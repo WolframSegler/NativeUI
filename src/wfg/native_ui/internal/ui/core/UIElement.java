@@ -6,35 +6,38 @@ import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
+import com.fs.starfarer.ui.UIComponentAPIWrapper;
 
+import rolflectionlib.ui.UiUtil;
+import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.UIEventBus;
+import wfg.native_ui.util.Arithmetic;
 
 public class UIElement implements UIElementAPI {
-    private static final float FADE_SPEED_MULT = settings.getFloat("uiFadeSpeedMult");
+    static final float FADE_SPEED_MULT = settings.getFloat("uiFadeSpeedMult");
 
     protected FaderUtil mFader = new FaderUtil(1f, 0.05f, 0.25f);
-    protected PositionAPI mPos;
+    protected PositionAPI mPos = settings.createPosition();
     protected UIPanelAPI mParent;
 
-    protected float mOpacity;
+    /** 
+     * This is the element itself it not wrapped.
+     * Else, it is the wrapper.
+     */
+    protected UIComponentAPI mSelfInParent = this;
+
+    protected float mOpacity = 1f;
 
     public UIElement(float width, float height) {
         this();
         mPos.setSize(width, height);
     }
 
-    public UIElement() {
-        this(null);
-        // TODO use createPosition() here
-        // this(settings.createPosition()); 
-    }
-
-    public UIElement(PositionAPI pos) {
-        mPos = pos;
-    }
+    public UIElement() {}
 
     public PositionAPI getPosition() { return mPos; }
     public PositionAPI pos() { return mPos; }
@@ -45,7 +48,13 @@ public class UIElement implements UIElementAPI {
     public float getWidth() { return mPos.getWidth(); }
     public float getHeight() { return mPos.getHeight(); }
 
-    public void setPos(PositionAPI pos) { this.mPos = pos; }
+    public void setPos(PositionAPI pos) {
+        if (mSelfInParent != this) throw new UnsupportedOperationException("Cannot setPos on a wrapped element");
+        mPos = pos;
+    }
+    public final void setPosition2(PositionAPI pos) {
+        setPos(pos);
+    }
     public void setWidth(float w) { mPos.setSize(w, mPos.getHeight()); }
     public void setHeight(float h) { mPos.setSize(mPos.getWidth(), h); }
     public PositionAPI setSize(float w, float h) {
@@ -72,13 +81,15 @@ public class UIElement implements UIElementAPI {
 
     public UIPanelAPI getParent() { return mParent; }
     public PositionAPI setParent(UIPanelAPI parent) {
-        this.mParent = parent;
-        // TODO
-        // pos.setParent(parent.getPosition());
+        mParent = parent;
         return mPos;
+    }
+    public final void setParent2(UIPanelAPI parent) {
+        setParent(parent);
     }
 
     public final void render(float alpha) {
+        alpha *= mOpacity;
         if (alpha <= 0f) return;
 
         renderImpl(alpha * mFader.getBrightness());
@@ -96,22 +107,71 @@ public class UIElement implements UIElementAPI {
         advanceImpl(delta);
     }
 
-    public void setOpacity(float opacity) { mOpacity = opacity; }
+    public void setOpacity(float opacity) { mOpacity = Arithmetic.clamp(opacity, 0f, 1f); }
     public float getOpacity() { return mOpacity; }
 
 
     public void bringToFront() {
-        if (mParent != null) mParent.bringComponentToTop(this);
+        if (mParent != null) mParent.bringComponentToTop(mSelfInParent);
     }
     public void sendToBack() {
-        if (mParent != null) mParent.sendToBottom(this);
+        if (mParent != null) mParent.sendToBottom(mSelfInParent);
     }
     public void detach() {
-        if (mParent == null) return; 
-        mParent.removeComponent(this);
-        reportDetached();
+        if (mParent != null) mParent.removeComponent(mSelfInParent);
+        mParent = null;
+        mPos.setParent2(null);
+        mSelfInParent = this;
+    }
+
+    public PositionAPI addPos(UIComponentAPI comp) {
+        final PositionAPI pos = comp.getPosition();
+        pos.setParent2(mPos);
+        mPos.add2(pos);
+        return pos;
+    }
+
+    public void removePos(UIComponentAPI comp) {
+        mPos.remove2(comp.getPosition());
+        comp.getPosition().setParent2(null);
+    }
+
+    public FaderUtil getFader() {
+        return mFader;
+    }
+
+    public final PositionAPI attachTo(UIPanelAPI parent) {
+        if (mSelfInParent != this) throw new IllegalStateException("UIElement already wrapped; detach first");
+        if (mParent != null) throw new IllegalStateException("UIElement already attached; detach first");
+
+        if (parent instanceof UIContainerAPI) {
+            parent.addComponent(this);
+            return mPos;
+        }
+
+        if (UiUtil.uiComponentClass.isInstance(parent)) {
+            mSelfInParent = parent.wrapAndAdd(this, new FaderUtil(1f, 0.05f, 0.25f));
+            return mPos;
+        }
+
+        throw new IllegalArgumentException(
+            "parent is neither UIContainerAPI nor vanilla (" + parent.getClass().getName() + ")");
+    }
+
+    public UIComponentAPI getSelfInParent() {
+        return mSelfInParent;
     }
 
     public void reportAttached() { UIEventBus.fireAttached(this); }
     public void reportDetached() { UIEventBus.fireDetached(this); }
+
+    /**
+     * Creates and returns a wrapper around this element, <em>without</em> attaching it to any
+     * parent. Use when a vanilla API performs its own attachment.
+     */
+    public final UIComponentAPI wrapDetached() {
+        if (mSelfInParent != this) throw new IllegalStateException("UIElement already wrapped; detach first");
+        mSelfInParent = new UIComponentAPIWrapper(this, new FaderUtil(1f, 0.05f, 0.25f));
+        return mSelfInParent;
+    }
 }

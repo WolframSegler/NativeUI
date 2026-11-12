@@ -12,5 +12,5 @@ public final class AudioFeedbackComp extends BaseComponent {
     public String buttonPressedDisabledSound = "ui_button_disabled_pressed";
 
     /** Internal: only used by {@link AudioFeedbackSystem} */
-    public int internal_accumulatedGameTicks = 0;
+    public int iAccumulatedGameTicks = 0;
 }

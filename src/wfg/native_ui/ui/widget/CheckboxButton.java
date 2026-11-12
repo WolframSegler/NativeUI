@@ -11,7 +11,7 @@ import com.fs.starfarer.api.ui.ButtonAPI.UICheckboxSize;
 import com.fs.starfarer.api.ui.Alignment;
 
 import wfg.native_ui.example.widget.CheckboxButtonExample;
-import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
+import wfg.native_ui.ui.component.GlowComp.GlowType;
 import wfg.native_ui.ui.functional.CallbackRunnable;
 
 /**
@@ -44,8 +44,8 @@ public class CheckboxButton extends Button {
     public float checkboxSize = 0f;
 
     /**
-     * @param labelText the text label displayed next to the checkbox. May be null if no label is desired.
-     * @param checkboxSizeEnum the vanilla checkbox asset variant to use.
+     * @param text the text label displayed next to the checkbox. May be null if no label is desired.
+     * @param type the vanilla checkbox asset variant to use.
      * @param btnSize the rendered size of the checkbox in pixels. The underlying sprite will be stretched to this size.
      */
     public CheckboxButton(int btnSize, String text, String font,
@@ -54,6 +54,7 @@ public class CheckboxButton extends Button {
         super(btnSize, btnSize, text, font, onClick);
         bgAlpha = 0f;
         bgDisabledAlpha = 0f;
+        setAutoHighlight(false);
         glow.type = GlowType.ADDITIVE;
 
         switch (type) {
@@ -86,7 +87,7 @@ public class CheckboxButton extends Button {
         toggleTex.setSize(checkboxSize, checkboxSize);
         toggleTex.render(getX(), getY());
         
-        super.render(alpha);
+        super.renderImpl(alpha);
     }
 
     @Override
@@ -95,30 +96,25 @@ public class CheckboxButton extends Button {
 
         for (InputEventAPI event : events) {
             if (event.isMouseMoveEvent() && !event.isConsumed()) {
-                if (label.getPosition().containsEvent(event)) {
-                    label.flash(0f, 0.3f);
+                if (mLabel.getPosition().containsEvent(event)) {
+                    mLabel.flash(0f, 0.3f);
                 }
             }
         }
     }
 
     @Override
-    public void recreateLabel() {
-        super.recreateLabel();
+    public void buildUI() {
+        super.buildUI();
 
         customLblMods();
     }
 
-    @Override
-    protected boolean isPersistentGlow() {
-        return false;
-    }
-
     private final void customLblMods() {
-        final float lblSize = label.computeTextWidth(label.getText());
+        final float lblSize = mLabel.computeTextWidth(mLabel.getText());
         setAlignment(Alignment.LMID);
-        label.getPosition().setSize(lblSize, checkboxSize);
-        label.getPosition().inBL(checkboxSize + hpad, 0f);
-        setSize(checkboxSize + hpad + lblSize, checkboxSize);
+        mLabel.getPosition().setSize(lblSize, checkboxSize);
+        mLabel.getPosition().inBL(checkboxSize + hpad, 0f);
+        setSizeWithoutRecreate(checkboxSize + hpad + lblSize, checkboxSize);
     }
 }

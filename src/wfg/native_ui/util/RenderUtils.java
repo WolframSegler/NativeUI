@@ -10,8 +10,9 @@ import static wfg.native_ui.util.Globals.settings;
 import java.awt.Color;
 
 public final class RenderUtils {
-    private RenderUtils() {}
+    private RenderUtils() {};
     private static final SpriteAPI LINE_TEX = settings.getSprite("graphics/hud/line4x4.png");
+    private static final Color BLACK_HIGHLIGHT = new Color(0, 0, 0, 127);
 
     /**
      * @param x = posX
@@ -38,52 +39,29 @@ public final class RenderUtils {
 
         if (growInward) {
             // Bottom
-            GL11.glVertex2f(x, y);
-            GL11.glVertex2f(x + w, y);
-            GL11.glVertex2f(x + w, y + t);
-            GL11.glVertex2f(x, y + t);
+            quadVertexRaw(x, y, w - t, t);
 
             // Right
-            GL11.glVertex2f(x + w - t, y);
-            GL11.glVertex2f(x + w, y);
-            GL11.glVertex2f(x + w, y + h);
-            GL11.glVertex2f(x + w - t, y + h);
+            quadVertexRaw(x + w - t, y, t, h - t);
 
             // Top
-            GL11.glVertex2f(x, y + h - t);
-            GL11.glVertex2f(x + w, y + h - t);
-            GL11.glVertex2f(x + w, y + h);
-            GL11.glVertex2f(x, y + h);
+            quadVertexRaw(x + t, y + h - t, w - t, t);
 
             // Left
-            GL11.glVertex2f(x, y + t);
-            GL11.glVertex2f(x + t, y + t);
-            GL11.glVertex2f(x + t, y + h - t);
-            GL11.glVertex2f(x, y + h - t);
+            quadVertexRaw(x, y + t, t, h - t);
+            
         } else {
             // Bottom
-            GL11.glVertex2f(x - t, y - t);
-            GL11.glVertex2f(x + w, y - t);
-            GL11.glVertex2f(x + w, y);
-            GL11.glVertex2f(x - t, y);
+            quadVertexRaw(x - t, y - t, w + t, t);
             
             // Right
-            GL11.glVertex2f(x + w, y - t);
-            GL11.glVertex2f(x + w + t, y - t);
-            GL11.glVertex2f(x + w + t, y + h);
-            GL11.glVertex2f(x + w, y + h);
+            quadVertexRaw(x + w, y - t, t, h + t);
 
             // Top
-            GL11.glVertex2f(x, y + h);
-            GL11.glVertex2f(x + w + t, y + h);
-            GL11.glVertex2f(x + w + t, y + h + t);
-            GL11.glVertex2f(x, y + h + t);
+            quadVertexRaw(x, y + h, w + t, t);
 
             // Left
-            GL11.glVertex2f(x - t, y);
-            GL11.glVertex2f(x, y);
-            GL11.glVertex2f(x, y + h + t);
-            GL11.glVertex2f(x - t, y + h + t);
+            quadVertexRaw(x - t, y, t, h + t);
         }
 
         GL11.glEnd();
@@ -100,12 +78,7 @@ public final class RenderUtils {
 
         setGlColor(color, alphaMult);
 
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x + w, y);
-        GL11.glVertex2f(x + w, y + h);
-        GL11.glVertex2f(x, y + h);
-        GL11.glEnd();
+        quadVertex(x, y, w, h);
     }
 
     public static final void drawAdditiveGlow(SpriteAPI sprite, float x, float y, Color glowColor, float intensity) {
@@ -115,11 +88,7 @@ public final class RenderUtils {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
-        final int r = Math.min(255, (int)(glowColor.getRed() * intensity));
-        final int g = Math.min(255, (int)(glowColor.getGreen() * intensity));
-        final int b = Math.min(255, (int)(glowColor.getBlue() * intensity));
-        final int a = Math.min(255, (int)(255 * intensity));
-        sprite.setColor(new Color(r, g, b, a));
+        sprite.setColor(NativeUiUtils.adjustBrightnessWithAlpha(glowColor, intensity));
 
         sprite.setAdditiveBlend();
         sprite.render(x, y);
@@ -267,7 +236,7 @@ public final class RenderUtils {
 
         // Top half gradient shine
         float shineFactor = 0.3f + highlightIntensity * 0.7f;
-        Color shineColor = blendColors(baseColor, Color.WHITE, shineFactor * 0.5f);
+        Color shineColor = NativeUiUtils.lerpColor(baseColor, Color.WHITE, shineFactor * 0.5f);
 
         GL11.glBegin(GL11.GL_QUADS);
         GL11.glColor4ub((byte) shineColor.getRed(), (byte) shineColor.getGreen(), (byte) shineColor.getBlue(),
@@ -287,7 +256,7 @@ public final class RenderUtils {
         Color mainColor = baseColor;
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         if (darkOverlay) {
-            mainColor = new Color(0, 0, 0, 127);
+            mainColor = BLACK_HIGHLIGHT;
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             mainFactor = 1f;
         }
@@ -315,26 +284,16 @@ public final class RenderUtils {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
     }
 
-    public static final Color blendColors(Color c1, Color c2, float t) {
-        if (t <= 0f) return c1;
-        if (t >= 1f) return c2;
-
-        final int r = Math.min(255, Math.max(0, Math.round(c1.getRed() + (c2.getRed() - c1.getRed()) * t)));
-        final int g = Math.min(255, Math.max(0, Math.round(c1.getGreen() + (c2.getGreen() - c1.getGreen()) * t)));
-        final int b = Math.min(255, Math.max(0, Math.round(c1.getBlue() + (c2.getBlue() - c1.getBlue()) * t)));
-        final int a = Math.min(255, Math.max(0, Math.round(c1.getAlpha() + (c2.getAlpha() - c1.getAlpha()) * t)));
-
-        return new Color(r, g, b, a);
-    }
-
     /**
-     * Draws a filled convex polygon using CCW vertices.
+     * Draws a filled convex polygon using CCW vertices, translated by {@code (x, y)}.
      *
-     * @param verts  float array of XY pairs: [x0, y0, x1, y1, ...]
-     * @param color  fill color
-     * @param alpha  transparency multiplier (0..1)
+     * @param verts float array of XY pairs relative to the origin: [x0, y0, x1, y1, ...]
+     * @param x x translation applied to every vertex
+     * @param y y translation applied to every vertex
+     * @param color fill color
+     * @param alpha transparency multiplier [0, 1]
      */
-    public static final void drawPolygon(float[] verts, Color color, float alpha) {
+    public static final void drawPolygon(float[] verts, float x, float y, Color color, float alpha) {
         if (verts == null || verts.length < 6) return; // at least 3 points
 
         GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -344,7 +303,7 @@ public final class RenderUtils {
 
         GL11.glBegin(GL11.GL_TRIANGLE_FAN);
         for (int i = 0; i < verts.length; i += 2) {
-            GL11.glVertex2f(verts[i], verts[i + 1]);
+            GL11.glVertex2f(x + verts[i], y + verts[i + 1]);
         }
         GL11.glEnd();
     }
@@ -449,24 +408,29 @@ public final class RenderUtils {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ZERO);
         setGlColor(color, alphaMult);
 
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glVertex2f(x, y);
-        GL11.glVertex2f(x, y + h);
-        GL11.glVertex2f(x + w, y + h);
-        GL11.glVertex2f(x + w, y);
-        GL11.glEnd();
+        quadVertex(x, y, w, h);
     }
 
     public static final void quadNoBlend(float x, float y, float w, float h, Color color, float alphaMult) {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         setGlColor(color, alphaMult);
-        
+
+        quadVertex(x, y, w, h);
+    }
+
+    /** Simple {@link GL11#GL_QUADS} draw call. */
+    public static final void quadVertex(float x, float y, float w, float h) {
         GL11.glBegin(GL11.GL_QUADS);
+        quadVertexRaw(x, y, w, h);
+        GL11.glEnd();
+    }
+
+    /** Without {@link GL11#glBegin} and {@link GL11#glEnd}. */
+    public static final void quadVertexRaw(float x, float y, float w, float h) {
         GL11.glVertex2f(x, y);
         GL11.glVertex2f(x, y + h);
         GL11.glVertex2f(x + w, y + h);
         GL11.glVertex2f(x + w, y);
-        GL11.glEnd();
     }
 
     private static final Vector2f normalize(Vector2f vec) {

@@ -12,14 +12,14 @@ public final class PanelFillRenderer {
     public boolean useOverlay = false;
     public boolean useAdditiveBlend = true;
     public boolean useGradient = true;
-    public float panelW = 0, panelH = 0;
+    public float panelW = 0f, panelH = 0f;
     public float edgeSize = 0f;
 
     private SpriteAPI mSprite;
-    private Color topColor = new Color(30, 114, 132);
-    private Color bottomColor = new Color(10, 38, 44);
-    private Color topOverlayColor = new Color(30, 114, 132, 155);
-    private Color bottomOverlayColor = new Color(10, 38, 44, 155);
+    private Color mTopColor = new Color(30, 114, 132);
+    private Color mBottomColor = new Color(10, 38, 44);
+    private Color mTopOverlayColor = new Color(30, 114, 132, 155);
+    private Color mBottomOverlayColor = new Color(10, 38, 44, 155);
 
     public PanelFillRenderer(SpriteAPI sprite) {
         this(sprite, sprite.getWidth(), sprite.getHeight());
@@ -39,9 +39,9 @@ public final class PanelFillRenderer {
     public void advance(float delta) {}
 
     public void renderVerticalGradient(float x, float y, float alpha) {
-        renderGradient(topColor, bottomColor, x, y, alpha, 0f);
+        renderGradient(mTopColor, mBottomColor, x, y, alpha, 0f);
         if (useOverlay) {
-            renderGradient(topOverlayColor, bottomOverlayColor, x, y + 1f, alpha, -1f);
+            renderGradient(mTopOverlayColor, mBottomOverlayColor, x, y + 1f, alpha, -1f);
         }
     }
 
@@ -66,9 +66,9 @@ public final class PanelFillRenderer {
      */
     public void renderQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, 
         float y4, float alpha) {
-        renderQuadWithColor(bottomColor, alpha, x1, y1, x2, y2, x3, y3, x4, y4);
+        renderQuadWithColor(mBottomColor, alpha, x1, y1, x2, y2, x3, y3, x4, y4);
         if (useOverlay) {
-            renderQuadWithColor(bottomOverlayColor, alpha, x1, y1 + 1f, x2, y2 + 1f, x3, y3 + 1f, x4, y4 + 1f);
+            renderQuadWithColor(mBottomOverlayColor, alpha, x1, y1 + 1f, x2, y2 + 1f, x3, y3 + 1f, x4, y4 + 1f);
         }
     }
 
@@ -76,14 +76,14 @@ public final class PanelFillRenderer {
      * Renders a textured quad with a subtle top-to-bottom gradient overlay.
      */
     public void renderTexturedQuad(float x, float y, float alpha) {
-        Color transparentColor = new Color(bottomColor.getRed(), bottomColor.getGreen(), bottomColor.getBlue(), 0);
+        Color transparentColor = new Color(mBottomColor.getRed(), mBottomColor.getGreen(), mBottomColor.getBlue(), 0);
 
-        drawTexturedQuad(bottomColor, bottomColor, transparentColor, transparentColor, alpha, x + edgeSize, y, 0f, 0f, (panelW - edgeSize * 2f) / 
+        drawTexturedQuad(mBottomColor, mBottomColor, transparentColor, transparentColor, alpha, x + edgeSize, y, 0f, 0f, (panelW - edgeSize * 2f) / 
         mSprite.getWidth(), panelH / 
         mSprite.getHeight());
         if (useOverlay) {
-            transparentColor = new Color(bottomOverlayColor.getRed(), bottomOverlayColor.getGreen(), bottomOverlayColor.getBlue(), 0);
-            drawTexturedQuad(bottomColor, bottomColor, transparentColor, transparentColor, alpha, x + edgeSize, y, 0f, 0f, (panelW - edgeSize * 2f) / 
+            transparentColor = new Color(mBottomOverlayColor.getRed(), mBottomOverlayColor.getGreen(), mBottomOverlayColor.getBlue(), 0);
+            drawTexturedQuad(mBottomColor, mBottomColor, transparentColor, transparentColor, alpha, x + edgeSize, y, 0f, 0f, (panelW - edgeSize * 2f) / 
             mSprite.getWidth(), panelH / 
             mSprite.getHeight());
         }
@@ -197,13 +197,13 @@ public final class PanelFillRenderer {
     }
  
     public void setColors(Color top, Color bottom) {
-        topColor = top;
-        bottomColor = bottom;
+        mTopColor = top;
+        mBottomColor = bottom;
     }
 
     public void setOverlayColors(Color top, Color bottom) {
-        topOverlayColor = top;
-        bottomOverlayColor = bottom;
+        mTopOverlayColor = top;
+        mBottomOverlayColor = bottom;
         useOverlay = true;
     }
 }

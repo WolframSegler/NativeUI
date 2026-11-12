@@ -3,7 +3,6 @@ package wfg.native_ui.internal.ui.core;
 import java.util.List;
 
 import com.fs.starfarer.api.input.InputEventAPI;
-import com.fs.starfarer.api.ui.PositionAPI;
 
 import wfg.native_ui.ui.component.UIComponentContainer;
 import wfg.native_ui.ui.core.UIElementFlags;
@@ -12,7 +11,7 @@ import wfg.native_ui.ui.system.AudioFeedbackSystem;
 import wfg.native_ui.ui.system.BackgroundSystem;
 import wfg.native_ui.ui.system.BaseSystem;
 import wfg.native_ui.ui.system.DebugBgSystem;
-import wfg.native_ui.ui.system.HoverGlowSystem;
+import wfg.native_ui.ui.system.GlowSystem;
 import wfg.native_ui.ui.system.InteractionSystem;
 import wfg.native_ui.ui.system.NativeSystems;
 import wfg.native_ui.ui.system.OutlineSystem;
@@ -22,8 +21,8 @@ import wfg.native_ui.ui.system.UISystemContainer;
 
 public class UIEntity extends UIElement implements UIEntityAPI {
 
-    private UIComponentContainer compContainer = null;
-    private UISystemContainer systemContainer = null;
+    private UIComponentContainer mCompContainer = null;
+    private UISystemContainer mSystemContainer = null;
 
     public UIEntity(float width, float height) {
         super(width, height);
@@ -35,21 +34,16 @@ public class UIEntity extends UIElement implements UIEntityAPI {
         initSystems();
     }
 
-    public UIEntity(PositionAPI pos) {
-        super(pos);
-        initSystems();
-    }
-
     public final UIComponentContainer getUIComponentContainer() { return comp(); }
     public final UIComponentContainer comp() {
-        if (compContainer == null) compContainer = new UIComponentContainer();
-        return compContainer;
+        if (mCompContainer == null) mCompContainer = new UIComponentContainer();
+        return mCompContainer;
     }
 
     public final UISystemContainer getUISystemContainer() { return system(); }
     public final UISystemContainer system() {
-        if (systemContainer == null) systemContainer = new UISystemContainer();
-        return systemContainer;
+        if (mSystemContainer == null) mSystemContainer = new UISystemContainer();
+        return mSystemContainer;
     }
 
     public void initSystems() {
@@ -69,8 +63,8 @@ public class UIEntity extends UIElement implements UIEntityAPI {
             system().setIfNotPresent(NativeSystems.OUTLINE, OutlineSystem.get(), this);
         }
 
-        if (this instanceof UIElementFlags.HasHoverGlow) {
-            system().setIfNotPresent(NativeSystems.HOVER_GLOW, HoverGlowSystem.get(), this);
+        if (this instanceof UIElementFlags.HasGlow) {
+            system().setIfNotPresent(NativeSystems.GLOW, GlowSystem.get(), this);
         }
 
         if (this instanceof UIElementFlags.HasTooltip) {
@@ -108,5 +102,12 @@ public class UIEntity extends UIElement implements UIEntityAPI {
         for (BaseSystem system : system().getAll()) {
             system.advance(this, delta);
         }
+    }
+
+    @Override
+    public void notifyRemoved() {
+        for (BaseSystem system : system().getAll()) {
+            system.onRemove(this);
+        }    
     }
 }

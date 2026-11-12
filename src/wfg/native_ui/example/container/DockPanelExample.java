@@ -11,19 +11,19 @@ import com.fs.starfarer.api.campaign.FactionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.ui.Fonts;
 import com.fs.starfarer.api.ui.LabelAPI;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
 import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.ui.ComponentFactory;
-import wfg.native_ui.ui.component.HoverGlowComp;
-import wfg.native_ui.ui.component.HoverGlowComp.GlowType;
+import wfg.native_ui.ui.component.GlowComp;
+import wfg.native_ui.ui.component.GlowComp.GlowType;
 import wfg.native_ui.ui.component.InteractionComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.container.DockPanel;
 import wfg.native_ui.ui.core.UIBuildableAPI;
+import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
-import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
 import wfg.native_ui.ui.visual.AbstractSpriteElement.SpriteElement;
 
@@ -47,8 +47,8 @@ public final class DockPanelExample extends DockPanel {
     public void buildUI() {
         clearChildren();
 
-        final int width = (int) contentContainer.getPosition().getWidth();
-        final TooltipMakerAPI container = ComponentFactory.createTooltip(width, true);
+        final int width = (int) mContentContainer.getWidth() - ComponentFactory.SCROLL_PANEL_WIDTH_PAD;
+        final UIContainerAPI container = new UIContainer(width, 0f);
         final List<FactionSpecAPI> factions = new ArrayList<>(settings.getAllFactionSpecs().stream().filter(f -> f.isShowInIntelTab()).toList());
         factions.add(settings.getFactionSpec(Factions.PLAYER));
 
@@ -57,11 +57,11 @@ public final class DockPanelExample extends DockPanel {
             final FactionRow row = new FactionRow(
                 width, ROW_H, faction, this::onFactionSelected
             );
-            container.addCustom(row, 0f).getPosition().inTL(0f, yCoord);
+            container.add(row).inTL(0f, yCoord);
             yCoord += ROW_H + pad;
         }
-        container.setHeightSoFar(yCoord);
-        ComponentFactory.addTooltip(container, contentContainer.getPosition().getHeight(), true, contentContainer).inTL(0f, 0f);
+        container.setHeight(yCoord);
+        add(ComponentFactory.wrapWithScrollPanel(container, width, mContentContainer.getHeight())).inTL(0f, 0f);
     }
 
     private void onFactionSelected(FactionSpecAPI faction) {
@@ -71,10 +71,10 @@ public final class DockPanelExample extends DockPanel {
     }
 
     private static class FactionRow extends UIContainer implements UIBuildableAPI,
-        HasInteraction, HasHoverGlow, HasAudioFeedback
+        HasInteraction, HasGlow, HasAudioFeedback
     {
         public final InteractionComp<FactionRow> interaction = comp().get(NativeComponents.INTERACTION);
-        public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+        public final GlowComp glow = comp().get(NativeComponents.GLOW);
 
         private final FactionSpecAPI faction;
 
@@ -98,7 +98,7 @@ public final class DockPanelExample extends DockPanel {
             final int iconSize = 28;
 
             final SpriteElement crestIcon = new SpriteElement(iconSize, iconSize, faction.getCrest(), null, null);
-            add(crestIcon).inBL(pad, (ROW_H - iconSize) / 2f);
+            add(crestIcon).inLMid(pad);
 
             final LabelAPI nameLabel = settings.createLabel(faction.getDisplayName(), Fonts.ORBITRON_12);
             nameLabel.setColor(faction.getBaseUIColor());

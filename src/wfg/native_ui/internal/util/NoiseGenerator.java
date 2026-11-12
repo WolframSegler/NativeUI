@@ -7,24 +7,24 @@ public final class NoiseGenerator {
     public float cycleDuration = baseDuration * 0.25F + (float)Math.random() * baseDuration * 0.75f;
     public float fadeDuration = cycleDuration / 5f;
 
-    private float angle = (float)Math.random() * 360f;
-    private float intensity = 1f;
-    private float elapsedTime = 0f;
-    private float minTime = 0f;
+    private float mAngle = (float)Math.random() * 360f;
+    private float mIntensity = 1f;
+    private float mElapsedTime = 0f;
+    private float mMinTime = 0f;
 
     public void reset() {
         cycleDuration = baseDuration * 0.25f + (float)Math.random() * baseDuration * 0.75f;
         amplitude = (float)Math.min(Math.random() * 0.75f + 0.5f, 1f);
         startTime = 0f;
         fadeDuration = cycleDuration / 5f;
-        elapsedTime = 0f;
-        angle = (float)Math.random() * 360f;
-        intensity = 1f;
+        mElapsedTime = 0f;
+        mAngle = (float)Math.random() * 360f;
+        mIntensity = 1f;
     }
 
     /** Initialize noise cycle, optionally with a reduced duration */
     public void startCycle(boolean shortenCycle) {
-        minTime = 0.01f;
+        mMinTime = 0.01f;
         cycleDuration = baseDuration * 0.4f + (float)Math.random() * baseDuration * 0.6f;
         if (shortenCycle) {
             cycleDuration = baseDuration * 0.4f + (float)Math.random() * baseDuration * 0.3f;
@@ -35,26 +35,26 @@ public final class NoiseGenerator {
     }
 
     public float getIntensity() {
-        return intensity * amplitude;
+        return mIntensity * amplitude;
     }
 
     public float getAngle() {
-        return angle;
+        return mAngle;
     }
 
     public boolean advance(float delta) {
-        elapsedTime += delta;
-        if (elapsedTime > cycleDuration && minTime <= 0f) {
+        mElapsedTime += delta;
+        if (mElapsedTime > cycleDuration && mMinTime <= 0f) {
             reset();
             return true;
         } else {
-            if (elapsedTime > startTime + fadeDuration) {
-                intensity -= delta / (cycleDuration - startTime - fadeDuration);
-                if (intensity < 0f) {
-                intensity = 0f;
+            if (mElapsedTime > startTime + fadeDuration) {
+                mIntensity -= delta / (cycleDuration - startTime - fadeDuration);
+                if (mIntensity < 0f) {
+                mIntensity = 0f;
                 }
             } else {
-                intensity = 1f;
+                mIntensity = 1f;
             }
 
             return false;

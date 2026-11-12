@@ -7,21 +7,21 @@ import java.awt.Color;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 
 import wfg.native_ui.ui.component.AudioFeedbackComp;
-import wfg.native_ui.ui.component.HoverGlowComp;
+import wfg.native_ui.ui.component.GlowComp;
 import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.TooltipComp;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
-import wfg.native_ui.ui.core.UIElementFlags.HasHoverGlow;
+import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasTooltip;
 
 /**
- * An {@link AbstractSpriteElement} with tooltip, hover glow, and audio feedback support.
+ * An {@link AbstractSpriteElement} with tooltip, glow, and audio feedback support.
  */
 public class InteractiveSprite extends AbstractSpriteElement<InteractiveSprite>
-    implements HasTooltip, HasHoverGlow, HasAudioFeedback
+    implements HasTooltip, HasGlow, HasAudioFeedback
 {
     public final TooltipComp tooltip = comp().get(NativeComponents.TOOLTIP);
-    public final HoverGlowComp glow = comp().get(NativeComponents.HOVER_GLOW);
+    public final GlowComp glow = comp().get(NativeComponents.GLOW);
     public final AudioFeedbackComp audio = comp().get(NativeComponents.AUDIO_FEEDBACK);
 
     public InteractiveSprite(float width, float height, String spriteID,
@@ -35,6 +35,7 @@ public class InteractiveSprite extends AbstractSpriteElement<InteractiveSprite>
     ) {
         super(width, height, sprite, color, fillColor);
 
+        glow.flashBrightness = 0.3f;
         glow.additiveSprite = mSprite;
     }
 }

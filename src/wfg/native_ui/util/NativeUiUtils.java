@@ -17,7 +17,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 
 public final class NativeUiUtils {
-    private NativeUiUtils() {}
+    private NativeUiUtils() {};
     public static final int APICodexHeight = 28;
 
     public static final void resetFlowLeft(final TooltipMakerAPI tooltip, float gap) {
@@ -51,6 +51,18 @@ public final class NativeUiUtils {
     }
 
     /**
+     * Scales both color and alpha by the same factor.
+     * Values below 1 dim, values above 1 brighten (clamped at 255).
+     */
+    public static final Color adjustBrightnessWithAlpha(Color base, float factor) {
+        final int r = Math.min(255, (int)(base.getRed() * factor));
+        final int g = Math.min(255, (int)(base.getGreen() * factor));
+        final int b = Math.min(255, (int)(base.getBlue() * factor));
+        final int a = Math.min(255, (int)(base.getAlpha() * factor));
+        return new Color(r, g, b, a);
+    }
+
+    /**
      * Returns a new Color with the alpha channel multiplied by alphaMult,
      * clamped to 0–255. RGB channels are left unchanged.
      */
@@ -68,6 +80,7 @@ public final class NativeUiUtils {
      * @param t Must be between 0 and 1
      */
     public static final Color lerpColor(Color c1, Color c2, float t) {
+        t = Arithmetic.clamp(t, 0f, 1f);
         final int r = (int) (c1.getRed() + t * (c2.getRed() - c1.getRed()));
         final int g = (int) (c1.getGreen() + t * (c2.getGreen() - c1.getGreen()));
         final int b = (int) (c1.getBlue() + t * (c2.getBlue() - c1.getBlue()));
@@ -125,7 +138,7 @@ public final class NativeUiUtils {
     }
 
     /**
-     * Small utility to anchor the panel without actually using PositionAPI anchors.
+     * Anchor the panel without actually using PositionAPI anchors.
      * Makes UI lifecycle dependencies easier to manage.
      * Does not handle screen bounds or overflow.
      */
@@ -136,7 +149,7 @@ public final class NativeUiUtils {
         final PositionAPI Ppos = panel.getPosition();
         final PositionAPI Apos = anchor.getPosition();
 
-        Ppos.inBL(0, 0); // Reset the position. It's still relative
+        Ppos.inBL(0f, 0f); // Reset the position. It's still relative
         final float panelX = Ppos.getX();
         final float panelY = Ppos.getY();
         final float panelW = Ppos.getWidth();
@@ -147,14 +160,14 @@ public final class NativeUiUtils {
         final float anchorW = Apos.getWidth();
         final float anchorH = Apos.getHeight();
 
+        if (anchor instanceof TooltipMakerAPI) {
+            throw new IllegalArgumentException("anchor cannot be a TooltipMakerAPI");
+        }
+
         int widthCompensation = 0;
 
-        if (panel instanceof TooltipMakerAPI ^ anchor instanceof TooltipMakerAPI) {
-            boolean panelIsTooltip = panel instanceof TooltipMakerAPI;
-            TooltipMakerAPI tooltip = panelIsTooltip ? 
-                (TooltipMakerAPI) panel : (TooltipMakerAPI) anchor;
-            int comp = (int) ((tooltip.getPosition().getWidth() - tooltip.getWidthSoFar()) / 2f);
-            widthCompensation = panelIsTooltip ? comp : -comp;
+        if (panel instanceof TooltipMakerAPI tp) {
+            widthCompensation = (int) ((tp.getPosition().getWidth() - tp.getWidthSoFar()) / 2f);
         }
 
         int heightCompensation = 0;
@@ -205,7 +218,7 @@ public final class NativeUiUtils {
             break;
 
         case TopMid:
-            offsetX = anchorX - panelX + (anchorW - panelW - widthCompensation*2) / 2f;
+            offsetX = anchorX - panelX + (anchorW - panelW) / 2f;
             offsetY = anchorY + anchorH - panelY + gap;
             break;
 
@@ -220,7 +233,7 @@ public final class NativeUiUtils {
             break;
 
         case BottomMid:
-            offsetX = anchorX - panelX + (anchorW - panelW - widthCompensation*2) / 2f;
+            offsetX = anchorX - panelX + (anchorW - panelW) / 2f;
             offsetY = anchorY - panelY - panelH - gap;
             break;
 
@@ -235,7 +248,7 @@ public final class NativeUiUtils {
             break;
 
         case MidTopRight:
-            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap - widthCompensation;
+            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap + widthCompensation;
             offsetY = anchorY + (anchorH / 2f) - panelY - panelH;
             break;
 
@@ -245,7 +258,7 @@ public final class NativeUiUtils {
             break;
 
         case MidBottomRight:
-            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap - widthCompensation;
+            offsetX = anchorX + (anchorW / 2f) - panelX - panelW + gap + widthCompensation;
             offsetY = anchorY + (anchorH / 2f) - panelY;
             break;
         }
@@ -357,7 +370,7 @@ public final class NativeUiUtils {
         final float mouseX = settings.getMouseX();
         final float mouseY = settings.getMouseY();
 
-        pos.inBL(0, 0);
+        pos.inBL(0f, 0f);
 
         final float tooltipX = pos.getX();
         final float tooltipY = pos.getY();
@@ -390,14 +403,14 @@ public final class NativeUiUtils {
         final float y = pos.getY();
         final float w = pos.getWidth();
         final float h = pos.getHeight();
-        final float mx = Mouse.getX() / uiScale;
-        final float my = Mouse.getY() / uiScale;
+        final float mx = settings.getMouseX();
+        final float my = settings.getMouseY();
 
         return mx >= x && mx <= x + w && my >= y && my <= y + h;
     }
 
     public static final boolean containsMouse(Rect rect) {
-        return containsPoint(rect, Mouse.getX() / uiScale, Mouse.getY() / uiScale);
+        return containsPoint(rect, settings.getMouseX(), settings.getMouseY());
     }
 
     public static final boolean containsPoint(Rect rect, float x, float y) {

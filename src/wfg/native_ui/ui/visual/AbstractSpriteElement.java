@@ -11,26 +11,19 @@ import wfg.native_ui.ui.component.NativeComponents;
 import wfg.native_ui.ui.component.OutlineComp;
 import wfg.native_ui.ui.component.OutlineComp.OutlineType;
 import wfg.native_ui.ui.core.UIElementFlags.HasOutline;
+import wfg.native_ui.ui.system.BaseSystem;
 import wfg.native_ui.util.RenderUtils;
 
 
 /**
- * {@link AbstractSpriteElement} is a UI panel for displaying a single sprite with
+ * {@link AbstractSpriteElement} is a UI panel for displaying a {@link SpriteAPI} with
  * optional coloring and border outline. It implements {@link HasOutline}.
  * 
  * <p><b>Usage:</b>
  * <ul>
- *   <li>To subclass and customize, extend {@link AbstractSpriteElement} with your own {@code PanelType}.</li>
+ *   <li>To subclass and customize, extend {@link AbstractSpriteElement} with your own {@link PanelType}.</li>
  *   <li>To directly instantiate a generic panel without subclassing, use the inner {@link SpriteElement} class.</li>
  * </ul>
- * 
- * <p><b>Example:</b>
- * <pre>
- * SpriteElement sprite = new SpriteElement(64, 64, "ui/icons/sprite", Color.WHITE, null);
- * sprite.outline.color = Color.RED;
- * 
- * panel.addComponent(sprite.getPanel());
- * </pre>
  */
 public class AbstractSpriteElement<
     PanelType extends AbstractSpriteElement<PanelType>
@@ -66,8 +59,18 @@ public class AbstractSpriteElement<
 
     @Override
     public void renderImpl(float alpha) {
-        super.renderImpl(alpha);
+        for (BaseSystem system : system().getAll()) {
+            system.renderBelow(this, alpha);
+        }
         
+        renderSprite(alpha);
+
+        for (BaseSystem system : system().getAll()) {
+            system.renderAbove(this, alpha);
+        }
+    }
+
+    private final void renderSprite(float alpha) {
         final float x = getX();
         final float y = getY();
         final float w = getWidth();
