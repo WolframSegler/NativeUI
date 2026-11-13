@@ -6,11 +6,11 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 - Core UI classes [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java), [`UIEntity`](src/wfg/native_ui/internal/ui/core/UIEntity.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) for full control over the UI hierarchy. `UIContainer` auto-wraps vanilla children on `add()`.
 - [`Systems`](src/wfg/native_ui/ui/system/BaseSystem.java) and [`Components`](src/wfg/native_ui/ui/component/BaseComponent.java) for tooltips, GlowSystem etc. to reduce boilerplate, with a more composition-oriented approach. Native systems can be attached by implementing [`UIElementFlags`](src/wfg/native_ui/ui/core/UIElementFlags.java).
 - [`UIEventBus`](src/wfg/native_ui/ui/event/UIEventBus.java) is used by [`UIElement`](src/wfg/native_ui/internal/ui/core/UIElement.java) and [`UIContainer`](src/wfg/native_ui/internal/ui/core/UIContainer.java) to let mods cross-communicate and handle attachment and detachment events.
-- Bidirectional interop: NativeUI containers wrap vanilla children, and NativeUI elements attach to vanilla parents via `UIElementAPI.attachTo()`.
+- Bidirectional interop: NativeUI containers wrap vanilla children, and NativeUI elements attach to vanilla parents via [`attachTo()`](src/wfg/native_ui/ui/core/UIElementAPI.java).
 
 # UI Elements
 - [`UIClickable`](src/wfg/native_ui/ui/functional/UIClickable.java) has click handling and click sounds. Can take in a callback.
-- [`Button`](src/wfg/native_ui/ui/functional/Button.java) implementation similar to vanilla, without using `ButtonAPI`.
+- [`Button`](src/wfg/native_ui/ui/functional/Button.java) implementation similar to vanilla. Advantage is you can see the inside.
 - [`CheckboxButton`](src/wfg/native_ui/ui/functional/CheckboxButton.java) subclassing Button and using the checkbox sprite.
 - [`RadioPanel`](src/wfg/native_ui/ui/widget/RadioPanel.java) for having a list of mutually exclusive options to choose from.
 - [`MultiSelect`](src/wfg/native_ui/ui/widget/MultiSelect.java) for having multiple options to choose from.
@@ -40,13 +40,13 @@ Composition-oriented UI framework with use of panels instead of custom plugins.
 # Usage
 - All panels that wish to use Systems must implement [`UIEntityAPI`](src/wfg/native_ui/ui/core/UIEntityAPI.java).
 - Adding a NativeUI element to a vanilla panel requires `attachTo()`. Passing the element directly throws `ClassCastException`. See [`attachTo()`](src/wfg/native_ui/ui/core/UIElementAPI.java) for details.
-- Vanilla APIs that attach children internally (e.g., `TooltipMakerAPI.addCustom`) require `wrapDetached()`.
+- Vanilla APIs that attach children internally (e.g., `TooltipMakerAPI.addCustom`) require [`wrapDetached()`](src/wfg/native_ui/internal/ui/core/UIElement.java).
 
 <br><br><br>
 
 # QnA
 - How do I see the java documentation for classes?
-    - Make sure to include the src file as a dependency. The JAR file does not contain the documentation.
+    - Make sure to include the src jar as a dependency. The normal jar does not contain the documentation.
 - I want to contribute, what conventions should I follow?
     - Please consult [`CONTRIBUTING`](CONTRIBUTING.md).
 - How can I make my agent write more competent NativeUI code?
