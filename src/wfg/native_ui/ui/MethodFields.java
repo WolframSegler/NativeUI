@@ -6,7 +6,6 @@ import com.fs.graphics.util.Fader;
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
-import com.fs.starfarer.ui.UIComponentAPIWrapper;
 
 import rolflectionlib.ui.UiUtil;
 import rolflectionlib.util.RolfLectionUtil;
@@ -19,7 +18,6 @@ public final class MethodFields {
     private static final Object getFaderMethod;
     public static final Class<?> uiInternalCompClass = findInternalComponentInterface(UiUtil.uiComponentClass);
     private static final Object uiCompPosField;
-    private static final Object wrapperWrappedField = RolfLectionUtil.getFieldByName("wrapped", UIComponentAPIWrapper.class);
 
     static {
         final UIPanelAPI panelIns = settings.createCustom(0f, 0f, null);
@@ -36,12 +34,6 @@ public final class MethodFields {
 
     public static final void setPos(UIPanelAPI panel, PositionAPI pos) {
         RolfLectionUtil.setPrivateVariable(uiCompPosField, panel, pos);
-    }
-
-    public static final UIComponentAPI unwrapOrSelf(UIComponentAPI comp) {
-        if (comp == null) return null;
-        if (!(comp instanceof UIComponentAPIWrapper)) return comp;
-        return (UIComponentAPI) RolfLectionUtil.getPrivateVariable(wrapperWrappedField, comp);
     }
 
     private static final Class<?> findInternalComponentInterface(Class<?> baseClass) {
