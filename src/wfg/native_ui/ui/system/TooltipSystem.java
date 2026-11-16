@@ -4,6 +4,7 @@ import static wfg.native_ui.util.Globals.settings;
 
 import org.lwjgl.input.Mouse;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.util.FaderUtil.State;
 
 import wfg.native_ui.internal.ui.core.UITooltip;
@@ -90,7 +91,8 @@ public final class TooltipSystem extends BaseSystem {
     }
 
     private static final boolean shouldForceHide(TooltipComp spec, UIEntityAPI element) {
-        return spec.iLastVisibleFrameCounter > VISIBILITY_GRACE_FRAMES ||
+        return Global.getFocusManager().isSuspendTooltips() ||
+            spec.iLastVisibleFrameCounter > VISIBILITY_GRACE_FRAMES ||
             element.getOpacity() <= 0f ||
             element.getFader().getState() == State.OUT ||
             !spec.enabled;
