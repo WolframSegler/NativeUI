@@ -150,6 +150,7 @@ public class UIElement implements UIElementAPI {
         }
 
         if (UiUtil.uiComponentClass.isInstance(parent)) {
+            mPos.inBL(0f, 0f);
             mSelfInParent = parent.wrapAndAdd(this, new FaderUtil(1f, 0.05f, 0.25f));
             return mPos;
         }
