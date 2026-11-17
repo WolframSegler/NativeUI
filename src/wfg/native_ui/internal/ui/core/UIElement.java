@@ -11,7 +11,7 @@ import com.fs.starfarer.api.ui.UIPanelAPI;
 import com.fs.starfarer.api.util.FaderUtil;
 import com.fs.starfarer.ui.UIComponentAPIWrapper;
 
-import rolflectionlib.ui.UiUtil;
+import wfg.native_ui.ui.MethodFields;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementAPI;
 import wfg.native_ui.ui.event.UIEventBus;
@@ -149,7 +149,7 @@ public class UIElement implements UIElementAPI {
             return mPos;
         }
 
-        if (UiUtil.uiComponentClass.isInstance(parent)) {
+        if (MethodFields.uiInternalCompInterface.isInstance(parent)) {
             mPos.inBL(0f, 0f);
             mSelfInParent = parent.wrapAndAdd(this, new FaderUtil(1f, 0.05f, 0.25f));
             return mPos;

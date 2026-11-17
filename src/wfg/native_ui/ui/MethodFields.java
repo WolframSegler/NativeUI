@@ -7,7 +7,6 @@ import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
 
-import rolflectionlib.ui.UiUtil;
 import rolflectionlib.util.RolfLectionUtil;
 
 /**
@@ -16,7 +15,9 @@ import rolflectionlib.util.RolfLectionUtil;
 public final class MethodFields {
     private MethodFields() {};
     private static final Object getFaderMethod;
-    public static final Class<?> uiInternalCompClass = findInternalComponentInterface(UiUtil.uiComponentClass);
+    public static final Class<?> uiInternalCompInterface = findInternalComponentInterface(
+        settings.getScreenPanel().getClass().getSuperclass()
+    );
     private static final Object uiCompPosField;
 
     static {
@@ -25,7 +26,7 @@ public final class MethodFields {
 
         uiCompPosField = findPosField(panelClazz);
 
-        getFaderMethod = RolfLectionUtil.getMethod("getFader", uiInternalCompClass);
+        getFaderMethod = RolfLectionUtil.getMethod("getFader", uiInternalCompInterface);
     }
 
     public static final Fader getPanelFader(UIComponentAPI panel) {

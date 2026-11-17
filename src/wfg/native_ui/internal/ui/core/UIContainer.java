@@ -35,7 +35,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     public PositionAPI add(UIComponentAPI comp) {
         comp = resolveComp(comp);
         if (comp instanceof UIVanillaWrapper) return comp.getPosition();
-        if (MethodFields.uiInternalCompClass.isInstance(comp)) {
+        if (MethodFields.uiInternalCompInterface.isInstance(comp)) {
             comp = new UIVanillaWrapper(comp);
         }
 
@@ -199,7 +199,7 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
 
     /** Returns the wrapper if the component is a vanilla element. */
     private UIComponentAPI resolveComp(UIComponentAPI comp) {
-        if (!MethodFields.uiInternalCompClass.isInstance(comp)) return comp;
+        if (!MethodFields.uiInternalCompInterface.isInstance(comp)) return comp;
         for (UIComponentAPI child : mChildren) {
             if (child instanceof UIVanillaWrapper wrapper && wrapper.isWrapped(comp)) return wrapper;
         }

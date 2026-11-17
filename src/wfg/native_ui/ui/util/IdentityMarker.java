@@ -38,7 +38,7 @@ public class IdentityMarker extends BaseCustomUIPanelPlugin {
     }
 
     private static final void throwIfNotVanilla(UIPanelAPI panel) {
-        if (!MethodFields.uiInternalCompClass.isInstance(panel)) {
+        if (!MethodFields.uiInternalCompInterface.isInstance(panel)) {
             throw new IllegalArgumentException("Non vanilla parent detected. Use UIEventBus instead.");
         }
     }
