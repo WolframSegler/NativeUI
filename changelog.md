@@ -1,3 +1,6 @@
+Version 0.5.2-beta
+- Fixed bug where if SortableTable had no rows, it would have no column headers either.
+
 Version 0.5.1-beta
 - Fixed bug where UITooltip dismissed itself even from consumed events.
 - Fixed a bug causing OS specific crash.

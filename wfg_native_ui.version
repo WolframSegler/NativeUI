@@ -6,7 +6,7 @@
 	{
 		"major":0,
 		"minor":5,
-		"patch":1
+		"patch":2
 	},
 	"starsectorVersion":"0.98.5a-RC7",
 	"directDownloadURL":"https://github.com/WolframSegler/NativeUI/releases/latest/download/NativeUI.zip",

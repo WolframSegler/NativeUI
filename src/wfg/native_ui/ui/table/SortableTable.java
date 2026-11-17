@@ -492,28 +492,28 @@ public class SortableTable extends UIContainer implements UIBuildableAPI, HasOut
     }
 
     public void sortRows(int index, boolean ascending) {
-        if (mRows.isEmpty()) return;
-
-        this.mAscending = ascending;
-        mSelectedSortColumnIndex = index;
-
-        final Object value = mRows.get(0).getSortValue(index);
-
-        if (value instanceof String) {
-            Collections.sort(mRows, stringComparator);
-
-        } else if (value instanceof Integer ||
-                value instanceof Long ||
-                value instanceof Float ||
-                value instanceof Double) {
-            Collections.sort(mRows, numberComparator);
-
-        } else {
-            throw new IllegalArgumentException(
-                "Cannot sort rows: unsupported sort value type '" +
-                value.getClass().getSimpleName() +
-                "'. Supported types are String and Number."
-            );
+        if (!mRows.isEmpty()) {
+            mAscending = ascending;
+            mSelectedSortColumnIndex = index;
+    
+            final Object value = mRows.get(0).getSortValue(index);
+    
+            if (value instanceof String) {
+                Collections.sort(mRows, stringComparator);
+    
+            } else if (value instanceof Integer ||
+                    value instanceof Long ||
+                    value instanceof Float ||
+                    value instanceof Double) {
+                Collections.sort(mRows, numberComparator);
+    
+            } else {
+                throw new IllegalArgumentException(
+                    "Cannot sort rows: unsupported sort value type '" +
+                    value.getClass().getSimpleName() +
+                    "'. Supported types are String and Number."
+                );
+            }
         }
 
         buildUI();
