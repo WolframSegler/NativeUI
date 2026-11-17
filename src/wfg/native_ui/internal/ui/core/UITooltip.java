@@ -2,6 +2,8 @@ package wfg.native_ui.internal.ui.core;
 
 import static wfg.native_ui.util.Globals.settings;
 
+import org.lwjgl.input.Keyboard;
+
 import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.ui.UIPanelAPI;
@@ -99,6 +101,7 @@ public class UITooltip extends StandardTooltipV2Expandable implements OutsideEve
         mSpec.iDismissedThisHover = true; dismiss();
     }
     public void buttonPressed(int lwjgl_key) {
+        if (lwjgl_key == Keyboard.KEY_NONE) return;
         mSpec.iDismissedThisHover = true; dismiss();
     }
 }

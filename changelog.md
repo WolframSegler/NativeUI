@@ -1,3 +1,7 @@
+Version 0.5.1-beta
+- Fixed bug where UITooltip dismissed itself even from consumed events.
+- Fixed a bug causing OS specific crash.
+
 Version 0.5.0-beta
 - Removed delay field from TooltipComp.
 - Cleaned up DialogPanel content.
