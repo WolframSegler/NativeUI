@@ -111,6 +111,6 @@ public class UIClickable<T extends UIClickable<T>> extends UIContainer implement
     protected final void playPressSound() {
         if (!soundEnabled) return;
         final String audio = mDisabled && !performActionWhenDisabled ? disabledSound : pressedSound;
-        Global.getSoundPlayer().playUISound(audio, 1, 1);
+        Global.getSoundPlayer().playUISound(audio, 1f, 1f);
     }
 }

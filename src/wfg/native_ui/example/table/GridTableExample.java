@@ -16,10 +16,10 @@ import wfg.native_ui.util.NativeUiUtils;
 public final class GridTableExample extends GridTable<PlannedOrder, UIClickableExample>  {
 
     public GridTableExample(int width, int height) {
-        super(width, height, UIClickableExample.WIDTH, UIClickableExample.HEIGHT, opad*2);
-        mUniformOuterGap = true;
+        super(width, height, UIClickableExample.WIDTH, UIClickableExample.HEIGHT, opad*2, opad*2);
         mJustifyGrid = true;
         mIsSelectionEnabled = true;
+        mIsHighlightingEnabled = true;
         buildUI();
     }
 
@@ -43,7 +43,7 @@ public final class GridTableExample extends GridTable<PlannedOrder, UIClickableE
         return new UIClickableExample(item, index, Global.getSettings().getFactionSpec(Factions.PERSEAN));
     }
 
-    protected void onWidgetClicked(UIClickableExample source) {
+    protected void onWidgetClicked(UIClickableExample source, boolean isleft, boolean isKeyboard) {
         switch (source.selectionState) {
         case NONE:
             if (NativeUiUtils.isShiftDown()) { // if shift down, remove immediately

@@ -1,5 +1,8 @@
 Version 0.5.2-beta
 - Fixed bug where if SortableTable had no rows, it would have no column headers either.
+- Created AbstractTable, which ListTable and GridTable both extend.
+- Updated onWidgetClicked for ListTable and GridTable to have more flags. Removed the old abstract method.
+- Added a highlight feature to AbstractTable.
 
 Version 0.5.1-beta
 - Fixed bug where UITooltip dismissed itself even from consumed events.
