@@ -32,11 +32,10 @@ public abstract class ListTable<T, W extends WidgetAPI<W>> extends AbstractTable
 
     @Override
     public void createUI(final List<T> items) {
-        final int widgetW = (int) computeContentWidth();
         for (int i = 0; i < items.size(); i++) {
             final T item = items.get(i);
             final W widget = createWidget(item, i);
-            widget.getPosition().setSize(widgetW, mWidgetH);
+            widget.getPosition().setSize(computeContentWidth(), mWidgetH);
             widget.buildUI();
             mWidgets.add(widget);
 

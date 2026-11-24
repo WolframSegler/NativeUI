@@ -113,8 +113,9 @@ public abstract class AbstractTable<T, W extends WidgetAPI<W>>
         createUI(items);
         if (mContent.getHeight() <= 0f) throw new IllegalStateException("createUI() did not set mContent height");
 
-        mScrollContainer = ComponentFactory.wrapWithScrollPanel(mContent, contentW, getHeight());
-        add(mScrollContainer).inTL(0f, 0f);
+        final float viewHeight = getHeight() - getScrollContainerMarginTop();
+        mScrollContainer = ComponentFactory.wrapWithScrollPanel(mContent, contentW, viewHeight);
+        add(mScrollContainer).inTL(0f, getScrollContainerMarginTop());
         mScrollContainer.setYOffset(Arithmetic.clamp(mScrollOffset, 0f, getMaxScrollHeight()));
     }
 
@@ -159,7 +160,7 @@ public abstract class AbstractTable<T, W extends WidgetAPI<W>>
     }
 
     protected final float computeContentContainerWidth() {
-        return getWidth() - ComponentFactory.SCROLL_PANEL_WIDTH_PAD;
+        return computeContentContainerW(getWidth());
     }
 
     protected final float computeContentWidth() {
@@ -171,10 +172,6 @@ public abstract class AbstractTable<T, W extends WidgetAPI<W>>
         mScrollContainer.setYOffset(getMaxScrollHeight());
     }
 
-    private final float getMaxScrollHeight() {
-        return Math.max(0f, mContent.getHeight() - getHeight());
-    }
-
     protected final boolean setHighlighted(int index) {
         if (!mIsHighlightingEnabled) return false;
         if (index < 0 || index >= mWidgets.size()) return false;
@@ -182,5 +179,15 @@ public abstract class AbstractTable<T, W extends WidgetAPI<W>>
         mScrollContainer.ensureVisible(mHighlightedWidget);
         Global.getSoundPlayer().playUISound("ui_number_scrolling", 1f, 1f);
         return true;
+    }
+
+    protected float getScrollContainerMarginTop() { return 0f; }
+
+    private final float getMaxScrollHeight() {
+        return Math.max(0f, mContent.getHeight() + getScrollContainerMarginTop() - getHeight());
+    }
+
+    public static final float computeContentContainerW(float width) {
+        return width - ComponentFactory.SCROLL_PANEL_WIDTH_PAD;
     }
 }
