@@ -42,6 +42,8 @@ public class OutsideEventDetector extends UIElement {
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
         for (InputEventAPI event : events) {
+            if (event.isConsumed()) continue;
+            
             if (event.isMouseEvent()) {
                 if ((event.isMouseMoveEvent() && consumeMouseMove) ||
                     (event.isMouseScrollEvent() && consumeMouseScroll)
@@ -59,12 +61,9 @@ public class OutsideEventDetector extends UIElement {
             } else if (event.isKeyboardEvent()) {
                 if (event.isModifierKey()) {
                     if (triggerByModKey) {
-                        mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
-                        if (isRemoveOnAction) {
-                            detach(); return;
-                        }
+                        mListener.buttonPressed(event.getEventValue());
+                        if (isRemoveOnAction) { detach(); return; }
                     }
-
                     event.consume();
                     continue;
                 }
@@ -73,10 +72,8 @@ public class OutsideEventDetector extends UIElement {
                     event.consume(); continue;
                 }
 
-                mListener.buttonPressed(event.isConsumed() ? Keyboard.KEY_NONE : event.getEventValue());
-                if (isRemoveOnAction) {
-                    detach(); return;
-                }
+                mListener.buttonPressed(Keyboard.KEY_ESCAPE);
+                if (isRemoveOnAction) { detach(); return; }
             }
         }
     }

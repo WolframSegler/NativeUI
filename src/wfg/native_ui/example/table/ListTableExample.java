@@ -30,9 +30,9 @@ public final class ListTableExample extends ListTable<FactionAPI, ListTableExamp
     private static final int ROW_H = 40;
 
     public ListTableExample(int width, int height) {
-        super(width, height, ROW_H, opad);
+        super(width, height, ROW_H, opad, opad);
         mIsSelectionEnabled = true;
-        mAddRowGap = true;
+        mIsHighlightingEnabled = true;
         buildUI();
     }
 
@@ -47,7 +47,7 @@ public final class ListTableExample extends ListTable<FactionAPI, ListTableExamp
     }
 
     @Override
-    protected void onWidgetClicked(FactionRow source) {
+    protected void onWidgetClicked(FactionRow source, boolean isLeft, boolean isKeyboard) {
         if (mSelectedWidget == source) {
             mSelectedWidget = null;
             source.selected = false;
@@ -77,13 +77,13 @@ public final class ListTableExample extends ListTable<FactionAPI, ListTableExamp
     public static final class FactionRow extends UIContainer
         implements WidgetAPI<FactionRow>, UIElementFlags.HasInteraction
     {
-        private final FactionAPI faction;
+        private final FactionAPI mFaction;
 
-        /** Selection state; managed by the owning {@link ListTableExample}. */
+        /** Managed by {@link ListTableExample}. */
         public boolean selected = false;
 
         public FactionRow(FactionAPI faction) {
-            this.faction = faction;
+            mFaction = faction;
         }
 
         @Override
@@ -96,12 +96,12 @@ public final class ListTableExample extends ListTable<FactionAPI, ListTableExamp
             clearChildren();
 
             final LabelAPI lbl = settings.createLabel(
-                faction.getDisplayName(), Fonts.ORBITRON_12);
+                mFaction.getDisplayName(), Fonts.ORBITRON_12);
             lbl.setColor(selected ? highlight : base);
             lbl.setAlignment(Alignment.LMID);
             lbl.getPosition()
                 .setSize(getWidth() - opad * 2, getHeight())
-                .inTL(opad, 0);
+                .inTL(opad, 0f);
             add(lbl);
         }
     }

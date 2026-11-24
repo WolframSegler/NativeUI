@@ -25,6 +25,7 @@ import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.ui.core.UIElementFlags.HasAudioFeedback;
 import wfg.native_ui.ui.core.UIElementFlags.HasGlow;
 import wfg.native_ui.ui.core.UIElementFlags.HasInteraction;
+import wfg.native_ui.ui.table.AbstractTable;
 import wfg.native_ui.ui.visual.AbstractSpriteElement.SpriteElement;
 
 /**
@@ -47,7 +48,7 @@ public final class DockPanelExample extends DockPanel {
     public void buildUI() {
         clearChildren();
 
-        final int width = (int) mContentContainer.getWidth() - ComponentFactory.SCROLL_PANEL_WIDTH_PAD;
+        final float width = AbstractTable.computeContentContainerW(mContentContainer.getWidth());
         final UIContainerAPI container = new UIContainer(width, 0f);
         final List<FactionSpecAPI> factions = new ArrayList<>(settings.getAllFactionSpecs().stream().filter(f -> f.isShowInIntelTab()).toList());
         factions.add(settings.getFactionSpec(Factions.PLAYER));
@@ -78,7 +79,7 @@ public final class DockPanelExample extends DockPanel {
 
         private final FactionSpecAPI faction;
 
-        public FactionRow(int width, int height, FactionSpecAPI faction,
+        public FactionRow(float width, float height, FactionSpecAPI faction,
             Consumer<FactionSpecAPI> onSelect
         ) {
             super(width, height);

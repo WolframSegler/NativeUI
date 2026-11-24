@@ -1,8 +1,15 @@
-Version 0.5.1-beta
+Version 0.5.2
+- Fixed bug where if SortableTable had no rows, it would have no column headers either.
+- Created AbstractTable, which ListTable and GridTable both extend.
+- Updated onWidgetClicked for ListTable and GridTable to have more flags. Removed the old abstract method.
+- Added a highlight feature to AbstractTable.
+- Refactored the entire SortableTable class to extend ListTable and switch to a disposable panel design.
+
+Version 0.5.1
 - Fixed bug where UITooltip dismissed itself even from consumed events.
 - Fixed a bug causing OS specific crash.
 
-Version 0.5.0-beta
+Version 0.5.0
 - Removed delay field from TooltipComp.
 - Cleaned up DialogPanel content.
 - Fixed MultiSelect onSelected listener to pass the Button as a parameter.

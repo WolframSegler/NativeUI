@@ -19,7 +19,6 @@ import wfg.native_ui.internal.ui.Side;
 import wfg.native_ui.internal.ui.core.UIContainer;
 import wfg.native_ui.internal.ui.core.UIElement;
 import wfg.native_ui.internal.util.ToastRenderer;
-import wfg.native_ui.ui.Attachments;
 import wfg.native_ui.ui.core.UIContainerAPI;
 import wfg.native_ui.util.NativeUiUtils;
 

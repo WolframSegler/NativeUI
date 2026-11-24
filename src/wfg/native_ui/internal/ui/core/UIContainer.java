@@ -158,9 +158,8 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
         renderBelowImpl(alpha);
 
         final int size = mChildren.size();
-        final UIComponentAPI[] snap = mChildren.toArray(mChildSnapshot);
-        if (snap != mChildSnapshot) mChildSnapshot = snap;
-        for (int i = 0; i < size; i++) snap[i].render(alpha);
+        mChildSnapshot = mChildren.toArray(mChildSnapshot);
+        for (int i = 0; i < size; i++) mChildSnapshot[i].render(alpha);
 
         for (BaseSystem system : system().getAll()) {
             system.renderAbove(this, alpha);
@@ -171,9 +170,8 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     @Override
     public void advanceImpl(float delta) {
         final int size = mChildren.size();
-        final UIComponentAPI[] snap = mChildren.toArray(mChildSnapshot);
-        if (snap != mChildSnapshot) mChildSnapshot = snap;
-        for (int i = 0; i < size; i++) snap[i].advance(delta);
+        mChildSnapshot = mChildren.toArray(mChildSnapshot);
+        for (int i = 0; i < size; i++) mChildSnapshot[i].advance(delta);
 
         super.advanceImpl(delta);
     }
@@ -181,9 +179,8 @@ public class UIContainer extends UIEntity implements UIContainerAPI {
     @Override
     public void processInputImpl(List<InputEventAPI> events) {
         final int size = mChildren.size();
-        final UIComponentAPI[] snap = mChildren.toArray(mChildSnapshot);
-        if (snap != mChildSnapshot) mChildSnapshot = snap;
-        for (int i = size - 1; i >= 0; i--) snap[i].processInput(events);
+        mChildSnapshot = mChildren.toArray(mChildSnapshot);
+        for (int i = size - 1; i >= 0; i--) mChildSnapshot[i].processInput(events);
 
         super.processInputImpl(events);
     }
