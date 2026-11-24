@@ -4,7 +4,7 @@
 	"author":"WolframSegler",
 	"version": "0.5.2",
 	"description":"Composition oriented UI Framework with a native allure",
-	"gameVersion":"0.98.5a-RC7",
+	"gameVersion":"0.98.5a-RC9",
 	"utility": true,
 	"jars": [
         "jars/main/native_ui.jar",

@@ -1,14 +1,14 @@
 {
 	"masterVersionFile":"https://raw.githubusercontent.com/WolframSegler/NativeUI/main/wfg_native_ui.version",
 	"modName":"NativeUI",
-	"modThreadId":-1,
+	"modThreadId":36488,
 	"modVersion":
 	{
 		"major":0,
 		"minor":5,
 		"patch":2
 	},
-	"starsectorVersion":"0.98.5a-RC7",
+	"starsectorVersion":"0.98.5a-RC9",
 	"directDownloadURL":"https://github.com/WolframSegler/NativeUI/releases/latest/download/NativeUI.zip",
 	"changelogURL":"https://raw.githubusercontent.com/WolframSegler/NativeUI/main/changelog.md"
 }
